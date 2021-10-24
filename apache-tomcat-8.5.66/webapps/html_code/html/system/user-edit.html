@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+<style type="text/css">
+	.head-img{
+		width: 100px;
+	}
+	.no-padding{
+		padding: 0px;
+	}
+	.chosen-container-single .chosen-single{
+		border: 1px solid #e5e6e7;
+	}
+	.custom-chosen-drop{
+		width:490px !important;
+		margin-left: 15px;
+	}
+		
+	.display-none{
+		display: none !important;
+	}
+</style>
+</head>
+<body>
+    <div class="wrapper animated fadeInRight">
+    	<div class="row">
+            <div class="col-sm-12 no-padding">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="my-form">
+                            <div class="form-group" id="head-img-div">
+								<div style="text-align: center; width: 100%;">
+									<img alt="image" src="../../img/default-head.jpg" class="img-circle head-img" style="display: inline-block;" />
+								</div>
+                            </div>
+                            <div class="form-group" name="userNumberDiv">
+                                <label class="col-sm-3 control-label">账号：</label>
+                                <div class="col-sm-8">
+                                    <input id="userNumber" name="userNumber" class="form-control" type="text" aria-required="true">
+                                    <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 最多9个文字</span>
+                                </div>
+                            </div>
+							<div class="form-group display-none">
+                                <label class="col-sm-3 control-label">头像：</label>
+                                <div class="col-sm-8">
+	                                <input name="userHead_file" type="file" class="form-control" aria-required="true">
+	                                <input id="userHead" name="userHead_text" type="text" class="form-control display-none" aria-required="true">
+								</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">昵称：</label>
+                                <div class="col-sm-8">
+                                    <input id="userName" name="userName" class="form-control" type="text" aria-required="true">
+                                    <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 最多15个文字</span>
+                                </div>
+                            </div>
+                            <div class="form-group" name="pwdDiv">
+                                <label class="col-sm-3 control-label">密码：</label>
+                                <div class="col-sm-8">
+                                    <input id="userPwd" autocomplete="off" name="userPwd" class="form-control password-disc" type="text" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group" name="pwdDiv">
+                                <label class="col-sm-3 control-label">确认密码：</label>
+                                <div class="col-sm-8">
+                                    <input id="password1" autocomplete="off" name="password1" class="form-control password-disc" type="text" aria-required="true">
+                                    <span class="help-block m-b-none pwd-check-msg"><i class="fa fa-exclamation"></i> 请确认您的密码</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">QQ：</label>
+                                <div class="col-sm-8">
+                                    <input id="userQq" name="userQq" class="form-control" type="text" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Email：</label>
+                                <div class="col-sm-8">
+                                    <input id="userEmail" name="userEmail" class="form-control" type="email" aria-required="true">
+                                </div>
+                            </div>
+							<div class="form-group">
+                                <label class="col-sm-3 control-label">权限：</label>
+                                <div class="col-sm-8">
+	                                <select id="authId" name="authId" data-placeholder="请选择权限..." class="chosen-select " style="width:490px;" tabindex="2" aria-required="true" multiple>
+	                                </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-primary insert-btn" type="button">提交</button>
+                                    <button class="btn btn-primary update-btn" type="button">提交</button>
+                                </div>
+                            </div>
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+		</div>
+	</div>
+</body>
+<script src="../../js/common/base.js"></script>
+<script type="text/javascript">
+
+	var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+	
+	const pageParams = getPageParam();
+	$.deepFreeze(pageParams);
+	
+	$(function(){
+
+		//渲染控件
+		drawElement();
+		
+		initCodeList();
+		
+		initData();
+		
+		initEvent();
+	})
+	
+	function initEvent(){
+		$(".insert-btn").click(function(){
+			var param = new Object();
+			param["userId"] = "";
+			param["userNumber"] = $("input[name='userNumber']").val();
+			param["userHead"] = $("input[name='userHead_text']").val();
+			param["userName"] = $("input[name='userName']").val();
+			param["userPwd"] = $("input[name='userPwd']").val();
+			param["userQq"] = $("input[name='userQq']").val();
+			param["userEmail"] = $("input[name='userEmail']").val();
+			param["files"] = $(":file[name='userHead_file']")[0].files[0];
+			
+			var authIdList = $("#authId").val();
+			if(isNotNull(authIdList)){
+				$.each(authIdList, function(i, v){
+					param["authList["+i+"].authId"] = v;
+				});
+			}
+			
+			ajax({
+				url: requestPath.userInsert.url,
+				data: param,
+				type: requestPath.userInsert.type,
+				success: function(data){
+					if(data.status){
+						closeFrame();
+					}
+				},
+				error: function(data){
+				}
+			});
+		});
+		$(".update-btn").click(function(){
+		
+			var param = new Object();
+			param["userId"] = pageParams.userId;
+			param["userHead"] = $("input[name='userHead_text']").val();
+			param["userName"] = $("input[name='userName']").val();
+			param["userQq"] = $("input[name='userQq']").val();
+			param["userEmail"] = $("input[name='userEmail']").val();
+			param["files"] = $(":file[name='userHead_file']")[0].files[0];
+			
+			var authIdList = $("#authId").val();
+			if(isNotNull(authIdList)){
+				$.each(authIdList, function(i, v){
+					param["authList["+i+"].authId"] = v;
+				});
+			}
+			
+			ajax({
+				url: requestPath.userUpdate.url,
+				data: param,
+				type: requestPath.userUpdate.type,
+				success: function(data){
+					if(data.status){
+						closeFrame();
+					}
+				},
+				error: function(data){
+				}
+			});
+		});
+		
+		$("#head-img-div .head-img").click(function(){
+			$(":file[name='userHead_file']").click();
+		});
+		
+		$(":file[name='userHead_file']").change(function(){
+			imgToBase64(this,function(data){
+				$(".head-img").attr("src", data);
+			})
+		});
+	}
+	
+	//渲染控件
+	function drawElement(){
+		
+		$('input[type="file"]' ).prettyFile();
+
+        $("#userPwd,#password1").on("input", function(){
+        	var pwd = $("#userPwd").val();
+        	var pwd1 = $("#password1").val();
+        	if(isNull(pwd) || isNull(pwd1)){
+        		$(".pwd-check-msg").html("<i class='fa fa-exclamation'></i> 请再次输入您的密码");
+				$(".pwd-check-msg").css("color", "");
+        	} else if(pwd!=pwd1){
+        		$(".pwd-check-msg").html("<i class='fa fa-close'></i> 两次密码不一致");
+				$(".pwd-check-msg").css("color","red");
+        	} else {
+        		$(".pwd-check-msg").html("<i class='fa fa-check'></i> 密码正确");
+				$(".pwd-check-msg").css("color", "green");
+        	}
+        });
+	}
+	
+	function initCodeList(){
+		$("select[name='authId']").attr("code-tag", "auth");
+		loadCodeList();
+	}
+	
+	function initData(){
+		
+		if(isNull(pageParams.userId)){
+			//新增用户
+			$("div[name='pwdDiv']").show();
+			$("div[name='userNumberDiv']").show();
+			$(".insert-btn").show();
+			$(".update-btn").hide();
+			return false;
+		} else {
+			//编辑用户
+			$("div[name='pwdDiv']").hide();
+			$("div[name='userNumberDiv']").hide();
+			$(".insert-btn").hide();
+			$(".update-btn").show();
+			
+			ajax({
+				url: requestPath.userDetail.url,
+				data: {"userId": pageParams.userId},
+				type: requestPath.userDetail.type,
+				success: function(data){
+					if(data.status){
+						// 头像文件地址
+						var headFilePath = data.data.headFilePath;
+						if(isNotNull(headFilePath)){
+							$(".head-img").attr("src","../../" + headFilePath);
+						}
+						$("#userNumber").val(data.data.userNumber);
+						$("#userName").val(data.data.userName);
+						$("#userPwd").val(data.data.userPwd);
+						$("#userQq").val(data.data.userQq);
+						$("#userEmail").val(data.data.userEmail);
+						var authList = data.data.authList;
+						if(isNotNull(authList)){
+							$.each(authList, function(i, authObj){
+								$("#authId option[value='"+authObj.authId+"']").attr("selected","selected");
+							});
+							$("#authId").trigger("chosen:updated");
+							$("#authId").chosen();
+						}
+					}
+				},
+				error: function(data){
+				}
+			});
+		}
+	}
+	
+	function closeFrame(){
+		//parent.layer.close(index);//关闭当前dialog
+		parent.location.reload();//重新加载父页面
+	}
+	
+</script>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>权限不足</title>
+    <meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
+    <meta name="description" content="H+是一个完全响应式，基于Bootstrap3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
+    <link rel="shortcut icon" href="../../img/logo.ico"> 
+
+</head>
+
+<body class="gray-bg">
+
+    <div class="middle-box text-center animated fadeInDown">
+        <h1>400</h1>
+        <h3 class="font-bold">参数错误</h3>
+
+        <div class="error-desc">
+            您的参数错误
+            <br/>您可以返回主页看看
+            <br/>
+			<a href="javascript:void(0);" class="btn btn-primary m-t back-login">重新登录</a>
+			<a href="javascript:void(0);" class="btn btn-primary m-t back-home">首页</a>
+        </div>
+    </div>
+
+</body>
+<script src="../../js/common/base.js"></script>
+<script type="text/javascript">
+	$(".back-login").click(function(){
+		logout();
+	});
+	$(".back-home").click(function(){
+		//跳转首页
+		top.location.href= "home.html";
+	});
+</script>
+</html>

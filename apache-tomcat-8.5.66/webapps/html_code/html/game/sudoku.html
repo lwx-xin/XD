@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<title>sudoku</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css">
+	<meta http-equiv="Content-Script-Type" content="text/javascript">
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+	<link href="../../css/game/sudoku/sudoku.css" rel="stylesheet">
+	
+</head>
+
+<body>
+
+<div class="ibox float-e-margins" style="padding-left:150px;padding-top:50px;">
+	<table cellpadding="0" cellspacing="0" border="0" class="sudoku" id="sudokuTable">
+	</table>
+	<button onclick="drawTable('answer');">answer</button>
+</div>
+
+</body>
+
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script>
+
+var width=9;
+var height=9;
+var sudoku_question;
+var sudoku_answer;
+
+$(function(){
+	
+	//初始化数独容器
+	initSudoku();
+	//生成数独
+	createSudoku();
+	//生成空格
+	hideNumber();
+	
+	drawTable("question");
+	
+
+});
+
+//初始化地图网格
+function drawTable(type){
+	var sudoku = null;
+	if(type=="question"){
+		sudoku = sudoku_question;
+	} else if(type=="answer"){
+		sudoku = sudoku_answer;
+	}
+	
+	var tableHtml = "";
+	for(var y=0;y<height;y++){
+		tableHtml+="<tr>";
+		for(var x=0;x<width;x++){
+			var data = sudoku[y][x].thisNumber;
+			tableHtml += template(data, x, y);
+		}
+		tableHtml+="</tr>";
+	}
+	$("#sudokuTable").html(tableHtml);
+}
+
+function template(data, x, y){
+	var html = "";
+	var sudoku = "sudoku";
+	if((y+1)%3==0){
+		if((x+1)%3==0){
+			sudoku = "sudoku3";
+		} else {
+			sudoku = "sudoku2";
+		}
+	} else {
+		if((x+1)%3==0){
+			sudoku = "sudoku1";
+		} else {
+			sudoku = "sudoku";
+		}
+	}
+	if(data!="0"){
+		html = ""+
+		"<td class='"+sudoku+"' coordinate-x='"+x+"' coordinate-y='"+y+"'>"+
+		"	<div class='show-num'>"+
+		"		<input type='text' value='"+data+"' readonly='true'>"+
+		"	</div>"+
+		"</td>";
+	} else {
+		html = ""+
+		"<td class='"+sudoku+"' coordinate-x='"+x+"' coordinate-y='"+y+"'>"+
+		"	<div class='hidden-num'>"+
+		"		<input type='text' maxlength='1' value=''>"+
+		"	</div>"+
+		"</td>";
+	}
+	return html;
+}
+
+//初始化数独容器
+function initSudoku(){
+	sudoku_answer = new Array();
+	sudoku_question = new Array();
+	for(var y=0;y<9;y++){
+		var line = new Array();
+		var line1 = new Array();
+		for(var x=0;x<9;x++){
+			line.push(numberObject("",null));
+			line1.push(numberObject("",null));
+		}
+		sudoku_answer.push(line);
+		sudoku_question.push(line1);
+	}
+}
+
+//生成数独
+function createSudoku(){
+	A:for(var y=0;y<9;){
+		B:for(var x=0;x<9;){
+			var random = getRandom(x,y);
+			if(random!=null){
+				var obj = sudoku_answer[y][x];
+				var usedNumber = obj.usedNumber;
+				if(usedNumber==null){
+					usedNumber = new Array();
+				}
+				usedNumber.push(random);
+				obj["thisNumber"] = random;
+				obj["usedNumber"] = usedNumber;
+				
+				sudoku_answer[y][x] = obj;
+				
+				if(x==8){
+					y++;
+					x=0;
+					continue A;
+				} else {
+					x++;
+				}
+			} else {
+				sudoku_answer[y][x] = numberObject("",null);
+				if(x==0){
+					y--;
+					x=8;
+					sudoku_answer[y][x].thisNumber="";
+					continue A;
+				} else {
+					x--;
+					sudoku_answer[y][x].thisNumber="";
+				}
+			}
+		}
+	}
+}
+
+function hideNumber(){
+	var hidePositionArr = new Array();
+	for(var y=0;y<3;y++){
+		var x_block = 0;
+		var y_block = 0;
+		for(var x=0;x<3;x++){
+			x_block = x;
+			y_block = y;
+			
+			var y_start = y_block*3;
+			var y_end = y_start+3;
+			
+			var x_start = x_block*3;
+			var x_end = x_start+3;
+			
+			var blockAllPosition = [];
+			for(var i=y_start; i<y_end; i++){
+				for(var j=x_start;j<x_end; j++){
+					blockAllPosition.push({"y":i,"x":j});
+				}
+			}
+			
+			for(var k=0;k<3;k++){
+				var index = Math.floor(Math.random()*blockAllPosition.length);
+				var obj = blockAllPosition[index];
+				hidePositionArr.push({"x":obj.x,"y":obj.y});
+			}
+		}
+	}
+	
+	for(var y=0;y<9;y++){
+		for(var x=0;x<9;x++){
+			var obj = sudoku_answer[y][x];
+			var obj1 = new Object();
+			if(hidePositionArr.contains({"x":x,"y":y})){
+				obj1["thisNumber"]="";
+			} else {
+				obj1["thisNumber"]=obj.thisNumber;
+			}
+			sudoku_question[y][x]=obj1;
+		}
+	}
+}
+
+//获取随机数 - 排除已经使用过的和不能使用的
+function getRandom(x ,y){
+	var source = ["1","2","3","4","5","6","7","8","9"];
+	
+	var usedNumber = getUsedNumber(x,y);
+	
+	var unUsedNumber = source.removeAll(usedNumber);//未使用的数字
+	if(unUsedNumber==null || unUsedNumber.length==0){
+		return null;
+	}
+	var index = Math.floor(Math.random()*unUsedNumber.length);
+	return unUsedNumber[index];
+}
+
+//获取已经使用过的数字 - 横着，竖着，3x3方格
+function getUsedNumber(x,y){
+	var a = getUsedNumber_heng(x,y);
+	var b = getUsedNumber_shu(x,y);
+	var c = getUsedNumber_block(x,y);
+	
+	var usedArr = sudoku_answer[y][x].usedNumber;
+	
+	return a.concat(b).concat(c).concat(usedArr);
+}
+
+function getUsedNumber_heng(x,y){
+	var arr = sudoku_answer[y];
+	if(arr==null || arr.length==0){
+		return [];
+	}
+	
+	var usedNumberArr = new Array();
+	for(var i=0; i<arr.length; i++){
+		var obj = arr[i];
+		if(obj!=null){
+			usedNumberArr.push(obj.thisNumber);
+		}
+	}
+	return usedNumberArr;
+}
+
+function getUsedNumber_shu(x,y){
+	var usedNumberArr = new Array();
+	for(var i=0; i<sudoku_answer.length; i++){
+		var obj = sudoku_answer[i][x];
+		if(obj!=null){
+			usedNumberArr.push(obj.thisNumber);
+		}
+	}
+	return usedNumberArr;
+}
+
+function getUsedNumber_block(x,y){
+	var x_block = parseInt(x/3);
+	var x_start = x_block*3;
+	var x_end = x_start+3;
+	
+	var y_block = parseInt(y/3);
+	var y_start = y_block*3;
+	var y_end = y_start+3;
+	
+	var usedNumberArr = new Array();
+	for(var i=y_start; i<y_end; i++){
+		var line = sudoku_answer[i];
+		if(line!=null){
+			for(var j=x_start;j<x_end; j++){
+				var obj = line[j];
+				if(obj!=null){
+					usedNumberArr.push(obj.thisNumber);
+				}
+			}
+		}
+	}
+	return usedNumberArr;
+}
+
+function numberObject(thisNumber,usedNumber){
+	var obj = new Object();
+	obj["thisNumber"] = thisNumber;
+	obj["usedNumber"] = usedNumber;
+	return obj;
+}
+
+//移除数组中的元素
+Array.prototype.removeAll = function(data){
+	if(data==null || data.length==0){
+		return this;
+	}
+	var arr = new Array();
+	for(var i=0;i<this.length;i++){
+		var bool = true;
+		for(var j=0;j<data.length;j++){
+			if(this[i]==data[j] || JSON.stringify(this[i])==JSON.stringify(data[j])){
+				bool = false;
+			}
+		}
+		if(bool){
+			arr.push(this[i]);
+		}
+	}
+	return arr;
+}
+
+//数组是否包含元素
+Array.prototype.contains = function(data){
+	if(this==null || this.length==0){
+		return false;
+	}
+	var bool = false;
+	for(var i=0;i<this.length;i++){
+		if(this[i]==data || JSON.stringify(this[i])==JSON.stringify(data)){
+			bool = true;
+			break;
+		}
+	}
+	return bool;
+}
+</script>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+
+    <title>H+ 后台主题UI框架 - 主页</title>
+
+    <meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
+    <meta name="description" content="H+是一个完全响应式，基于Bootstrap3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
+    <link rel="shortcut icon" href="../../img/logo.ico"> 
+	
+	<style>
+		.wrapper-content{
+			padding: 15px;
+		}
+		
+		.link-span{
+			color: blue;
+			cursor:pointer;
+		}
+		
+		.display-none{
+			display: none;
+		}
+		
+		/* .form-control{
+			height: 28px !important;
+		}
+		
+		.no-padding-lr{
+			padding-left: 0px !important;
+			padding-right: 0px !important;
+		} */
+	</style>
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>系统用户</h5>
+                    </div>
+                    <div class="ibox-content">
+						<div class="add-user">
+                            <a href="javascript:void(0);" class="btn btn-primary add-user-btn">添加用户</a>
+                        </div>
+						<!-- <form method="get" class="form-horizontal">
+						    <div class="form-group col-sm-4 no-padding">
+						        <label class="col-sm-2 control-label no-padding-lr">普通</label>
+						
+						        <div class="col-sm-10">
+						            <input type="text" class="form-control">
+						        </div>
+						    </div>
+						    <div class="form-group col-sm-4 no-padding">
+						        <label class="col-sm-2 control-label no-padding-lr">普通</label>
+						
+						        <div class="col-sm-10">
+						            <input type="text" class="form-control">
+						        </div>
+						    </div>
+						    <div class="form-group col-sm-4 no-padding">
+						        <label class="col-sm-2 control-label no-padding-lr">普通</label>
+						
+						        <div class="col-sm-10">
+						            <input type="text" class="form-control">
+						        </div>
+						    </div>
+						</form> -->
+                        <table class="table table-striped table-bordered table-hover" id="userDataTable">
+                            <thead>
+                                <tr>
+                                    <th class="display-none">ID</th>
+                                    <th>NO</th>
+                                    <th>账号</th>
+                                    <th>昵称</th>
+                                    <th>头像路径</th>
+                                    <th>权限名称</th>
+                                    <th>禁用 / 启用</th>
+                                    <th>注册时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+<script src="../../js/common/base.js"></script>
+<script type="text/javascript">
+
+	var userDataTable;
+	
+	$(function(){
+		//渲染datatable
+		drawTable();
+		
+		//加载数据
+		initData()
+		
+		initEvent();
+	});
+	
+	function initEvent(){
+		//新增用户
+		$(".add-user-btn").click(function(){
+			layer.open({
+				  type: 2,
+				  title: "添加用户",
+				  area: ['800px', '550px'],
+				  fixed: false, //不固定
+				  maxmin: true,
+				  content: 'user-edit.html'
+			});
+		})
+		//编辑用户
+		$("#userDataTable").on("click",".edit-user-btn",function(){
+			var userId = $(this).parents("tr").find("span[name='userId']").html();
+			layer.open({
+				  type: 2,
+				  title: "编辑用户",
+				  area: ['800px', '550px'],
+				  fixed: false, //不固定
+				  maxmin: true,
+				  content: 'user-edit.html?userId='+userId
+			});
+		});
+		//禁用启用 用户账号
+		$("#userDataTable").on("click",".lock-user-btn,.unlock-user-btn",function(){
+			var userId = $(this).parents("tr").find("span[name='userId']").html();
+			var isLockBtn = $(this).hasClass("lock-user-btn");
+			if(isLockBtn){
+				swal({
+				  title: "禁用账号",
+				  text: "禁用后，账号将不能使用!",
+				  icon: "warning",
+				  buttons: ["取消","禁用"],
+				  dangerMode: true,
+				}).then((willDelete) => {
+				  if (willDelete) {
+					lock_unLock_user(userId, "lock");
+				  } else {}
+				});
+			} else {
+				lock_unLock_user(userId, "unlock");
+			}
+		});
+	}
+	
+	function lock_unLock_user(userId, type){
+		ajax({
+			url: requestPath.userDelete.url,
+			type: requestPath.userDelete.type,
+			data: {"userId": userId},
+			success: function(data){
+				var msg = "";
+				if(type == "lock"){
+					msg = "禁用成功";
+				} else if(type == "unlock"){
+					msg = "启用成功";
+				}
+				swal(msg, {
+				  icon: "success",
+				  button: "确定"
+				});
+				initData();
+			},
+			error: function(data){
+			}
+		});
+	}
+	
+	function drawTable(){
+		userDataTable = $('#userDataTable').DataTable( {
+	        "processing": true,      //翻页或者搜索的时候，前端是否给出“正在搜索”等提示信息
+	        "serverSide": false,     // true表示使用后台分页 
+	        "searching": true,      // 是否允许检索
+	        "ordering": true,        // 是否允许排序
+	        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "全部"]],
+			"columnDefs": [{
+				"searchable": false,
+				"orderable": false,
+				"targets": 1  //序号列不能排序也不能搜索
+			}],
+	        "columns": [
+	            { 
+	            	"className": "display-none",
+	            	"data": null,"render": function (data, type, row, meta) {
+	            		return "<span name='userId'>"+data.userId+"</span>";
+					}
+	            },
+	            { 
+	            	"className": "row-no",
+	            	"data": null,"render": function (data, type, row, meta) {
+	            		return "";
+					}
+	            },
+	            { 
+	            	"data": null,"render": function (data, type, row, meta) {
+	            		return "<span name='userNumber'>"+data.userNumber+"</span>";
+					}
+	            },
+	            { 
+	            	"data": null,"render": function (data, type, row, meta) {
+	            		return data.userName;
+					}
+	            },
+	            { 
+	            	"data": null,"render": function (data, type, row, meta) {
+	            		return data.userHead;
+					}
+	            },
+	            { 
+	            	"data": null,"render": function (data, type, row, meta) {
+	            		var authNameList = new Array();
+	            		var authList = data.authList;
+	            		if(isNotNull(authList)){
+	            			$.each(authList, function(index, authObj){
+	            				authNameList.push(authObj.authName);
+	            			});
+	            		}
+	            		return authNameList.join();
+					}
+	            },
+	            { 
+	            	"data": null,"render": function (data, type, row, meta) {
+	            		return getCodeName("del_flg", data.userDelFlg);
+					}
+	            },
+	            { 
+	            	"data": null,"render": function (data, type, row, meta) {
+	            		return new Date(data.userCreateTime).toStr("yyyy-MM-dd HH:mm:ss");
+					}
+	            },
+	            { 
+	            	"data": null,"render": function (data, type, row, meta) {
+						var html = "";
+						if(data.userDelFlg == Code.DEL_FLG_0.value){
+							html += "&nbsp;&nbsp;<a href='javascript:void(0);' class='unlock-user-btn' ><i class='fa fa-unlock text-navy'> 启用</i></a>";
+						} else {
+							html += "<a href='javascript:void(0);' class='edit-user-btn' ><i class='fa fa-edit text-navy'> 编辑</i></a>";
+							html += "&nbsp;&nbsp;<a href='javascript:void(0);' class='lock-user-btn' ><i class='fa fa-lock text-navy'> 禁用</i></a>";
+						}
+	            		return html;
+					}
+	            }
+	        ],
+            "createdRow": function (row, data, dataIndex) {
+				// if(data.userDelFlg == Code.DEL_FLG_0.value){
+				// 	$(row).css("background-color","#999999");
+				// 	$(row).css("color","#000");
+				// }
+            },
+	    } );
+		
+		//自动给第二列设置行号
+		userDataTable.on('order.dt search.dt', function () {
+			userDataTable.column(1, {search:'applied', order:'applied'}).nodes().each(function (cell, i) {
+				cell.innerHTML = i+1;
+			});
+		}).draw();
+	}
+	
+	function initData(){
+		var param = new Object();
+		param["userName"] = "";
+		param["userNumber"] = "";
+		param["userPlatform"] = "1";
+		param["userQq"] = "";
+		param["userEmail"] = "";
+		ajax({
+			url: requestPath.userList.url,
+			data: param,
+			type: requestPath.userList.type,
+			success: function(data){
+				if(data.status){
+					userDataTable.clear();
+					userDataTable.rows.add(data.data);
+					userDataTable.draw();
+				}
+			},
+			error: function(data){
+			}
+		});
+	}
+	
+	function getPageNumAndSize(){
+		var obj = new Object();
+		
+	    var oTable = $('#userDataTable').dataTable();
+		var oSettings = oTable.fnSettings();
+		// 获取页码值
+		var pageNum = oSettings._iDisplayStart
+		// 获取每页显示行数
+		var pageSize = oSettings._iDisplayLength;
+		obj["pageNum"] = pageNum;
+		obj["pageSize"] = pageSize;
+		
+		return obj;
+	}
+
+	
+</script>
+</html>

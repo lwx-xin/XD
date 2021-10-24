@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="priv.xin.xd.core.dao.UserMapper">
+
+  <resultMap id="BaseResultMap" type="priv.xin.xd.core.entity.User">
+    <id column="USER_ID" jdbcType="VARCHAR" property="userId" />
+    <result column="USER_NUMBER" jdbcType="VARCHAR" property="userNumber" />
+    <result column="USER_PWD" jdbcType="VARCHAR" property="userPwd" />
+    <result column="USER_NAME" jdbcType="VARCHAR" property="userName" />
+    <result column="USER_HEAD" jdbcType="VARCHAR" property="userHead" />
+    <result column="USER_PLATFORM" jdbcType="VARCHAR" property="userPlatform" />
+    <result column="USER_QQ" jdbcType="VARCHAR" property="userQq" />
+    <result column="USER_EMAIL" jdbcType="VARCHAR" property="userEmail" />
+    <result column="USER_DEL_FLAG" jdbcType="VARCHAR" property="userDelFlag" />
+    <result column="USER_CREATE_TIME" jdbcType="TIMESTAMP" property="userCreateTime" />
+    <result column="USER_CREATE_USER" jdbcType="VARCHAR" property="userCreateUser" />
+    <result column="USER_MODIFY_TIME" jdbcType="TIMESTAMP" property="userModifyTime" />
+    <result column="USER_MODIFY_USER" jdbcType="VARCHAR" property="userModifyUser" />
+  </resultMap>
+
+  <resultMap id="UserExMap" type="priv.xin.xd.core.entity.ex.UserEx" extends="BaseResultMap">
+    <result property="userDelFlagName" column="USER_DEL_FLAG_NAME" jdbcType="VARCHAR"/>
+    <result property="positionDetailName" column="POSITION_DETAIL_NAME" jdbcType="VARCHAR"/>
+    <result property="userPlatformName" column="USER_PLATFORM_NAME" jdbcType="VARCHAR"/>
+
+    <collection property="positionExList" ofType="priv.xin.xd.core.entity.ex.PositionEx">
+      <result property="positionId" column="POSITION_ID" jdbcType="VARCHAR"/>
+      <result property="positionName" column="POSITION_NAME" jdbcType="VARCHAR"/>
+      <result property="positionDepartmentId" column="POSITION_DEPARTMENT_ID" jdbcType="VARCHAR"/>
+      <result property="positionDelFlag" column="POSITION_DEL_FLAG" jdbcType="VARCHAR"/>
+      <result property="positionCreateTime" column="POSITION_CREATE_TIME" jdbcType="TIMESTAMP"/>
+      <result property="positionCreateUser" column="POSITION_CREATE_USER" jdbcType="VARCHAR"/>
+      <result property="positionModifyTime" column="POSITION_MODIFY_TIME" jdbcType="TIMESTAMP"/>
+      <result property="positionModifyUser" column="POSITION_MODIFY_USER" jdbcType="VARCHAR"/>
+
+      <association property="department" javaType="priv.xin.xd.core.entity.Department">
+        <result property="departmentId" column="DEPARTMENT_ID" jdbcType="VARCHAR"/>
+        <result property="departmentName" column="DEPARTMENT_NAME" jdbcType="VARCHAR"/>
+        <result property="codeDelFlag" column="CODE_DEL_FLAG" jdbcType="VARCHAR"/>
+        <result property="codeCreateTime" column="CODE_CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="codeCreateUser" column="CODE_CREATE_USER" jdbcType="VARCHAR"/>
+        <result property="codeModifyTime" column="CODE_MODIFY_TIME" jdbcType="TIMESTAMP"/>
+        <result property="codeModifyUser" column="CODE_MODIFY_USER" jdbcType="VARCHAR"/>
+      </association>
+    </collection>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    USER_ID, USER_NUMBER, USER_PWD, USER_NAME, USER_HEAD, USER_PLATFORM, USER_QQ, USER_EMAIL, 
+    USER_DEL_FLAG, USER_CREATE_TIME, USER_CREATE_USER, USER_MODIFY_TIME, USER_MODIFY_USER
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from s_user
+    where USER_ID = #{userId,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from s_user
+    where USER_ID = #{userId,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insert" parameterType="priv.xin.xd.core.entity.User">
+    insert into s_user (USER_ID, USER_NUMBER, USER_PWD, 
+      USER_NAME, USER_HEAD, USER_PLATFORM, 
+      USER_QQ, USER_EMAIL, USER_DEL_FLAG,
+      USER_CREATE_TIME, USER_CREATE_USER, USER_MODIFY_TIME, 
+      USER_MODIFY_USER)
+    values (#{userId,jdbcType=VARCHAR}, #{userNumber,jdbcType=VARCHAR}, #{userPwd,jdbcType=VARCHAR}, 
+      #{userName,jdbcType=VARCHAR}, #{userHead,jdbcType=VARCHAR}, #{userPlatform,jdbcType=VARCHAR}, 
+      #{userQq,jdbcType=VARCHAR}, #{userEmail,jdbcType=VARCHAR}, #{userDelFlag,jdbcType=VARCHAR},
+            SYSDATE(), #{userCreateUser,jdbcType=VARCHAR}, SYSDATE(),
+      #{userModifyUser,jdbcType=VARCHAR})
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="priv.xin.xd.core.entity.User">
+    update s_user
+    <set>
+      <if test="userNumber != null">
+        USER_NUMBER = #{userNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="userPwd != null">
+        USER_PWD = #{userPwd,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null">
+        USER_NAME = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="userHead != null">
+        USER_HEAD = #{userHead,jdbcType=VARCHAR},
+      </if>
+      <if test="userPlatform != null">
+        USER_PLATFORM = #{userPlatform,jdbcType=VARCHAR},
+      </if>
+      <if test="userQq != null">
+        USER_QQ = #{userQq,jdbcType=VARCHAR},
+      </if>
+      <if test="userEmail != null">
+        USER_EMAIL = #{userEmail,jdbcType=VARCHAR},
+      </if>
+      <if test="userDelFlag != null">
+        USER_DEL_FLAG = #{userDelFlag,jdbcType=VARCHAR},
+      </if>
+      USER_MODIFY_TIME = SYSDATE(),
+      USER_MODIFY_USER = #{userModifyUser,jdbcType=VARCHAR},
+    </set>
+    where USER_ID = #{userId,jdbcType=VARCHAR}
+  </update>
+
+  <select id="queryListLimit" resultMap="UserExMap">
+    select * from (
+      select
+      u.USER_ID,
+      u.USER_NUMBER,
+      u.USER_PWD,
+      u.USER_NAME,
+      u.USER_HEAD,
+      u.USER_PLATFORM,
+      u.USER_QQ,
+      u.USER_EMAIL,
+      u.USER_DEL_FLAG,
+      u.USER_CREATE_TIME,
+      u.USER_CREATE_USER,
+      u.USER_MODIFY_TIME,
+      u.USER_MODIFY_USER,
+      c1.CODE_NAME as USER_PLATFORM_NAME,
+      c2.CODE_NAME as USER_DEL_FLAG_NAME,
+      GROUP_CONCAT(CONCAT(d.DEPARTMENT_NAME, '-', p.POSITION_NAME) SEPARATOR ',') as POSITION_DETAIL_NAME
+      from s_user u
+      left join s_user_position up on up.USER_ID = u.USER_ID
+      left join s_position p on p.POSITION_ID = up.POSITION_ID
+      left join s_department d on d.DEPARTMENT_ID = p.POSITION_DEPARTMENT_ID
+      left join m_code c1 on u.USER_PLATFORM = c1.CODE_VALUE and c1.CODE_GROUP='platform'
+      left join m_code c2 on u.USER_DEL_FLAG = c2.CODE_VALUE and c2.CODE_GROUP='del_flag'
+      <where>
+        <if test="userEx.userId != null and userEx.userId != ''">
+          and u.USER_ID = #{userEx.userId}
+        </if>
+        <if test="userEx.userNumber != null and userEx.userNumber != ''">
+          and u.USER_NUMBER like #{userEx.userNumber}
+        </if>
+        <if test="userEx.userName != null and userEx.userName != ''">
+          and u.USER_NAME like #{userEx.userName}
+        </if>
+        <if test="userEx.userDelFlag != null and userEx.userDelFlag != ''">
+          and u.USER_DEL_FLAG like #{userEx.userDelFlag}
+        </if>
+      </where>
+      GROUP BY u.USER_ID
+    ) a
+
+    <if test="page.sortField == 'userNumber'">
+      order by a.USER_NUMBER ${page.sortOrder}
+    </if>
+    <if test="page.sortField == 'userName'">
+      order by a.USER_NAME ${page.sortOrder}
+    </if>
+    <if test="page.sortField == 'userPlatform'">
+      ORDER BY a.USER_PLATFORM ${page.sortOrder}
+    </if>
+    <if test="page.sortField == 'userDelFlag'">
+      order by a.USER_DEL_FLAG ${page.sortOrder}
+    </if>
+    <if test="page.sortField == 'userCreateTime'">
+      order by a.USER_CREATE_TIME ${page.sortOrder}
+    </if>
+
+    <if test="page.pageSize !=-1 and (userEx.userId == null or userEx.userId == '')">
+      limit #{page.offSet}, #{page.pageSize}
+    </if>
+  </select>
+
+  <select id="queryListLimitCount" resultType="java.lang.Integer">
+    select
+    count(*)
+    from s_user
+    <where>
+      <if test="userEx.userId != null and userEx.userId != ''">
+        and USER_ID = #{userEx.userId}
+      </if>
+      <if test="userEx.userNumber != null and userEx.userNumber != ''">
+        and USER_NUMBER like #{userEx.userNumber}
+      </if>
+      <if test="userEx.userName != null and userEx.userName != ''">
+        and USER_NAME like #{userEx.userName}
+      </if>
+      <if test="userEx.userDelFlag != null and userEx.userDelFlag != ''">
+        and USER_DEL_FLAG like #{userEx.userDelFlag}
+      </if>
+    </where>
+  </select>
+
+  <!--查询用户详细信息(包括职位信息)-->
+  <select id="queryDetail" resultMap="UserExMap" parameterType="java.lang.String">
+    SELECT
+      u.*,
+      p.*,
+      d.*
+    FROM s_user u
+     LEFT JOIN s_user_position up ON up.USER_ID = u.USER_ID
+     LEFT JOIN s_position p ON p.POSITION_ID = up.POSITION_ID
+     LEFT JOIN s_department d ON d.DEPARTMENT_ID = p.POSITION_DEPARTMENT_ID
+    WHERE u.USER_ID = #{userId}
+  </select>
+
+  <!--通过实体作为筛选条件查询-->
+  <select id="queryAll" resultMap="BaseResultMap">
+    select
+    USER_ID, USER_NUMBER, USER_PWD, USER_NAME, USER_HEAD, USER_PLATFORM, USER_QQ, USER_EMAIL, USER_DEL_FLAG,
+    USER_CREATE_TIME, USER_CREATE_USER, USER_MODIFY_TIME, USER_MODIFY_USER
+    from xd.s_user
+    <where>
+      <if test="userId != null and userId != ''">
+        and USER_ID = #{userId}
+      </if>
+      <if test="userNumber != null and userNumber != ''">
+        and USER_NUMBER = #{userNumber}
+      </if>
+      <if test="userPwd != null and userPwd != ''">
+        and USER_PWD = #{userPwd}
+      </if>
+      <if test="userName != null and userName != ''">
+        and USER_NAME = #{userName}
+      </if>
+      <if test="userHead != null and userHead != ''">
+        and USER_HEAD = #{userHead}
+      </if>
+      <if test="userPlatform != null and userPlatform != ''">
+        and USER_PLATFORM = #{userPlatform}
+      </if>
+      <if test="userQq != null and userQq != ''">
+        and USER_QQ = #{userQq}
+      </if>
+      <if test="userEmail != null and userEmail != ''">
+        and USER_EMAIL = #{userEmail}
+      </if>
+      <if test="userDelFlag != null and userDelFlag != ''">
+        and USER_DEL_FLAG = #{userDelFlag}
+      </if>
+      <if test="userCreateTime != null">
+        and USER_CREATE_TIME = #{userCreateTime}
+      </if>
+      <if test="userCreateUser != null and userCreateUser != ''">
+        and USER_CREATE_USER = #{userCreateUser}
+      </if>
+      <if test="userModifyTime != null">
+        and USER_MODIFY_TIME = #{userModifyTime}
+      </if>
+      <if test="userModifyUser != null and userModifyUser != ''">
+        and USER_MODIFY_USER = #{userModifyUser}
+      </if>
+    </where>
+  </select>
+</mapper>

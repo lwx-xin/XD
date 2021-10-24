@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="priv.xin.xd.core.dao.AuthMenuMapper">
+
+  <resultMap id="BaseResultMap" type="priv.xin.xd.core.entity.AuthMenu">
+    <id column="AUTH_MENU_ID" jdbcType="VARCHAR" property="authMenuId" />
+    <result column="AUTH_ID" jdbcType="VARCHAR" property="authId" />
+    <result column="MENU_ID" jdbcType="VARCHAR" property="menuId" />
+    <result column="AUTH_MENU_DEL_FLAG" jdbcType="VARCHAR" property="authMenuDelFlag" />
+    <result column="AUTH_MENU_CREATE_TIME" jdbcType="TIMESTAMP" property="authMenuCreateTime" />
+    <result column="AUTH_MENU_CREATE_USER" jdbcType="VARCHAR" property="authMenuCreateUser" />
+    <result column="AUTH_MENU_MODIFY_TIME" jdbcType="TIMESTAMP" property="authMenuModifyTime" />
+    <result column="AUTH_MENU_MODIFY_USER" jdbcType="VARCHAR" property="authMenuModifyUser" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    AUTH_MENU_ID, AUTH_ID, MENU_ID, AUTH_MENU_DEL_FLAG, AUTH_MENU_CREATE_TIME, AUTH_MENU_CREATE_USER,
+    AUTH_MENU_MODIFY_TIME, AUTH_MENU_MODIFY_USER
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from s_auth_menu
+    where AUTH_MENU_ID = #{authMenuId,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from s_auth_menu
+    where AUTH_MENU_ID = #{authMenuId,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insert" parameterType="priv.xin.xd.core.entity.AuthMenu">
+    insert into s_auth_menu (AUTH_MENU_ID, AUTH_ID, MENU_ID, 
+      AUTH_MENU_DEL_FLAG, AUTH_MENU_CREATE_TIME, AUTH_MENU_CREATE_USER,
+      AUTH_MENU_MODIFY_TIME, AUTH_MENU_MODIFY_USER
+      )
+    values (#{authMenuId,jdbcType=VARCHAR}, #{authId,jdbcType=VARCHAR}, #{menuId,jdbcType=VARCHAR}, 
+      #{authMenuDelFlag,jdbcType=VARCHAR}, SYSDATE(), #{authMenuCreateUser,jdbcType=VARCHAR},
+            SYSDATE(), #{authMenuModifyUser,jdbcType=VARCHAR}
+      )
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="priv.xin.xd.core.entity.AuthMenu">
+    update s_auth_menu
+    <set>
+      <if test="authId != null">
+        AUTH_ID = #{authId,jdbcType=VARCHAR},
+      </if>
+      <if test="menuId != null">
+        MENU_ID = #{menuId,jdbcType=VARCHAR},
+      </if>
+      <if test="authMenuDelFlag != null">
+        AUTH_MENU_DEL_FLAG = #{authMenuDelFlag,jdbcType=VARCHAR},
+      </if>
+      AUTH_MENU_MODIFY_TIME = SYSDATE(),
+      AUTH_MENU_MODIFY_USER = #{authMenuModifyUser,jdbcType=VARCHAR},
+    </set>
+    where AUTH_MENU_ID = #{authMenuId,jdbcType=VARCHAR}
+  </update>
+
+  <delete id="deleteByMenuId" parameterType="java.lang.String">
+    delete from s_auth_menu
+    where MENU_ID = #{menuId,jdbcType=VARCHAR}
+  </delete>
+
+</mapper>

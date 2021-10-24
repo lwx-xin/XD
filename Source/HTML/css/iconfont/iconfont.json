@@ -1,0 +1,37 @@
+{
+  "id": "2663220",
+  "name": "XD",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "15660196",
+      "name": "日志管理",
+      "font_class": "log",
+      "unicode": "eaad",
+      "unicode_decimal": 60077
+    },
+    {
+      "icon_id": "11488145",
+      "name": "text",
+      "font_class": "text",
+      "unicode": "e768",
+      "unicode_decimal": 59240
+    },
+    {
+      "icon_id": "4867116",
+      "name": "职位",
+      "font_class": "zhiwei",
+      "unicode": "e660",
+      "unicode_decimal": 58976
+    },
+    {
+      "icon_id": "13769957",
+      "name": "部门",
+      "font_class": "bumen",
+      "unicode": "e60a",
+      "unicode_decimal": 58890
+    }
+  ]
+}

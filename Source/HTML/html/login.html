@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+
+    <title>XD - 登录</title>
+
+    <link rel="shortcut icon" href="../img/logo.ico">
+	<link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/font-awesome.css" rel="stylesheet">
+    <link href="../css/animate.css" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+    <link href="../css/loading.css" rel="stylesheet">
+
+	<link href="../css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+	<!--提示框-->
+	<link href="../css/plugins/toastr/toastr.min.css" rel="stylesheet">
+	<link href="../css/plugins/smallPop/spop.min.css" rel="stylesheet">
+	
+</head>
+
+<body class="gray-bg">
+
+    <div class="middle-box text-center loginscreen  animated fadeInDown">
+        <div>
+            <div style="border-color: #000000;">
+
+                <!-- <h1 class="logo-name">XD</h1> -->
+				<img src="../img/default-head-transparent.png" width="200px" onerror="this.src='../img/default-head-transparent.jpg';this.onerror=null;"/>
+
+            </div>
+            <h3>欢迎使用 XD</h3>
+
+            <form class="m-t" role="form">
+                <div class="form-group">
+                    <input type="text" name="userNumber" class="form-control" placeholder="账号" required="required">
+                </div>
+                <div class="form-group">
+                    <input type="password" name="userPwd" class="form-control" placeholder="密码" required="required">
+                </div>
+                <button type="button" name="login" class="btn btn-primary block full-width m-b">登 录</button>
+
+                <p class="text-muted text-center"> <a href="login.html#"><small>忘记密码了？</small></a> | <a href="register.html">注册一个新账号</a>
+                </p>
+
+            </form>
+        </div>
+    </div>
+</body>
+<!-- 全局js -->
+<script src="../js/jquery.min.js"></script>
+<script src="../js/jquery.cookie.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<!--提示框-->
+<script src="../js/plugins/layer/layer.js"></script>
+<script src="../js/plugins/toastr/toastr.min.js"></script>
+<script src="../js/plugins/smallPop/spop.min.js"></script>
+
+<!--弹框-->
+<script src="../js/plugins/sweetalert/sweetalert.min.js"></script>
+
+<script src="../js/DB/dexie.js"></script>
+<script src="../js/DB/IDB.js"></script>
+<script src="../js/common/Util.js"></script>
+<script src="../js/common/Field.js"></script>
+<script src="../js/common/QequestPath.js"></script>
+<script src="../js/common/Code.js"></script>
+<script src="../js/common/CookieUtils.js"></script>
+<script src="../js/common/Common.js"></script>
+<script>
+	$(function(){
+		if(top != self){
+			top.window.location.href = self.window.location.href;
+			return;
+		}
+		initEvent();
+	});
+	
+	function initEvent(){
+		$("button[name='login']").click(function(){
+			var userNumber = $("input[name='userNumber']").val();
+			var userPwd = $("input[name='userPwd']").val();
+			login(userNumber,userPwd,"system/home.html")
+		});
+	}
+
+</script>
+
+</html>

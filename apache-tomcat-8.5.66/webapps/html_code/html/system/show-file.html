@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+
+    <title>H+ 后台主题UI框架 - 主页</title>
+
+    <meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
+    <meta name="description" content="H+是一个完全响应式，基于Bootstrap3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
+    <link rel="shortcut icon" href="../../img/logo.ico"> 
+    <link href="../../css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="../../css/plugins/codemirror/theme.css" rel="stylesheet">
+	
+	<style>
+		.show-video-file{
+			padding-left:255px;
+			padding-right:255px;
+		}
+	</style>
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+		
+		<div class="row">
+			
+			<div class="col-sm-12" id="txt" style="display:none;">
+				<div class="ibox">
+					<div class="ibox-title">
+						<h5 name="txtTitle"></h5>
+					</div>
+					<div class="ibox-content">
+                        <form class="form-horizontal m-t" id="my-form">
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label">主题：</label>
+                                <div class="col-sm-3">
+                                    <select name="theme" data-placeholder="请选择主题..." class="chosen-select" style="width:100%" tabindex="2" aria-required="true">
+                                    	<option value="3024-day">3024-day</optioin>
+                                    	<option value="3024-night">3024-night</optioin>
+                                    	<option value="abcdef">abcdef</optioin>
+                                    	<option value="ambiance-mobile">ambiance-mobile</optioin>
+                                    	<option value="ambiance" selected="selected">ambiance</optioin>
+                                    	<option value="ayu-dark">ayu-dark</optioin>
+                                    	<option value="ayu-mirage">ayu-mirage</optioin>
+                                    	<option value="base16-dark">base16-dark</optioin>
+                                    	<option value="base16-light">base16-light</optioin>
+                                    	<option value="bespin">bespin</optioin>
+                                    	<option value="blackboard">blackboard</optioin>
+                                    	<option value="cobalt">cobalt</optioin>
+                                    	<option value="colorforth">colorforth</optioin>
+                                    	<option value="darcula">darcula</optioin>
+                                    	<option value="dracula">dracula</optioin>
+                                    	<option value="duotone-dark">duotone-dark</optioin>
+                                    	<option value="duotone-light">duotone-light</optioin>
+                                    	<option value="eclipse">eclipse</optioin>
+                                    	<option value="elegant">elegant</optioin>
+                                    	<option value="erlang-dark">erlang-dark</optioin>
+                                    	<option value="gruvbox-dark">gruvbox-dark</optioin>
+                                    	<option value="hopscotch">hopscotch</optioin>
+                                    	<option value="icecoder">icecoder</optioin>
+                                    	<option value="idea">idea</optioin>
+                                    	<option value="isotope">isotope</optioin>
+                                    	<option value="lesser-dark">lesser-dark</optioin>
+                                    	<option value="liquibyte">liquibyte</optioin>
+                                    	<option value="lucario">lucario</optioin>
+                                    	<option value="material-darker">material-darker</optioin>
+                                    	<option value="material-ocean">material-ocean</optioin>
+                                    	<option value="material-palenight">material-palenight</optioin>
+                                    	<option value="material">material</optioin>
+                                    	<option value="mbo">mbo</optioin>
+                                    	<option value="mdn-like">mdn-like</optioin>
+                                    	<option value="midnight">midnight</optioin>
+                                    	<option value="monokai">monokai</optioin>
+                                    	<option value="moxer">moxer</optioin>
+                                    	<option value="neat">neat</optioin>
+                                    	<option value="neo">neo</optioin>
+                                    	<option value="night">night</optioin>
+                                    	<option value="nord">nord</optioin>
+                                    	<option value="oceanic-next">oceanic-next</optioin>
+                                    	<option value="panda-syntax">panda-syntax</optioin>
+                                    	<option value="paraiso-dark">paraiso-dark</optioin>
+                                    	<option value="paraiso-light">paraiso-light</optioin>
+                                    	<option value="pastel-on-dark">pastel-on-dark</optioin>
+                                    	<option value="railscasts">railscasts</optioin>
+                                    	<option value="rubyblue">rubyblue</optioin>
+                                    	<option value="seti">seti</optioin>
+                                    	<option value="shadowfox">shadowfox</optioin>
+                                    	<option value="solarized">solarized</optioin>
+                                    	<option value="ssms">ssms</optioin>
+                                    	<option value="the-matrix">the-matrix</optioin>
+                                    	<option value="tomorrow-night-bright">tomorrow-night-bright</optioin>
+                                    	<option value="tomorrow-night-eighties">tomorrow-night-eighties</optioin>
+                                    	<option value="ttcn">ttcn</optioin>
+                                    	<option value="twilight">twilight</optioin>
+                                    	<option value="vibrant-ink">vibrant-ink</optioin>
+                                    	<option value="xq-dark">xq-dark</optioin>
+                                    	<option value="xq-light">xq-light</optioin>
+                                    	<option value="yeti">yeti</optioin>
+                                    	<option value="yonce">yonce</optioin>
+                                    	<option value="zenburn">zenburn</optioin>
+                                    </select>
+                                </div>
+								
+								<!-- <label class="col-sm-1 control-label">格式：</label>
+								<div class="col-sm-3">
+									<select name="mode" data-placeholder="请选择格式..." class="chosen-select" style="width:100%" tabindex="2" aria-required="true">
+										<option value="javascript">javascript</optioin>
+										<option value="html">html</optioin>
+										<option value="css">css</optioin>
+										<option value="java">java</optioin>
+										<option value="text">text</optioin>
+									</select>
+								</div> -->
+                            </div>
+						</form>
+						<textarea id="codeContent">
+							
+						</textarea>
+					</div>
+				</div>
+			</div>
+			
+			<div class="col-sm-12" id="image" style="display:none;">
+				<div class="ibox">
+					<div class="ibox-title">
+						<h5 name="imageTitle"></h5>
+					</div>
+					<div class="ibox-content">
+					   <div class="row">
+							<div class="col-sm-12" name="imageDiv" style="text-align: center;">
+								<img src="" />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="col-sm-12" id="video" style="display:none;">
+				<div class="ibox">
+					<div class="ibox-title">
+						<h5 name="videoTitle"></h5>
+					</div>
+					<div class="ibox-content">
+                        <div class="player">
+                            <video poster="" controls crossorigin id="videoMain">
+                                <!-- Video files -->
+                                <source id="videoSource" src="" type="video/mp4">
+                            </video>
+                        </div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+    </div>
+</body>
+<script src="../../js/common/base.js"></script>
+<script src="../../js/plugins/codemirror/codemirror.js"></script>
+<!-- codemirror语言包 -->
+<script src="../../js/plugins/codemirror/mode/javascript/javascript.js"></script>
+<script src="../../js/plugins/codemirror/mode/javascript/javascript.js"></script>
+<script src="../../js/plugins/codemirror/mode/clike/clike.js"></script>
+<script src="../../js/plugins/codemirror/mode/go/go.js"></script>
+<script src="../../js/plugins/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+<script src="../../js/plugins/codemirror/mode/http/http.js"></script>
+<script src="../../js/plugins/codemirror/mode/php/php.js"></script>
+<script src="../../js/plugins/codemirror/mode/python/python.js"></script>
+<script src="../../js/plugins/codemirror/mode/http/http.js"></script>
+<script src="../../js/plugins/codemirror/mode/sql/sql.js"></script>
+<!-- <script src="../../js/plugins/codemirror/mode/vue/vue.js"></script> -->
+<script src="../../js/plugins/codemirror/mode/xml/xml.js"></script>
+<script type="text/javascript">
+	
+	const pageParams = getPageParam();
+	$.deepFreeze(pageParams);
+	
+	$(function(){
+		//验证文件
+		checkFile();
+		
+		//加载数据
+		initData()
+		
+		initEvent();
+		$(".chosen-select").chosen();
+	});
+	
+	var codemirror;
+	function initEvent(){
+		 codemirror = CodeMirror.fromTextArea(document.getElementById("codeContent"), {
+			matchBrackets: true,
+			styleActiveLine: true,
+			readOnly: true,
+			mode:'java',//编辑器语言
+			theme:'ambiance', //编辑器主题
+			lineNumbers: true//显示行号
+		});
+		
+		$("#txt").on("change", "[name='theme']", function(){
+			var theme = $(this).val();
+			codemirror.setOption("theme", theme);
+		});
+	}
+	
+	function initData(){
+	}
+	
+	function checkFile(){
+		var fileEntity = null;
+		ajax({
+			url: requestPath.fileDetail.url,
+			data: {"fileId": pageParams.fileId},
+			type: requestPath.fileDetail.type,
+			success: function(data){
+				if(data.status){
+					fileEntity = data.data;
+				}
+			},
+			error: function(data){
+			}
+		});
+		
+		if(isNull(fileEntity)){
+			showInformation("提示", "文件异常", "error");
+			return false;
+		}
+		
+		switch (fileEntity.fileType){
+			case Code.FILE_TYPE_AUDIO.value:
+				/** 文件类型-音频*/
+				showInformation("提示", "《"+fileName+"》已添加到播放列表", "info");
+				break;
+			case Code.FILE_TYPE_VIDEO.value:
+				/** 文件类型-视频*/
+				showVideo("视频");
+				break;
+			case Code.FILE_TYPE_TXT.value:
+				/** 文件类型-文本*/
+				showTxt("文本");
+				break;
+			case Code.FILE_TYPE_LOG.value:
+				/** 文件类型-日志*/
+				showTxt("日志");
+				break;
+			case Code.FILE_TYPE_PICTURE.value:
+				/** 文件类型-图片*/
+				showImage("图片");
+				break;
+			default:
+				/** 文件类型-其它*/
+				showInformation("提示", "当前文件暂不支持在线预览", "info");
+				break;
+		}
+	}
+	
+	/**
+	 * 显示文本类文件
+	 * @param {String} title 标题
+	 */
+	function showTxt(title){
+		ajax({
+			url: requestPath.fileTxtContent.url,
+			data: {"fileId": pageParams.fileId},
+			type: requestPath.fileTxtContent.type,
+			success: function(data){
+				if(data.status){
+					$("#txt [name='txtTitle']").html(title);
+					$("#txt #codeContent").val(data.data);
+					$("#txt").show();
+				}
+			},
+			error: function(data){
+			}
+		});
+	}
+	
+	/**
+	 * 显示图片类文件
+	 * @param {String} title 标题
+	 */
+	function showImage(title){
+		$("#image [name='imageTitle']").html(title);
+			
+		var bodyHeight = $(document.body).outerHeight(true);
+		
+		var wrapperPaddingTop = parseInt($(".wrapper.wrapper-content").css("padding-top").replace('px', ''));
+		var wrapperPaddingBottom = parseInt($(".wrapper.wrapper-content").css("padding-bottom").replace('px', ''));
+		
+		var iboxMarginButtom = parseInt($("#image .ibox").css("margin-bottom").replace('px', ''));
+		
+		var iboxTitleBorderTop = parseInt($("#image .ibox-title").css("border-top").replace('px', ''));
+		var iboxTitleBorderButtom = parseInt($("#image .ibox-title").css("border-bottom").replace('px', ''));
+		
+		var iboxTitlePaddingTop = parseInt($("#image .ibox-title").css("padding-top").replace('px', ''));
+		var iboxTitlePaddingButtom = parseInt($("#image .ibox-title").css("padding-bottom").replace('px', ''));
+		
+		var iboxContentBorderTop = parseInt($("#image .ibox-content").css("border-top").replace('px', ''));
+		var iboxContentBorderButtom = parseInt($("#image .ibox-content").css("border-bottom").replace('px', ''));
+		
+		var iboxContentPaddingTop = parseInt($("#image .ibox-content").css("padding-top").replace('px', ''));
+		var iboxContentPaddingButtom = parseInt($("#image .ibox-content").css("padding-bottom").replace('px', ''));
+		
+		var imageHeight = bodyHeight 
+			- wrapperPaddingTop - wrapperPaddingBottom 
+			- iboxMarginButtom
+			- iboxTitleBorderTop - iboxTitleBorderButtom
+			- iboxTitlePaddingTop - iboxTitlePaddingButtom
+			- 23
+			- iboxContentBorderTop - iboxContentBorderButtom
+			- iboxContentPaddingTop - iboxContentPaddingButtom;
+		
+		var src = (requestPath.fileImageContent.url).replace("{fileId}", pageParams.fileId);
+		$("#image [name='imageDiv'] img").attr("src",src);
+		$("#image [name='imageDiv'] img").css("height",imageHeight+"px")
+		$("#image").show();
+		
+		$("#image [name='imageDiv'] img").error(function(){
+			showCookieErrMsg();
+		})
+	}
+	
+	/**
+	 * 显示视频类文件
+	 * @param {String} title 标题
+	 */
+	function showVideo(title){
+		$("#video [name='videoTitle']").html(title);
+		$("body").addClass("show-video-file");
+		
+		var src = (requestPath.fileVideoContent.url).replace("{fileId}", pageParams.fileId);
+		$("#videoSource").attr("src", src);
+		$("#video").show();
+		plyr.setup();
+		
+		$("#videoSource").error(function(){
+			showCookieErrMsg();
+		})
+	}
+
+</script>
+</html>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="priv.xin.xd.core.dao.FileTypeMapper">
+
+  <resultMap id="BaseResultMap" type="priv.xin.xd.core.entity.FileType">
+    <id column="FILE_SUFFIX" jdbcType="VARCHAR" property="fileSuffix" />
+    <result column="FILE_TYPE" jdbcType="VARCHAR" property="fileType" />
+    <result column="FILE_TYPE_DEL_FLAG" jdbcType="VARCHAR" property="fileTypeDelFlag" />
+    <result column="FILE_TYPE_CREATE_TIME" jdbcType="TIMESTAMP" property="fileTypeCreateTime" />
+    <result column="FILE_TYPE_CREATE_USER" jdbcType="VARCHAR" property="fileTypeCreateUser" />
+    <result column="FILE_TYPE_MODIFY_TIME" jdbcType="TIMESTAMP" property="fileTypeModifyTime" />
+    <result column="FILE_TYPE_MODIFY_USER" jdbcType="VARCHAR" property="fileTypeModifyUser" />
+  </resultMap>
+
+  <resultMap id="fileTypeExMap" type="priv.xin.xd.core.entity.ex.FileTypeEx" extends="BaseResultMap">
+    <result column="FILE_TYPE_NAME" jdbcType="VARCHAR" property="fileTypeName" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    FILE_SUFFIX, FILE_TYPE, FILE_TYPE_DEL_FLAG, FILE_TYPE_CREATE_TIME, FILE_TYPE_CREATE_USER,
+    FILE_TYPE_MODIFY_TIME, FILE_TYPE_MODIFY_USER
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from s_file_type
+    where FILE_SUFFIX = #{fileSuffix,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from s_file_type
+    where FILE_SUFFIX = #{fileSuffix,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insert" parameterType="priv.xin.xd.core.entity.FileType">
+    insert into s_file_type (FILE_SUFFIX, FILE_TYPE, FILE_TYPE_DEL_FLAG,
+      FILE_TYPE_CREATE_TIME, FILE_TYPE_CREATE_USER, 
+      FILE_TYPE_MODIFY_TIME, FILE_TYPE_MODIFY_USER
+      )
+    values (#{fileSuffix,jdbcType=VARCHAR}, #{fileType,jdbcType=VARCHAR}, #{fileTypeDelFlag,jdbcType=VARCHAR},
+            SYSDATE(), #{fileTypeCreateUser,jdbcType=VARCHAR},
+            SYSDATE(), #{fileTypeModifyUser,jdbcType=VARCHAR}
+      )
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="priv.xin.xd.core.entity.FileType">
+    update s_file_type
+    <set>
+      <if test="fileType != null">
+        FILE_TYPE = #{fileType,jdbcType=VARCHAR},
+      </if>
+      <if test="fileTypeDelFlag != null">
+        FILE_TYPE_DEL_FLAG = #{fileTypeDelFlag,jdbcType=VARCHAR},
+      </if>
+      FILE_TYPE_MODIFY_TIME = SYSDATE(),
+      FILE_TYPE_MODIFY_USER = #{fileTypeModifyUser,jdbcType=VARCHAR},
+    </set>
+    where FILE_SUFFIX = #{fileSuffix,jdbcType=VARCHAR}
+  </update>
+
+  <select id="queryListLimit" resultMap="fileTypeExMap">
+    SELECT
+      f.*,
+      c.CODE_NAME AS FILE_TYPE_NAME
+    FROM s_file_type f
+    LEFT JOIN m_code c ON c.CODE_VALUE = f.FILE_TYPE AND c.CODE_GROUP = 'file_type'
+    <where>
+      <if test="fileType.fileSuffix != null and fileType.fileSuffix != ''">
+        AND f.FILE_SUFFIX = #{fileType.fileSuffix}
+      </if>
+      <if test="fileType.fileType != null and fileType.fileType != ''">
+        AND f.FILE_TYPE = #{fileType.fileType}
+      </if>
+    </where>
+
+    <if test="page.sortField == 'fileTypeModifyTime'">
+      order by f.FILE_TYPE_MODIFY_TIME ${page.sortOrder}
+    </if>
+
+    <if test="page.pageSize !=-1">
+      limit #{page.offSet}, #{page.pageSize}
+    </if>
+  </select>
+
+  <select id="queryListLimitCount" resultType="java.lang.Integer">
+    SELECT
+    count(*)
+    FROM s_file_type
+    <where>
+      <if test="fileType.fileSuffix != null and fileType.fileSuffix != ''">
+        AND FILE_SUFFIX = #{fileType.fileSuffix}
+      </if>
+      <if test="fileType.fileType != null and fileType.fileType != ''">
+        AND FILE_TYPE = #{fileType.fileType}
+      </if>
+    </where>
+  </select>
+
+  <select id="queryAll" resultMap="fileTypeExMap">
+    select * from s_file_type
+  </select>
+
+</mapper>

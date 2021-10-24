@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="priv.xin.xd.core.dao.DepartmentMapper">
+  
+  <resultMap id="BaseResultMap" type="priv.xin.xd.core.entity.Department">
+    <id column="DEPARTMENT_ID" jdbcType="VARCHAR" property="departmentId" />
+    <result column="DEPARTMENT_NAME" jdbcType="VARCHAR" property="departmentName" />
+    <result column="DEPARTMENT_DEL_FLAG" jdbcType="VARCHAR" property="departmentDelFlag" />
+    <result column="DEPARTMENT_CREATE_TIME" jdbcType="TIMESTAMP" property="departmentCreateTime" />
+    <result column="DEPARTMENT_CREATE_USER" jdbcType="VARCHAR" property="departmentCreateUser" />
+    <result column="DEPARTMENT_MODIFY_TIME" jdbcType="TIMESTAMP" property="departmentModifyTime" />
+    <result column="DEPARTMENT_MODIFY_USER" jdbcType="VARCHAR" property="departmentModifyUser" />
+  </resultMap>
+  
+  <resultMap id="departmentExMap" type="priv.xin.xd.core.entity.ex.DepartmentEx" extends="BaseResultMap">
+    <result column="POSITION_COUNT" jdbcType="INTEGER" property="positionCount" />
+
+    <collection property="positionExList" ofType="priv.xin.xd.core.entity.ex.PositionEx">
+      <result property="positionId" column="POSITION_ID" jdbcType="VARCHAR"/>
+      <result property="positionName" column="POSITION_NAME" jdbcType="VARCHAR"/>
+      <result property="positionDepartmentId" column="POSITION_DEPARTMENT_ID" jdbcType="VARCHAR"/>
+      <result property="positionDelFlag" column="POSITION_DEL_FLAG" jdbcType="VARCHAR"/>
+      <result property="positionCreateTime" column="POSITION_CREATE_TIME" jdbcType="TIMESTAMP"/>
+      <result property="positionCreateUser" column="POSITION_CREATE_USER" jdbcType="VARCHAR"/>
+      <result property="positionModifyTime" column="POSITION_MODIFY_TIME" jdbcType="TIMESTAMP"/>
+      <result property="positionModifyUser" column="POSITION_MODIFY_USER" jdbcType="VARCHAR"/>
+
+      <collection property="userList" ofType="priv.xin.xd.core.entity.User">
+        <id column="USER_ID" jdbcType="VARCHAR" property="userId" />
+        <result column="USER_NUMBER" jdbcType="VARCHAR" property="userNumber" />
+        <result column="USER_PWD" jdbcType="VARCHAR" property="userPwd" />
+        <result column="USER_NAME" jdbcType="VARCHAR" property="userName" />
+        <result column="USER_HEAD" jdbcType="VARCHAR" property="userHead" />
+        <result column="USER_PLATFORM" jdbcType="VARCHAR" property="userPlatform" />
+        <result column="USER_QQ" jdbcType="VARCHAR" property="userQq" />
+        <result column="USER_EMAIL" jdbcType="VARCHAR" property="userEmail" />
+        <result column="USER_DEL_FLAG" jdbcType="VARCHAR" property="userDelFlag" />
+        <result column="USER_CREATE_TIME" jdbcType="TIMESTAMP" property="userCreateTime" />
+        <result column="USER_CREATE_USER" jdbcType="VARCHAR" property="userCreateUser" />
+        <result column="USER_MODIFY_TIME" jdbcType="TIMESTAMP" property="userModifyTime" />
+        <result column="USER_MODIFY_USER" jdbcType="VARCHAR" property="userModifyUser" />
+      </collection>
+    </collection>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    DEPARTMENT_ID, DEPARTMENT_NAME, DEPARTMENT_DEL_FLAG, DEPARTMENT_CREATE_TIME, DEPARTMENT_CREATE_USER,
+    DEPARTMENT_MODIFY_TIME, DEPARTMENT_MODIFY_USER
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from s_department
+    where DEPARTMENT_ID = #{departmentId,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from s_department
+    where DEPARTMENT_ID = #{departmentId,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insert" parameterType="priv.xin.xd.core.entity.Department">
+    insert into s_department (DEPARTMENT_ID, DEPARTMENT_NAME, DEPARTMENT_DEL_FLAG,
+                              DEPARTMENT_CREATE_TIME, DEPARTMENT_CREATE_USER, DEPARTMENT_MODIFY_TIME,
+                              DEPARTMENT_MODIFY_USER)
+    values (#{departmentId,jdbcType=VARCHAR}, #{departmentName,jdbcType=VARCHAR}, #{departmentDelFlag,jdbcType=VARCHAR},
+            SYSDATE(), #{departmentCreateUser,jdbcType=VARCHAR}, SYSDATE(),
+      #{departmentModifyUser,jdbcType=VARCHAR})
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="priv.xin.xd.core.entity.Department">
+    update s_department
+    <set>
+      <if test="departmentName != null">
+        DEPARTMENT_NAME = #{departmentName,jdbcType=VARCHAR},
+      </if>
+      <if test="departmentDelFlag != null">
+        DEPARTMENT_DEL_FLAG = #{departmentDelFlag,jdbcType=VARCHAR},
+      </if>
+      DEPARTMENT_MODIFY_TIME = SYSDATE(),
+      DEPARTMENT_MODIFY_USER = #{departmentModifyUser,jdbcType=VARCHAR},
+    </set>
+    where DEPARTMENT_ID = #{departmentId,jdbcType=VARCHAR}
+  </update>
+
+  <!--通过实体作为筛选条件查询-->
+  <select id="queryAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from s_department
+    <where>
+      <if test="departmentId != null and departmentId != ''">
+        and DEPARTMENT_ID = #{departmentId}
+      </if>
+      <if test="departmentName != null and departmentName != ''">
+        and DEPARTMENT_NAME = #{departmentName}
+      </if>
+      <if test="departmentDelFlag != null and departmentDelFlag != ''">
+        and DEPARTMENT_DEL_FLAG = #{departmentDelFlag}
+      </if>
+      <if test="departmentCreateTime != null">
+        and DEPARTMENT_CREATE_TIME = #{departmentCreateTime}
+      </if>
+      <if test="departmentCreateUser != null and departmentCreateUser != ''">
+        and DEPARTMENT_CREATE_USER = #{departmentCreateUser}
+      </if>
+      <if test="departmentModifyTime != null">
+        and DEPARTMENT_MODIFY_TIME = #{departmentModifyTime}
+      </if>
+      <if test="departmentModifyUser != null and departmentModifyUser != ''">
+        and DEPARTMENT_MODIFY_USER = #{departmentModifyUser}
+      </if>
+    </where>
+  </select>
+
+  <select id="queryAll_tree" resultMap="departmentExMap">
+    SELECT
+      *
+    FROM s_department d
+           LEFT JOIN s_position p ON p.POSITION_DEPARTMENT_ID = d.DEPARTMENT_ID
+           LEFT JOIN s_user_position up ON up.POSITION_ID = p.POSITION_ID
+           LEFT JOIN s_user u ON u.USER_ID = up.USER_ID
+  </select>
+
+  <select id="queryDepartmentUsedCount" resultMap="departmentExMap">
+    SELECT
+      IFNULL(p.POSITION_COUNT,0) AS POSITION_COUNT
+    FROM s_department d
+           LEFT JOIN (SELECT POSITION_DEPARTMENT_ID,COUNT(POSITION_DEPARTMENT_ID) AS POSITION_COUNT FROM s_position GROUP BY POSITION_DEPARTMENT_ID) p ON p.POSITION_DEPARTMENT_ID = d.DEPARTMENT_ID
+    WHERE d.DEPARTMENT_ID = #{departmentId}
+  </select>
+
+</mapper>

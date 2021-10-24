@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+<style type="text/css">
+	.no-padding{
+		padding: 0px;
+	}
+	.chosen-container-single .chosen-single{
+		border: 1px solid #e5e6e7;
+	}
+	.custom-chosen-drop{
+		width:490px !important;
+		margin-left: 15px;
+	}
+		
+	.display-none{
+		display: none !important;
+	}
+</style>
+</head>
+<body>
+    <div class="wrapper animated fadeInRight">
+    	<div class="row">
+            <div class="col-sm-12 no-padding">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="my-form">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">请求地址：</label>
+                                <div class="col-sm-8">
+                                    <input id="urlPath" name="urlPath" class="form-control" type="text" aria-required="true">
+                                </div>
+                            </div>
+							<div class="form-group">
+                                <label class="col-sm-3 control-label">请求方式：</label>
+                                <div class="col-sm-8">
+	                                <select id="urlType" name="urlType" data-placeholder="请选择方式..." class="chosen-select" style="width:490px;" tabindex="2" aria-required="true">
+										<option value ="">请选择</option>
+									</select>
+								</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">应用平台：</label>
+                                <div class="col-sm-8">
+	                                <select id="urlPlatform" name="urlPlatform" data-placeholder="请选择平台..." class="chosen-select" style="width:490px;" tabindex="2" aria-required="true">
+										<option value ="">请选择</option>
+									</select>
+                                </div>
+                            </div>
+							<div class="form-group">
+                                <label class="col-sm-3 control-label">权限：</label>
+                                <div class="col-sm-8">
+	                                <select id="authId" name="authId" data-placeholder="请选择权限..." class="chosen-select" style="width:490px;" tabindex="2" aria-required="true" multiple>
+	                                </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">备注：</label>
+                                <div class="col-sm-8">
+									<textarea id="urlRemarks" name="urlRemarks" class="form-control" required="" aria-required="true"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-primary insert-btn" type="button">提交</button>
+                                    <button class="btn btn-primary update-btn" type="button">提交</button>
+                                </div>
+                            </div>
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+		</div>
+	</div>
+</body>
+<script src="../../js/common/base.js"></script>
+<script type="text/javascript">
+
+	var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+	
+	const pageParams = getPageParam();
+	$.deepFreeze(pageParams);
+	
+	$(function(){
+
+		//渲染控件
+		drawElement();
+		
+		initCodeList();
+		
+		initData();
+		
+		initEvent();
+	})
+	
+	function initEvent(){
+		$(".insert-btn").click(function(){
+			var param = new Object();
+			param["urlId"] = "";
+			param["urlPath"] = $("input[name='urlPath']").val();
+			param["urlType"] = $("select[name='urlType']").val();
+			param["urlPlatform"] = $("select[name='urlPlatform']").val();
+			param["urlRemarks"] = $("textarea[name='urlRemarks']").val();
+			
+			var authIdList = $("#authId").val();
+			if(isNotNull(authIdList)){
+				$.each(authIdList, function(i, v){
+					param["authList["+i+"].authId"] = v;
+				});
+			}
+			
+			ajax({
+				url: requestPath.urlInsert.url,
+				data: param,
+				type: requestPath.urlInsert.type,
+				success: function(data){
+					if(data.status){
+						closeFrame();
+					}
+				},
+				error: function(data){
+				}
+			});
+		});
+		$(".update-btn").click(function(){
+		
+			var param = new Object();
+			param["urlId"] = pageParams.urlId;
+			param["urlPath"] = $("input[name='urlPath']").val();
+			param["urlType"] = $("select[name='urlType']").val();
+			param["urlPlatform"] = $("select[name='urlPlatform']").val();
+			param["urlRemarks"] = $("textarea[name='urlRemarks']").val();
+			
+			var authIdList = $("#authId").val();
+			if(isNotNull(authIdList)){
+				$.each(authIdList, function(i, v){
+					param["authList["+i+"].authId"] = v;
+				});
+			}
+			
+			ajax({
+				url: requestPath.urlUpdate.url,
+				data: param,
+				type: requestPath.urlUpdate.type,
+				success: function(data){
+					if(data.status){
+						closeFrame();
+					}
+				},
+				error: function(data){
+				}
+			});
+		});
+	}
+	
+	//渲染控件
+	function drawElement(){
+		
+	}
+	
+	function initCodeList(){
+		$("select[name='authId']").attr("code-tag", "auth");
+		$("select[name='urlType']").attr("code-tag", Code.REQUEST_METHOD_ALL.group);
+		$("select[name='urlPlatform']").attr("code-tag", Code.PLATFORM_WEB_ALL.group);
+		loadCodeList();
+	}
+	
+	function initData(){
+		
+		if(isNull(pageParams.urlId)){
+			//新增请求
+			$(".insert-btn").show();
+			$(".update-btn").hide();
+			return false;
+		} else {
+			//编辑请求
+			$(".insert-btn").hide();
+			$(".update-btn").show();
+			
+			ajax({
+				url: requestPath.urlDetail.url,
+				data: {"urlId": pageParams.urlId},
+				type: requestPath.urlDetail.type,
+				success: function(data){
+					if(data.status){
+						$("#urlPath").val(data.data.urlPath);
+						$("#urlRemarks").val(data.data.urlRemarks);
+						
+						$("#urlType").val(data.data.urlType);
+						$("#urlType").trigger("chosen:updated");
+						$("#urlType").chosen();
+						
+						$("#urlPlatform").val(data.data.urlPlatform);
+						$("#urlPlatform").trigger("chosen:updated");
+						$("#urlPlatform").chosen();
+						
+						var authList = data.data.authList;
+						if(isNotNull(authList)){
+							$.each(authList, function(i, authObj){
+								$("#authId option[value='"+authObj.authId+"']").attr("selected","selected");
+							});
+							$("#authId").trigger("chosen:updated");
+							$("#authId").chosen();
+						}
+					}
+				},
+				error: function(data){
+					
+				}
+			});
+		}
+	}
+	
+	function closeFrame(){
+		//parent.layer.close(index);//关闭当前dialog
+		parent.location.reload();//重新加载父页面
+	}
+	
+</script>
+</html>

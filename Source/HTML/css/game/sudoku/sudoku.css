@@ -1,0 +1,68 @@
+/* CSS Document */
+table.sudoku{
+  border-left:#B5B5B5 3px solid;
+  border-top:#B5B5B5 3px solid;
+}
+table.sudoku input{
+  font-family: Geneva, Arial, Helvetica, sans-serif;
+  font-size:12pt;
+  height:54px;
+  width:60px;
+  padding-top:13px;
+  text-align:center;
+  font-weight:bolder;
+  border:0px;
+  margin-top:-2px;
+}  
+td.sudoku{
+  border-bottom:#B5B5B5 1px solid;
+  border-right:#B5B5B5 1px solid;  
+  height:60px;
+  width:60px;  
+}  
+td.sudoku1{
+  border-bottom:#B5B5B5 1px solid;
+  border-right:#B5B5B5 3px solid;  
+  height:60px;
+  width:60px;  
+}
+td.sudoku2{
+  border-bottom:#B5B5B5 3px solid;
+  border-right:#B5B5B5 1px solid;  
+  height:60px;
+  width:60px;  
+}  
+td.sudoku3{
+  border-bottom:#B5B5B5 3px solid;
+  border-right:#B5B5B5 3px solid;  
+  height:60px;
+  width:60px;  
+}
+div.show-num{
+  width:60px;
+  height:60px;
+  display:block;
+  overflow:hidden;
+  border:0px;
+  text-align:left;
+  color:#666666;
+  background:#EEEEEE;
+} 
+div.show-num input{
+  color:#666666;
+  background:#EEEEEE;
+}
+div.hidden-num{
+  width:60px;
+  height:60px;
+  display:block;
+  overflow:hidden;
+  border:0px;
+  text-align:left;
+  background:#FFFFFF;
+  color:#333333;
+} 
+div.hidden-num input{
+  background:#FFFFFF;
+  color:#333333;
+}

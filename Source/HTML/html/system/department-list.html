@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+
+    <title>XD - 主页</title>
+
+    <link href="../../img/logo.ico" rel="shortcut icon">
+
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../../css/iconfont/iconfont.css" rel="stylesheet">
+	<!--提示框-->
+	<link href="../../css/plugins/toastr/toastr.min.css" rel="stylesheet">
+	<link href="../../css/plugins/smallPop/spop.min.css" rel="stylesheet">
+	<!-- tree-view -->
+	<link href="../../css/plugins/treeview/bootstrap-treeview.css" rel="stylesheet">
+	<!-- sweetalert -->
+	<link href="../../css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+	
+	<link href="../../css/animate.css" rel="stylesheet">
+	<link href="../../css/style.css" rel="stylesheet">
+    <link href="../../css/loading.css" rel="stylesheet">
+	<style>
+		.wrapper-content{
+			padding: 15px;
+		}
+		
+		.link-span{
+			color: blue;
+			cursor:pointer;
+		}
+		
+		.display-none{
+			display: none;
+		}
+		
+		.panel-body{
+			border: 0px !important;
+		}
+		
+	</style>
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+		<div class="row">
+            <div class="col-sm-4">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>部门职位</h5>
+                    </div>
+                    <div class="ibox-content">
+						<div id="departmentTree"></div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="col-sm-8" >
+                <div class="ibox float-e-margins" id="departmentEditInfo">
+                    <div class="ibox-title">
+                        <h5>添加部门</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">部门名称：</label>
+                                <div class="col-sm-8">
+									<input name="departmentName" class="form-control" type="text" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-primary insert-department" type="button">保存</button>
+                                </div>
+                            </div>
+						</form>
+					</div>
+				</div>
+			<!-- </div>
+			
+			<div class="col-sm-4"> -->
+				<div class="ibox float-e-margins" id="positionEditInfo">
+					<div class="ibox-title">
+						<h5>添加职位</h5>
+					</div>
+					<div class="ibox-content">
+						<form class="form-horizontal m-t">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">部门：</label>
+                                <div class="col-sm-8">
+									<select name="department" class="form-control query-criteria"></select>
+                                </div>
+                            </div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">职位名称：</label>
+								<div class="col-sm-8">
+									<input name="positionName" class="form-control" type="text" aria-required="true">
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-8 col-sm-offset-3">
+									<button class="btn btn-primary insert-position" type="button">保存</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+</body>
+<!-- 全局js -->
+<script src="../../js/jquery.min.js"></script>
+<script src="../../js/jquery.cookie.js"></script>
+<script src="../../js/bootstrap.min.js"></script>
+<!--提示框-->
+<script src="../../js/plugins/layer/layer.js"></script>
+<script src="../../js/plugins/toastr/toastr.min.js"></script>
+<script src="../../js/plugins/smallPop/spop.min.js"></script>
+<!-- tree-view -->
+<script src="../../js/plugins/treeview/bootstrap-treeview.js"></script>
+
+<script src="../../js/DB/dexie.js"></script>
+<script src="../../js/DB/IDB.js"></script>
+<script src="../../js/common/Util.js"></script>
+<script src="../../js/common/Field.js"></script>
+<script src="../../js/common/QequestPath.js"></script>
+<script src="../../js/common/Code.js"></script>
+<script src="../../js/common/CookieUtils.js"></script>
+<script src="../../js/common/Common.js"></script>
+
+<script type="text/javascript">
+
+	$(function(){
+		initCodeList();
+		drawTree();
+		initEvent();
+	});
+	
+	function initCodeList(){
+		var data = new Array();
+		data.push({
+			"group": "department",
+			"element": "department",
+			"nullSelect": false,
+			"default": Code.NO.value
+		});
+		loadCode(data);
+	}
+	
+	/**
+	 * 渲染树节点
+	 */
+	function drawTree(){
+		$('#departmentTree').treeview({
+			showTags: true,
+		    data: createTreeData(),
+			onNodeSelected: function (event, node) {
+				var id = node.id;
+				var text = node.text;
+				var type = node.type;
+				if(type=="department"){
+					var departmentName = node.text;
+					$("#positionEditInfo select[name='department']").val(id);
+					$("#positionEditInfo .ibox-title h5").html("添加 ["+departmentName+"] 职位");
+				} else if(type=="position"){
+					var parentNode = $('#departmentTree').treeview('getParent', node);
+					$("#positionEditInfo select[name='department']").val(parentNode.id);
+				}
+			},
+			onNodeUnselected: function(event, node){
+				$("#departmentEditInfo input[name='departmentName']").val("");
+				$("#positionEditInfo select[name='department']").val("");
+				$("#departmentEditInfo input[name='positionName']").val("");
+					$("#positionEditInfo .ibox-title h5").html("添加职位");
+			}
+			
+		});
+	}
+	
+	function initEvent(){
+		$("#departmentTree").on("click",".treeview-btn .edit", function(e) {
+			e.stopPropagation();
+			
+			var nodeId = $(this).parents(".list-group-item").attr("data-nodeid");
+			var node = $('#departmentTree').treeview('getNode', nodeId);
+			
+			if(node.type=="user"){
+				layer.open({
+					  type: 2,
+					  title: "用户详细信息",
+					  area: ['800px', '550px'],
+					  fixed: false, //不固定
+					  maxmin: true,
+					  content: 'user-detail.html?userId='+node.id
+				});
+			} else if(node.type=="department"){
+				layer.prompt({
+					title: '编辑部门',
+					formType: 0,// 输入框类型，支持0（文本）默认1（密码）2（多行文本）
+					value: node.text,
+					btn: ["修改","删除","取消"],
+					yes: function(index, layero){
+						//按钮【按钮一】的回调
+						var departmentName = $(layero).find(".layui-layer-content input.layui-layer-input").val();
+						ajax({
+							url: RequestPath.departmentUpdate.url,
+							data: {
+								"departmentId": node.id,
+								"departmentName": departmentName
+							},
+							type: RequestPath.departmentUpdate.type,
+							success: function(data){
+								reloadData();//重新加载当前页面
+							},
+							error: function(data){
+							}
+						});
+					}
+					,btn2: function(index, layero){
+						ajax({
+							url: RequestPath.departmentDelete.url,
+							data: { "departmentId": node.id },
+							type: RequestPath.departmentDelete.type,
+							success: function(data){
+								reloadData();//重新加载当前页面
+							},
+							error: function(data){
+							}
+						});
+						// return false;//开启该代码可禁止点击该按钮关闭
+					}
+				});
+			} else if(node.type=="position"){
+				layer.prompt({
+					title: '编辑职位',
+					formType: 0,// 输入框类型，支持0（文本）默认1（密码）2（多行文本）
+					value: node.text,
+					btn: ["修改","删除","取消"],
+					yes: function(index, layero){
+						//按钮【按钮一】的回调
+						var positionName = $(layero).find(".layui-layer-content input.layui-layer-input").val();
+						ajax({
+							url: RequestPath.positionUpdate.url,
+							data: {
+								"positionId": node.id,
+								"positionName": positionName
+							},
+							type: RequestPath.positionUpdate.type,
+							success: function(data){
+								reloadData();//重新加载当前页面
+							},
+							error: function(data){
+							}
+						});
+					}
+					,btn2: function(index, layero){
+						ajax({
+							url: RequestPath.positionDelete.url,
+							data: { "positionId": node.id },
+							type: RequestPath.positionDelete.type,
+							success: function(data){
+								reloadData();//重新加载当前页面
+							},
+							error: function(data){
+							}
+						});
+						// return false;//开启该代码可禁止点击该按钮关闭
+					}
+				});
+			}
+		});
+		
+		$("#departmentEditInfo").on("click",".insert-department",function(e){
+			var departmentName = $("#departmentEditInfo input[name='departmentName']").val();
+			ajax({
+				url: RequestPath.departmentInsert.url,
+				data: {
+					"departmentName":departmentName,
+				},
+				type: RequestPath.departmentInsert.type,
+				success: function(data){
+					reloadData();//重新加载当前页面
+				},
+				error: function(data){
+				}
+			});
+		});
+		
+		$("#positionEditInfo").on("click",".insert-position",function(e){
+			var departmentId = $("#positionEditInfo select[name='department']").val();
+			var positionName = $("#positionEditInfo input[name='positionName']").val();
+			ajax({
+				url: RequestPath.positionInsert.url,
+				data: {
+					"positionDepartmentId":departmentId,
+					"positionName":positionName,
+				},
+				type: RequestPath.positionInsert.type,
+				success: function(data){
+					reloadData();//重新加载当前页面
+				},
+				error: function(data){
+				}
+			});
+		});
+	}
+	
+	/**
+	 * 生成tree需要的json格式的数据
+	 */
+	function createTreeData(){
+		var treeData = new Array();
+		
+		var departmentData = getDepartmentTreeData();
+		if(departmentData!=null){
+			$.each(departmentData, function(i, department){
+				var departmentNode = new Object();
+				departmentNode.id = department.departmentId;
+				departmentNode.type = "department";
+				departmentNode.icon = "iconfont icon-bumen";
+				departmentNode.text = department.departmentName;
+				departmentNode.href = "";
+				departmentNode.state = { 
+					checked: false, //指示一个节点是否处于checked状态，用一个checkbox图标表示。
+					disabled: false, //指示一个节点是否处于disabled状态。（不是selectable，expandable或checkable）
+					expanded: false, //指示一个节点是否处于展开状态。
+					selected: false //指示一个节点是否可以被选择。
+				};
+				departmentNode.selectable = true; //指定列表树的节点是否可选择。设置为false将使节点展开，并且不能被选择。
+				// departmentNode.tags = ["部门"];
+				departmentNode.buttons = [
+					"<a class='btn btn-primary btn-xs edit'>编辑</a>",
+				];
+				
+				// 职位
+				var positionNodes = new Array();
+				var positionExList = department.positionExList;
+				if(positionExList!=null){
+					$.each(positionExList, function(i, position){
+						var positionNode = new Object();
+						positionNode.id = position.positionId;
+						positionNode.type = "position";
+						positionNode.icon = "iconfont icon-zhiwei";
+						positionNode.text = position.positionName;
+						positionNode.href = "";
+						positionNode.state = { 
+							checked: false, //指示一个节点是否处于checked状态，用一个checkbox图标表示。
+							disabled: false, //指示一个节点是否处于disabled状态。（不是selectable，expandable或checkable）
+							expanded: false, //指示一个节点是否处于展开状态。
+							selected: false //指示一个节点是否可以被选择。
+						};
+						positionNode.selectable = true; //指定列表树的节点是否可选择。设置为false将使节点展开，并且不能被选择。
+						// positionNode.tags = ["职位"];
+						positionNode.buttons = [
+							"<a class='btn btn-primary btn-xs edit'>编辑</a>",
+						];
+						
+						// 用户
+						var userNodes = new Array();
+						var userList = position.userList;
+						if(userList!=null){
+							$.each(userList, function(i, user){
+								var userNode = new Object();
+								userNode.id = user.userId;
+								userNode.type = "user";
+								userNode.icon = "iconfont icon-user";
+								userNode.text = user.userName;
+								userNode.href = "";
+								userNode.state = { 
+									checked: false, //指示一个节点是否处于checked状态，用一个checkbox图标表示。
+									disabled: false, //指示一个节点是否处于disabled状态。（不是selectable，expandable或checkable）
+									expanded: false, //指示一个节点是否处于展开状态。
+									selected: false //指示一个节点是否可以被选择。
+								};
+								userNode.selectable = true; //指定列表树的节点是否可选择。设置为false将使节点展开，并且不能被选择。
+								// userNode.tags = ["用户"];
+								userNode.buttons = [
+									"<a class='btn btn-primary btn-xs edit'>编辑</a>",
+								];
+								userNode.nodes = null;
+								userNodes.push(userNode);
+							});
+						}
+						positionNode.nodes = userNodes.length==0?null:userNodes;
+						positionNodes.push(positionNode);
+					});
+				}
+				departmentNode.nodes = positionNodes.length==0?null:positionNodes;
+				treeData.push(departmentNode);
+			});
+		}
+		return treeData;
+	}
+	
+	function getDepartmentTreeData(){
+		var departmentTree;
+		ajax({
+			url: RequestPath.departmentTree.url,
+			data: {},
+			type: RequestPath.departmentTree.type,
+			success: function(data){
+				departmentTree = data.datas.departmentTree;
+			},
+			error: function(data){
+			}
+		});
+		return departmentTree;
+	}
+	
+	/**
+	 * 重新加载数据
+	 */
+	function reloadData(){
+		ajaxShowMessage("showCookieMessage")
+		drawTree();
+		initEvent();
+	}
+	
+</script>
+</html>

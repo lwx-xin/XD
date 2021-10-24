@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+
+    <title>XD - 主页</title>
+
+    <link href="../../img/logo.ico" rel="shortcut icon">
+
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../css/font-awesome.min.css" rel="stylesheet">
+	<!--提示框-->
+	<link href="../../css/plugins/toastr/toastr.min.css" rel="stylesheet">
+	<link href="../../css/plugins/smallPop/spop.min.css" rel="stylesheet">
+	<!-- 多选下拉框 -->
+	<link href="../../css/plugins/chosen/chosen.css" rel="stylesheet">
+	
+	<link href="../../css/animate.css" rel="stylesheet">
+	<link href="../../css/style.css" rel="stylesheet">
+    <link href="../../css/loading.css" rel="stylesheet">
+	<style type="text/css">
+		.head-img{
+			width: 100px;
+		}
+		.no-padding{
+			padding: 0px;
+		}
+		.chosen-container-single .chosen-single{
+			border: 1px solid #e5e6e7;
+		}
+		.custom-chosen-drop{
+			width:490px !important;
+			margin-left: 15px;
+		}
+			
+		.display-none{
+			display: none !important;
+		}
+	</style>
+</head>
+<body>
+    <div class="wrapper animated fadeInRight">
+    	<div class="row">
+            <div class="col-sm-12 no-padding">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="my-form">
+                            <div class="form-group" id="head-img-div">
+								<div style="text-align: center; width: 100%;">
+									<img alt="image" src="../../img/default-head.jpg" class="img-circle head-img" style="display: inline-block;" onerror="this.src='../../img/default-head.jpg';this.onerror=null;"/>
+									<input name="userHead_file" type="file" class="form-control display-none" aria-required="true">
+								</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">账号：</label>
+                                <div class="col-sm-8">
+									<span id="userNumber" class="form-control user-info-border"></span>
+                                </div>
+                            </div>
+							<!-- <div class="form-group display-none">
+                                <label class="col-sm-3 control-label">头像：</label>
+                                <div class="col-sm-8">
+	                                <input name="userHead_file" type="file" class="form-control" aria-required="true">
+	                                <input id="userHead" name="userHead_text" type="text" class="form-control display-none" aria-required="true">
+								</div>
+                            </div> -->
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">昵称：</label>
+                                <div class="col-sm-8">
+                                    <input id="userName" name="userName" class="form-control" type="text" aria-required="true">
+                                    <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 最多15个文字</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">密码：</label>
+                                <div class="col-sm-8">
+                                    <input id="userPwd" autocomplete="off" name="userPwd" class="form-control password-disc" type="text" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">确认密码：</label>
+                                <div class="col-sm-8">
+                                    <input id="password1" autocomplete="off" name="password1" class="form-control password-disc" type="text" aria-required="true">
+                                    <span class="help-block m-b-none pwd-check-msg"><i class="fa fa-exclamation"></i> 请确认您的密码</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">QQ：</label>
+                                <div class="col-sm-8">
+                                    <input id="userQq" name="userQq" class="form-control" type="text" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Email：</label>
+                                <div class="col-sm-8">
+                                    <input id="userEmail" name="userEmail" class="form-control" type="email" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">平台：</label>
+                                <div class="col-sm-8">
+                                    <select id="userPlatform" name="userPlatform" class="form-control query-criteria"></select>
+                                </div>
+                            </div>
+							<div class="form-group">
+                                <label class="col-sm-3 control-label">职位：</label>
+                                <div class="col-sm-8">
+									
+	                                <select id="positions" class="chosen-select " style="width:490px;" data-placeholder=" " multiple></select>
+									
+	                                <div class="col-sm-6" style="padding-left: 0px;padding-top: 10px;">
+	                                	<select id="department" name="department" class="form-control query-criteria"></select>
+	                                </div>
+	                                <div class="col-sm-6" style="padding-left: 0px;padding-top: 10px;">
+	                                	<select id="position" name="position" class="form-control query-criteria"></select>
+	                                </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-primary insert-btn" type="button">提交</button>
+                                    <button class="btn btn-primary update-btn" type="button">提交</button>
+                                </div>
+                            </div>
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+		</div>
+	</div>
+</body>
+<!-- 全局js -->
+<script src="../../js/jquery.min.js"></script>
+<script src="../../js/jquery.cookie.js"></script>
+<script src="../../js/bootstrap.min.js"></script>
+<script src="../../js/contabs.js"></script>
+<!--提示框-->
+<script src="../../js/plugins/layer/layer.js"></script>
+<script src="../../js/plugins/toastr/toastr.min.js"></script>
+<script src="../../js/plugins/smallPop/spop.min.js"></script>
+<!-- 多选下拉框 -->
+<script src="../../js/plugins/chosen/chosen.jquery.js"></script>
+
+<script src="../../js/DB/dexie.js"></script>
+<script src="../../js/DB/IDB.js"></script>
+<script src="../../js/common/Util.js"></script>
+<script src="../../js/common/Field.js"></script>
+<script src="../../js/common/QequestPath.js"></script>
+<script src="../../js/common/Code.js"></script>
+<script src="../../js/common/CookieUtils.js"></script>
+<script src="../../js/common/Common.js"></script>
+<script type="text/javascript">
+
+	var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+	
+	const pageParams = getPageParam();
+	$.deepFreeze(pageParams);
+	
+	$(function(){
+		initCodeList();
+		
+		initData();
+		
+		drawElement();
+		
+		initEvent();
+	})
+	
+	function initCodeList(){
+		var data = new Array();
+		data.push({
+			"group": Code.PLATFORM_ALL.group,
+			"element": "userPlatform"
+		});
+		data.push({
+			"group": "department",
+			"element": "department",
+		});
+		loadCode(data);
+		
+		// 加载职位下拉框
+		initPositionSelect()
+		$(".chosen-select").chosen();
+	}
+	
+	function initEvent(){
+		
+		if(isNull(pageParams.userId)){
+			// 新增
+			$("#userPwd,#password1").on("input", function(){
+				var pwd = $("#userPwd").val();
+				var pwd1 = $("#password1").val();
+				if(isNull(pwd) || isNull(pwd1)){
+					$(".pwd-check-msg").html("<i class='fa fa-exclamation'></i> 请再次输入您的密码");
+					$(".pwd-check-msg").css("color", "");
+				} else if(pwd!=pwd1){
+					$(".pwd-check-msg").html("<i class='fa fa-close'></i> 两次密码不一致");
+					$(".pwd-check-msg").css("color","red");
+				} else {
+					$(".pwd-check-msg").html("<i class='fa fa-check'></i> 密码正确");
+					$(".pwd-check-msg").css("color", "green");
+				}
+			});
+		}
+		
+		$("#head-img-div .head-img").click(function(){
+			$(":file[name='userHead_file']").click();
+		});
+		
+		$(":file[name='userHead_file']").change(function(){
+			imgToBase64(this,function(data){
+				$(".head-img").attr("src", data);
+			})
+		});
+		
+		$("#department").change(function(){
+			initPositionSelect();
+		});
+		
+		$("#position").change(function(){
+			if(isNotNull($(this).val())){
+				var id = $(this).val();
+				var positionName = $(this).find("option:selected").text();
+				var departmentName = $("#department").find("option:selected").text();
+				var name = departmentName + "-" + positionName;
+				
+				if($("#positions").find("option[value='"+id+"']").length==0){
+					$("#positions").append("<option value='"+id+"' selected>"+name+"</option>");
+					$("#positions").trigger("chosen:updated");
+					$("#positions").chosen();
+				}
+			}
+		});
+		
+		$("button.update-btn").click(function(){
+			var param = new Object();
+			param["userId"] = pageParams.userId;
+			param["userName"] = $("input[name='userName']").val();
+			param["userQq"] = $("input[name='userQq']").val();
+			param["userEmail"] = $("input[name='userEmail']").val();
+			param["userPlatform"] = $("select[name='userPlatform']").val();
+			param["files"] = $(":file[name='userHead_file']")[0].files[0];
+			var positionList = $("#positions").val();
+			if(isNotNull(positionList)){
+				$.each(positionList, function(i, v){
+					param["positionExList["+i+"].positionId"] = v;
+				});
+			}
+			
+			ajax({
+				url: RequestPath.userUpdate.url,
+				data: param,
+				type: RequestPath.userUpdate.type,
+				success: function(data){
+					closeFrame();
+				},
+				error: function(data){
+				}
+			}, null, true);
+		});
+		
+		$("button.insert-btn").click(function(){
+			var param = new Object();
+			param["userName"] = $("input[name='userName']").val();
+			param["userPwd"] = $("input[name='userPwd']").val();
+			param["userQq"] = $("input[name='userQq']").val();
+			param["userEmail"] = $("input[name='userEmail']").val();
+			param["userPlatform"] = $("select[name='userPlatform']").val();
+			param["files"] = $(":file[name='userHead_file']")[0].files[0];
+			var positionList = $("#positions").val();
+			if(isNotNull(positionList)){
+				$.each(positionList, function(i, v){
+					param["positionExList["+i+"].positionId"] = v;
+				});
+			}
+			
+			ajax({
+				url: RequestPath.userInsert.url,
+				data: param,
+				type: RequestPath.userInsert.type,
+				success: function(data){
+					// 由于只关闭当前页面没有刷新父页面，导致提示消息不显示，所以手动调用显示提示消息
+					window.parent.ajaxShowMessage("showCookieMessage");
+					// 关闭当前页面
+					closeTabActive();
+				},
+				error: function(data){
+				}
+			}, null, true);
+		});
+		
+	}
+	
+	//渲染控件
+	function drawElement(){
+		if(isNull(pageParams.userId)){
+			// 新增
+			$("#userNumber").parents(".form-group").remove();
+			$("button.update-btn").remove();
+		} else {
+			// 编辑，查看
+			$("input[name='userPwd']").parents(".form-group").remove();
+			$("input[name='password1']").parents(".form-group").remove();
+			$("button.insert-btn").remove();
+		}
+	}
+	
+	function initData(){
+		if(isNotNull(pageParams.userId)){
+			// 编辑
+			// 加载用户信息
+			initUserData();
+		}
+	}
+	
+	/**
+	 * 加载职位下拉框
+	 */
+	function initPositionSelect(){
+		var departmentId = $("#department").val();
+		var html = "<option value=''>--请选择--</option>";
+		if(isNotNull(departmentId)){
+			ajax({
+				url: RequestPath.positionAll.url,
+				data: {"positionDepartmentId": departmentId},
+				type: RequestPath.positionAll.type,
+				success: function(data){
+					var positionList = data.datas.positionList;
+					if(isNotNull(positionList)){
+						$.each(positionList, function(i, position){
+							var positionId = position.positionId;
+							var positionName = position.positionName;
+							html += "<option value='"+positionId+"'>"+positionName+"</option>";
+						});
+					}
+				},
+				error: function(data){
+				}
+			});
+		}
+		$("#position").html(html);
+	}
+	
+	/**
+	 * 加载用户信息
+	 */
+	function initUserData(){
+		ajax({
+			url: RequestPath.userDetail.url,
+			data: {"userId":pageParams.userId},
+			type: RequestPath.userDetail.type,
+			success: function(data){
+				var userInfo = data.datas.userDetail;
+				
+				//头像请求地址
+				var userHead = userInfo.userHead;
+				if(isNotNull(userHead)){
+					var userHeadUrl = RequestPath.fileImage.url.replace("{fileId}",userHead);
+					userHeadUrl+="?thumbnails=yes";
+					$("#head-img-div .head-img").attr("src",userHeadUrl);
+				}
+				
+				//昵称
+				var userName = userInfo.userName;
+				$("#userName").val(userName);
+				//账号
+				var userNumber = userInfo.userNumber;
+				$("#userNumber").html(userNumber);
+				//头像请求地址
+				var userHeadUrl = userInfo.userHeadUrl;
+				//qq
+				var userQq = userInfo.userQq;
+				$("#userQq").val(userQq);
+				//email
+				var userEmail = userInfo.userEmail;
+				$("#userEmail").val(userEmail);
+				
+				// 平台
+				var userPlatform = userInfo.userPlatform;
+				$("#userPlatform").val(userPlatform);
+				
+				var positionExList = userInfo.positionExList;
+				if(isNotNull(positionExList)){
+					var positionInfo = new Array();
+					$.each(positionExList, function(i, positionEx){
+						//职位
+						var positionId = positionEx.positionId;
+						var positionName = positionEx.positionName;
+						//部门
+						var department = positionEx.department;
+						if(isNotNull(department)){
+							var departmentName = department.departmentName;
+							
+							if($("#positions").find("option[value='"+positionId+"']").length==0){
+								var name = departmentName + "-" + positionName;
+								$("#positions").append("<option value='"+positionId+"' selected>"+name+"</option>");
+							}
+						}
+					});
+					$("#positions").trigger("chosen:updated");
+					$("#positions").chosen();
+				}
+			},
+			error: function(data){
+			}
+		});
+	}
+	
+	function closeFrame(){
+		// parent.location.reload();//重新加载父页面
+		// window.parent.reloadData();// 父页面刷新数据
+		parent.layer.close(index);//关闭当前dialog
+	}
+	
+</script>
+</html>

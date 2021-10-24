@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+<style type="text/css">
+	.display-none{
+		display: none !important;
+	}
+		
+	.form-group input,select{
+		width: 490px;
+	}
+</style>
+</head>
+<body>
+    <div class="wrapper animated fadeInRight">
+    	<div class="row">
+            <div class="col-sm-12 no-padding">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="my-form">
+                            <div class="form-group display-none">
+                                <label class="col-sm-3 control-label">上级菜单名称：</label>
+                                <div class="col-sm-8">
+                                    <input disabled id="menuParentText" name="menuParentText" class="form-control" type="text" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">菜单名称：</label>
+                                <div class="col-sm-8">
+                                    <input id="menuText" name="menuText" class="form-control" type="text" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">是否为菜单组：</label>
+                                <div class="col-sm-8">
+	                                <select id="menuGroup" name="menuGroup" data-placeholder="请选择..." class="chosen-select" tabindex="2" aria-required="true">
+										<option value="">请选择</option>
+									</select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">请求：</label>
+                                <div class="col-sm-8">
+	                                <select id="menuUrl" name="menuUrl" data-placeholder="请选择请求地址..." class="chosen-select" tabindex="2" aria-required="true">
+										<option value="">请选择</option>
+									</select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">顺序：</label>
+                                <div class="col-sm-8">
+                                    <input id="menuOrder" name="menuOrder" class="form-control" type="number" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">图标：</label>
+                                <div class="col-sm-8">
+									<input id="menuIcon" name="menuIcon" readonly="readonly" placeholder="请选择图标" type="text" class="icon-picker"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">权限：</label>
+                                <div class="col-sm-8">
+	                                <select id="menuAuth" name="menuAuth" data-placeholder="请选择权限..." class="chosen-select" tabindex="2" aria-required="true" multiple>
+										<option value="">请选择</option>
+									</select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-primary insert-btn" type="button">提交</button>
+                                </div>
+                            </div>
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+		</div>
+	</div>
+</body>
+<script src="../../js/common/base.js"></script>
+<script type="text/javascript">
+
+	var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+	
+	const pageParams = getPageParam();
+	$.deepFreeze(pageParams);
+	
+	$(function(){
+		
+		initIconPicker();
+
+		initCodeList();
+		
+		$("#menuUrl").parents(".form-group").hide();
+		
+		
+		initData();
+		
+		initEvent();
+	})
+	
+	function initEvent(){
+		
+		$("#menuGroup").change(function(){
+			var menuGroup = $(this).val();
+			if(menuGroup==Code.NO.value){
+				$("#menuUrl").parents(".form-group").show();
+			} else {
+				$("#menuUrl").parents(".form-group").hide();
+			}
+		});
+		
+		$(".insert-btn").click(function(){
+			var param = new Object();
+			param["menuText"] = $("#menuText").val();
+			param["menuParent"] = pageParams.menuParent;
+			param["menuOrder"] = $("#menuOrder").val();
+			param["menuUrl"] = $("#menuUrl").val();
+			param["menuGroup"] = $("#menuGroup").val();
+			param["menuIcon"] = $("#menuIcon").val();
+			
+			var authIdList = $("#menuAuth").val();
+			if(isNotNull(authIdList)){
+				$.each(authIdList, function(i, v){
+					param["authList["+i+"].authId"] = v;
+				});
+			}
+			
+			ajax({
+				url: requestPath.menuInsert.url,
+				data: param,
+				type: requestPath.menuInsert.type,
+				success: function(data){
+					if(data.status){
+						closeFrame();
+					}
+				},
+				error: function(data){
+				}
+			});
+		});
+	}
+	
+	function initCodeList(){
+		$("select[name='menuGroup']").attr("code-tag", Code.YES.group);
+		$("select[name='menuUrl']").attr("code-tag", "url");
+		$("select[name='menuAuth']").attr("code-tag", "auth");
+		$("select[name='menuIcon']").attr("code-tag", "icon");
+		loadCodeList();
+	}
+	
+	function initData(){
+		var menuParentText = decodeStr(pageParams.menuParentText);
+		if(isNotNull(menuParentText)){
+			$("#menuParentText").parents("div.form-group.display-none").removeClass("display-none");
+			$("#menuParentText").val(menuParentText);
+		}
+	}
+	
+	function closeFrame(){
+		//parent.layer.close(index);//关闭当前dialog
+		parent.location.reload();//重新加载父页面
+	}
+	
+</script>
+</html>

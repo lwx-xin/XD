@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>    
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+<style type="text/css">
+	.no-padding{
+		padding: 0px;
+	}
+	.chosen-container-single .chosen-single{
+		border: 1px solid #e5e6e7;
+	}
+	.custom-chosen-drop{
+		width:490px !important;
+		margin-left: 15px;
+	}
+		
+	.display-none{
+		display: none !important;
+	}
+</style>
+</head>
+<body>
+    <div class="wrapper animated fadeInRight">
+    	<div class="row">
+            <div class="col-sm-12 no-padding">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="my-form">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">权限名称：</label>
+                                <div class="col-sm-8">
+                                    <input id="authName" name="authName" class="form-control" type="text" aria-required="true">
+                                </div>
+                            </div>
+							<div class="form-group">
+                                <label class="col-sm-3 control-label">权限级别：</label>
+                                <div class="col-sm-8">
+                                    <input id="authLevel" name="authLevel" class="form-control" type="text" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-primary insert-btn" type="button">提交</button>
+                                    <button class="btn btn-primary update-btn" type="button">提交</button>
+                                </div>
+                            </div>
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+		</div>
+	</div>
+</body>
+<script src="../../js/common/base.js"></script>
+<script type="text/javascript">
+
+	var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+	
+	const pageParams = getPageParam();
+	$.deepFreeze(pageParams);
+	
+	$(function(){
+		
+		//渲染控件
+		drawElement();
+		
+		initCodeList();
+		
+		initData();
+		
+		initEvent();
+	})
+	
+	function initEvent(){
+		$(".insert-btn").click(function(){
+			var param = new Object();
+			param["authId"] = "";
+			param["authName"] = $("input[name='authName']").val();
+			param["authLevel"] = $("input[name='authLevel']").val();
+			
+			ajax({
+				url: requestPath.authInsert.url,
+				data: param,
+				type: requestPath.authInsert.type,
+				success: function(data){
+					if(data.status){
+						closeFrame();
+					}
+				},
+				error: function(data){
+				}
+			});
+		});
+		$(".update-btn").click(function(){
+		
+			var param = new Object();
+			param["authId"] = pageParams.authId;
+			param["authName"] = $("input[name='authName']").val();
+			param["authLevel"] = $("input[name='authLevel']").val();
+			
+			ajax({
+				url: requestPath.authUpdate.url,
+				data: param,
+				type: requestPath.authUpdate.type,
+				success: function(data){
+					if(data.status){
+						closeFrame();
+					}
+				},
+				error: function(data){
+				}
+			});
+		});
+	}
+	
+	//渲染控件
+	function drawElement(){
+		
+	}
+	
+	function initCodeList(){
+		
+	}
+	
+	function initData(){
+		
+		if(isNull(pageParams.authId)){
+			//新增权限
+			$(".insert-btn").show();
+			$(".update-btn").hide();
+			return false;
+		} else {
+			//编辑权限
+			$(".insert-btn").hide();
+			$(".update-btn").show();
+			
+			ajax({
+				url: requestPath.authDetail.url,
+				data: {"authId": pageParams.authId},
+				type: requestPath.authDetail.type,
+				success: function(data){
+					if(data.status){
+						$("#authName").val(data.data.authName);
+						$("#authLevel").val(data.data.authLevel);
+					}
+				},
+				error: function(data){
+					
+				}
+			});
+		}
+	}
+	
+	function closeFrame(){
+		//parent.layer.close(index);//关闭当前dialog
+		parent.location.reload();//重新加载父页面
+	}
+	
+</script>
+</html>

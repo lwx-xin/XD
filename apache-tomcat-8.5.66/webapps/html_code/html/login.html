@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+
+
+    <title>H+ 后台主题UI框架 - 登录</title>
+    <meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
+    <meta name="description" content="H+是一个完全响应式，基于Bootstrap3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
+
+    <link rel="shortcut icon" href="../img/logo.ico">
+	<link href="../css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="../css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="../css/animate.css" rel="stylesheet">
+    <link href="../css/style.css?v=4.1.0" rel="stylesheet">
+	<link href="../css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+	<link href="../../css/plugins/toastr/toastr.min.css" rel="stylesheet">
+	<link href="../../css/plugins/smallPop/spop.min.css" rel="stylesheet">
+</head>
+
+<body class="gray-bg">
+
+    <div class="middle-box text-center loginscreen  animated fadeInDown">
+        <div>
+            <div>
+
+                <h1 class="logo-name">H+</h1>
+
+            </div>
+            <h3>欢迎使用 H+</h3>
+
+            <form class="m-t" role="form">
+                <div class="form-group">
+                    <input type="text" name="userNumber" class="form-control" placeholder="账号" required="required">
+                </div>
+                <div class="form-group">
+                    <input type="password" name="userPwd" class="form-control" placeholder="密码" required="required">
+                </div>
+                <button type="button" name="login" class="btn btn-primary block full-width m-b">登 录</button>
+
+                <p class="text-muted text-center"> <a href="login.html#"><small>忘记密码了？</small></a> | <a href="register.html">注册一个新账号</a>
+                </p>
+
+            </form>
+        </div>
+    </div>
+</body>
+<!-- 全局js -->
+<script src="../js/jquery.min.js?v=2.1.4"></script>
+<script src="../js/jquery.cookie.js"></script>
+<script src="../js/bootstrap.min.js?v=3.3.6"></script>
+<script src="../js/plugins/layer/layer.min.js"></script>
+<script src="../../js/plugins/sweetalert/sweetalert.min.js"></script>
+<script src="../js/plugins/toastr/toastr.min.js"></script>
+<script src="../js/plugins/smallPop/spop.min.js"></script>
+
+<script src="../js/common/util.js"></script>
+<script src="../js/common/commonField.js"></script>
+<script src="../js/common/request-path.js?v=1.0.0"></script>
+<script src="../js/common/code.js"></script>
+<script src="../js/common/common.js?v=1.0.0"></script>
+<script>
+	$(function(){
+		// 获取ajax参数验证所需的json数据
+		getAjaxCheckJson();
+		
+		initEvent();
+		
+		initData();
+	});
+	
+	function initData(){
+		//清除session以及cookie
+		ajax({
+			url: requestPath.clearLoginInfo.url,
+			type: requestPath.clearLoginInfo.type,
+			success: function(data){
+				
+			},
+			error: function(data){
+				layer.msg("err");
+			}
+		});
+	}
+	
+	function initEvent(){
+		$("button[name='login']").click(function(){
+			var userNumber = $("input[name='userNumber']").val();
+			var userPwd = $("input[name='userPwd']").val();
+			
+			if(isNull(userNumber)){
+				swal("提示", "请输入账号", "error");
+			} else if(isNull(userPwd)){
+				swal("提示", "请输入密码", "error");
+			} else {
+				ajax({
+					url: requestPath.login.url,
+					data: {"userNumber": userNumber,"userPwd": userPwd},
+					type: requestPath.login.type,
+					success: function(data){
+						if(data.status){
+							//跳转home页面
+							top.window.location.href = "system/home.html";
+						}
+					},
+					error: function(data){
+						layer.msg("err");
+					}
+				});
+			}
+		});
+	}
+	
+</script>
+
+</html>

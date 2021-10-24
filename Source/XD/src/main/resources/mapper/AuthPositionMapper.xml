@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="priv.xin.xd.core.dao.AuthPositionMapper">
+
+  <resultMap id="BaseResultMap" type="priv.xin.xd.core.entity.AuthPosition">
+    <id column="AUTH_POSITION_ID" jdbcType="VARCHAR" property="authPositionId" />
+    <result column="AUTH_ID" jdbcType="VARCHAR" property="authId" />
+    <result column="POSITION_ID" jdbcType="VARCHAR" property="positionId" />
+    <result column="AUTH_POSITION_DEL_FLAG" jdbcType="VARCHAR" property="authPositionDelFlag" />
+    <result column="AUTH_POSITION_CREATE_TIME" jdbcType="TIMESTAMP" property="authPositionCreateTime" />
+    <result column="AUTH_POSITION_CREATE_USER" jdbcType="VARCHAR" property="authPositionCreateUser" />
+    <result column="AUTH_POSITION_MODIFY_TIME" jdbcType="TIMESTAMP" property="authPositionModifyTime" />
+    <result column="AUTH_POSITION_MODIFY_USER" jdbcType="VARCHAR" property="authPositionModifyUser" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    AUTH_POSITION_ID, AUTH_ID, POSITION_ID, AUTH_POSITION_DEL_FLAG, AUTH_POSITION_CREATE_TIME, AUTH_POSITION_CREATE_USER,
+    AUTH_POSITION_MODIFY_TIME, AUTH_POSITION_MODIFY_USER
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from s_auth_position
+    where AUTH_POSITION_ID = #{authPositionId,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from s_auth_position
+    where AUTH_POSITION_ID = #{authPositionId,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insert" parameterType="priv.xin.xd.core.entity.AuthPosition">
+    insert into s_auth_position (AUTH_POSITION_ID, AUTH_ID, POSITION_ID,
+      AUTH_POSITION_DEL_FLAG, AUTH_POSITION_CREATE_TIME, AUTH_POSITION_CREATE_USER,
+      AUTH_POSITION_MODIFY_TIME, AUTH_POSITION_MODIFY_USER)
+    values (#{authPositionId,jdbcType=VARCHAR}, #{authId,jdbcType=VARCHAR}, #{positionId,jdbcType=VARCHAR},
+      #{authPositionDelFlag,jdbcType=VARCHAR}, SYSDATE(), #{authPositionCreateUser,jdbcType=VARCHAR},
+            SYSDATE(), #{authPositionModifyUser,jdbcType=VARCHAR})
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="priv.xin.xd.core.entity.AuthPosition">
+    update s_auth_position
+    <set>
+      <if test="authId != null">
+        AUTH_ID = #{authId,jdbcType=VARCHAR},
+      </if>
+      <if test="positionId != null">
+        POSITION_ID = #{positionId,jdbcType=VARCHAR},
+      </if>
+      <if test="authDelFlag != null">
+        AUTH_POSITION_DEL_FLAG = #{authPositionDelFlag,jdbcType=VARCHAR},
+      </if>
+      AUTH_POSITION_MODIFY_TIME = SYSDATE(),
+      AUTH_POSITION_MODIFY_USER = #{authPositionModifyUser,jdbcType=VARCHAR},
+    </set>
+    where AUTH_POSITION_ID = #{authPositionId,jdbcType=VARCHAR}
+  </update>
+
+  <delete id="deleteByPositionId">
+    delete from s_auth_position
+    where POSITION_ID = #{positionId,jdbcType=VARCHAR}
+  </delete>
+
+  <select id="queryAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from s_auth_position
+    <where>
+      <if test="authId!=null and authId!=''">
+        and AUTH_ID=#{authId}
+      </if>
+      <if test="positionId!=null and positionId!=''">
+        and POSITION_ID=#{positionId}
+      </if>
+    </where>
+  </select>
+
+</mapper>

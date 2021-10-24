@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+
+    <title>XD - 主页</title>
+
+    <link href="../../img/logo.ico" rel="shortcut icon">
+
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../css/font-awesome.min.css" rel="stylesheet">
+	<!--提示框-->
+	<link href="../../css/plugins/toastr/toastr.min.css" rel="stylesheet">
+	<link href="../../css/plugins/smallPop/spop.min.css" rel="stylesheet">
+	<!-- table -->
+	<link href="../../css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">	
+	
+	<link href="../../css/animate.css" rel="stylesheet">
+	<link href="../../css/style.css" rel="stylesheet">
+    <link href="../../css/loading.css" rel="stylesheet">
+	<style>
+		.wrapper-content{
+			padding: 15px;
+		}
+		
+		.link-span{
+			color: blue;
+			cursor:pointer;
+		}
+		
+		.display-none{
+			display: none;
+		}
+		
+		/* .form-control{
+			height: 28px !important;
+		}
+		
+		.no-padding-lr{
+			padding-left: 0px !important;
+			padding-right: 0px !important;
+		} */
+	</style>
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+		
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>用户列表</h5>
+                    </div>
+                    <div class="ibox-content">
+						<div class="row form-body form-horizontal m-t">
+							
+							<div class="col-md-4">
+								<div class="form-group">
+									<label class="col-sm-2 control-label">账号:</label>
+									<div class="col-sm-7">
+										<input type="text" name="userNumber" class="form-control query-criteria">
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label class="col-sm-2 control-label">昵称:</label>
+									<div class="col-sm-7">
+										<input type="text" name="userName" class="form-control query-criteria">
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label class="col-sm-2 control-label">状态:</label>
+							 		<div class="col-sm-7">
+										<select name="userDelFlag" class="form-control query-criteria">
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+                    <div class="ibox-content">
+                        <table class="table table-striped table-bordered table-hover" id="userDataTable">
+                            <thead>
+                                <tr>
+                                    <th class="display-none">ID</th>
+                                    <th>NO</th>
+                                    <th>账号</th>
+                                    <th>昵称</th>
+                                    <th>平台</th>
+                                    <th>职位</th>
+                                    <th>状态</th>
+                                    <th>注册时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+<!-- 全局js -->
+<script src="../../js/jquery.min.js"></script>
+<script src="../../js/jquery.cookie.js"></script>
+<script src="../../js/bootstrap.min.js"></script>
+<!--提示框-->
+<script src="../../js/plugins/layer/layer.js"></script>
+<script src="../../js/plugins/toastr/toastr.min.js"></script>
+<script src="../../js/plugins/smallPop/spop.min.js"></script>
+<!-- table -->
+<script src="../../js/plugins/dataTables/jquery.dataTables.js"></script>
+<script src="../../js/plugins/dataTables/dataTables.bootstrap.js"></script>
+<!--弹框-->
+<script src="../../js/plugins/sweetalert/sweetalert.min.js"></script>
+
+<script src="../../js/DB/dexie.js"></script>
+<script src="../../js/DB/IDB.js"></script>
+<script src="../../js/common/Util.js"></script>
+<script src="../../js/common/Field.js"></script>
+<script src="../../js/common/QequestPath.js"></script>
+<script src="../../js/common/Code.js"></script>
+<script src="../../js/common/CookieUtils.js"></script>
+<script src="../../js/common/Common.js"></script>
+
+<script type="text/javascript">
+
+	var userDataTable;
+	
+	$(function(){
+		
+		initCodeList();
+		
+		//渲染datatable
+		drawTable();
+		
+		initEvent();
+	});
+	
+	function initEvent(){
+		// 查询条件输入框-失去焦点时自动查询
+		$("input.query-criteria").blur(function(){
+			// if(isNotNull($(this).val())){
+				userDataTable.draw();
+			// }
+		});
+		// 查询条件下拉框-值改变时自动查询
+		$("select.query-criteria").change(function(){
+			userDataTable.draw();
+		});
+		
+		// 打开用户详细页面
+		$("#userDataTable").on("click","a.user-detail-btn",function(){
+			var userId = $(this).parents("tr").find("span[name='userId']").html();
+			layer.open({
+				  type: 2,
+				  title: "用户详细信息",
+				  area: ['800px', '550px'],
+				  fixed: false, //不固定
+				  maxmin: true,
+				  content: 'user-detail.html?userId='+userId,
+				  end: function(){
+					  reloadData();
+				  }
+			});
+		});
+		
+		// 封禁用户
+		$("#userDataTable").on("click","a.lock-user-btn",function(){
+			swal({
+			  title: "禁用",
+			  text: "禁用后账号将无法正常使用!",
+			  icon: "warning",
+			  buttons: ["取消","禁用"],
+			  dangerMode: true,
+			}).then((willDelete) => {
+				if (willDelete) {
+					var userId = $(this).parents("tr").find("span[name='userId']").html();
+					ajax({
+						url: RequestPath.userDelete.url,
+						data: {"userId": userId},
+						type: RequestPath.userDelete.type,
+						success: function(data){
+							reloadData()
+						},
+						error: function(data){
+						}
+					});
+				} else {}
+			});
+		});
+		
+		// 解封用户
+		$("#userDataTable").on("click","a.unlock-user-btn",function(){
+			swal({
+			  title: "解禁",
+			  text: "解禁后账号将可以正常使用!",
+			  icon: "warning",
+			  buttons: ["取消","解禁"],
+			  dangerMode: true,
+			}).then((willDelete) => {
+				if (willDelete) {
+					var userId = $(this).parents("tr").find("span[name='userId']").html();
+					ajax({
+						url: RequestPath.userDelete.url,
+						data: {"userId": userId},
+						type: RequestPath.userDelete.type,
+						success: function(data){
+							reloadData()
+						},
+						error: function(data){
+						}
+					});
+				} else {}
+			});
+		});
+	}
+	
+	function initCodeList(){
+		var data = new Array();
+		data.push({
+			"group": Code.DEL_FLAG_0.group,
+			"element": "userDelFlag"
+		});
+		loadCode(data);
+	}
+	
+	/**
+	 * 渲染table
+	 */
+	function drawTable(){
+		userDataTable = $('#userDataTable').DataTable({
+	        "processing": true,      //翻页或者搜索的时候，前端是否给出“正在搜索”等提示信息
+	        "serverSide": true,     // true表示使用后台分页 
+	        "searching": false,      // 是否允许检索
+	        "ordering": true,        // 是否允许排序
+	        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "全部"]],
+			"columnDefs": [{
+				"orderable": false,
+				"targets": 1  //序号列不能排序
+			},{
+				"orderable": false,
+				"targets": 5
+			},{
+				"orderable": false,
+				"targets": 8
+			}],            
+			ajax: getUserList,
+	        "columns": [
+	            { 
+	            	"className": "display-none",
+					"name": "userId",
+	            	"data": null,"render": function (data, type, row, meta) {
+	            		return "<span name='userId'>"+data.userId+"</span>";
+					}
+	            },
+	            { 
+	            	"className": "row-no",
+					"name": "no",
+	            	"data": null,"render": function (data, type, row, meta) {
+	            		return "";
+					}
+	            },
+	            { 
+					"name": "userNumber",
+	            	"data": null,"render": function (data, type, row, meta) {
+	            		return "<span name='userNumber'>"+data.userNumber+"</span>";
+					}
+	            },
+	            { 
+					"name": "userName",
+	            	"data": null,"render": function (data, type, row, meta) {
+	            		return data.userName;
+					}
+	            },
+	            { 
+					"name": "userPlatform",
+	            	"data": null,"render": function (data, type, row, meta) {
+	            		return data.userPlatformName;
+					}
+	            },
+	            { 
+					"name": "positionDetail",
+	            	"data": null,"render": function (data, type, row, meta) {
+	            		return data.positionDetailName;
+					}
+	            },
+	            { 
+					"name": "userDelFlag",
+	            	"data": null,"render": function (data, type, row, meta) {
+	            		return data.userDelFlagName;
+					}
+	            },
+	            { 
+					"name": "userCreateTime",
+	            	"data": null,"render": function (data, type, row, meta) {
+	            		return new Date(data.userCreateTime).toStr("yyyy-MM-dd HH:mm:ss");
+					}
+	            },
+	            { 
+					"name": "operation",
+	            	"data": null,"render": function (data, type, row, meta) {
+						var html = "";
+						if(data.userDelFlag == Code.DEL_FLAG_0.value){
+							html += "&nbsp;&nbsp;<a href='javascript:void(0);' class='unlock-user-btn' ><i class='fa fa-unlock text-navy'> 启用</i></a>";
+						} else {
+							html += "<a href='javascript:void(0);' class='user-detail-btn' ><i class='fa fa-edit text-navy'> 详细信息</i></a>";
+							html += "&nbsp;&nbsp;<a href='javascript:void(0);' class='lock-user-btn' ><i class='fa fa-lock text-navy'> 禁用</i></a>";
+						}
+	            		return html;
+					}
+	            }
+	        ],
+            "createdRow": function (row, data, dataIndex) {
+				// if(data.userDelFlag == Code.DEL_FLAG_0.value){
+				// 	$(row).css("background-color","#999999");
+				// 	$(row).css("color","#000");
+				// }
+            },
+			"fnDrawCallback": function(){
+				//设置序号
+				var api = this.api();
+				var startIndex= api.context[0]._iDisplayStart;//获取到本页开始的条数
+				api.column(1).nodes().each(function(cell, i) {
+					cell.innerHTML = startIndex + i + 1;
+				});
+			},
+	    } );
+	}
+	
+	/**
+	 * 获取用户列表数据
+	 * @param {Object} data
+	 * @param {Object} callback
+	 * @param {Object} settings
+	 */
+	function getUserList(data, callback, settings){
+		//每页显示的数据条数
+		var pageSize = data.length;
+		//数据起始位置
+		var start = data.start;
+		//当前页码
+		var pageNumber = (data.start) / data.length + 1;
+		//查询条件
+		var userNumber = $("input[name='userNumber']").val();
+		var userName = $("input[name='userName']").val();
+		var userDelFlag = $("select[name='userDelFlag']").val();
+		
+		// 排序
+		var sortFieldIndex = data.order[0].column;
+		var sortField = data.columns[sortFieldIndex].name;
+		var sortOrder = data.order[0].dir;
+		
+		if(isNotNull(userNumber)){
+			userNumber = "%"+userNumber+"%";
+		}
+		if(isNotNull(userName)){
+			userName = "%"+userName+"%";
+		}
+		
+		var param = {
+			"pageNumber": pageNumber,//页码
+			"pageSize": pageSize,//每页显示的数据条数
+			"sortField": sortField,//排序的字段
+			"sortOrder": sortOrder,//排序方式
+			"userNumber": userNumber,
+			"userName": userName,
+			"userDelFlag": userDelFlag,
+		}
+		ajax({
+			url: RequestPath.userList.url,
+			data: param,
+			type: RequestPath.userList.type,
+			success: function(data){
+				var userList = data.datas.userList;
+				var totalNumber = data.datas.totalNumber;
+				var returnData = {};
+				//returnData.draw = arr.data.pagination.pageCount;//这里直接自行返回了draw计数器,应该由后台返回，没什么卵用！
+				returnData.recordsTotal = totalNumber;//totalCount指的是总记录数
+				returnData.recordsFiltered = totalNumber;//后台不实现过滤功能,全部的记录数都需输出到前端，记录数为总数
+				returnData.data = userList;//返回数据列表
+				callback(returnData);//这个别忘了！！！
+			},
+			error: function(data){
+			}
+		});
+	}
+	
+	/**
+	 * 重新加载数据
+	 */
+	function reloadData(){
+		ajaxShowMessage("showCookieMessage")
+		if(userDataTable != null){
+			userDataTable.ajax.reload();
+		}
+	}
+	
+</script>
+</html>

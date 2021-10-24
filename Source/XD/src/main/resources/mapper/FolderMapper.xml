@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="priv.xin.xd.core.dao.FolderMapper">
+
+    <resultMap id="BaseResultMap" type="priv.xin.xd.core.entity.Folder">
+        <id column="FOLDER_ID" jdbcType="VARCHAR" property="folderId"/>
+        <result column="FOLDER_NAME" jdbcType="VARCHAR" property="folderName"/>
+        <result column="FOLDER_PARENT" jdbcType="VARCHAR" property="folderParent"/>
+        <result column="FOLDER_PATH" jdbcType="VARCHAR" property="folderPath"/>
+        <result column="FOLDER_OWNER" jdbcType="VARCHAR" property="folderOwner"/>
+        <result column="FOLDER_RESOURCE_TYPE" jdbcType="VARCHAR" property="folderResourceType"/>
+        <result column="FOLDER_DEL_FLAG" jdbcType="VARCHAR" property="folderDelFlag"/>
+        <result column="FOLDER_CREATE_TIME" jdbcType="TIMESTAMP" property="folderCreateTime"/>
+        <result column="FOLDER_CREATE_USER" jdbcType="VARCHAR" property="folderCreateUser"/>
+        <result column="FOLDER_MODIFY_TIME" jdbcType="TIMESTAMP" property="folderModifyTime"/>
+        <result column="FOLDER_MODIFY_USER" jdbcType="VARCHAR" property="folderModifyUser"/>
+    </resultMap>
+
+    <resultMap id="resourcesMap" type="priv.xin.xd.core.entity.FolderOrFile">
+        <id column="RESOURCES_ID" jdbcType="VARCHAR" property="resourcesId"/>
+        <result column="RESOURCES_NAME" jdbcType="VARCHAR" property="resourcesName"/>
+        <result column="RESOURCES_PARENT" jdbcType="VARCHAR" property="resourcesParent"/>
+        <result column="RESOURCES_PATH" jdbcType="VARCHAR" property="resourcesPath"/>
+        <result column="RESOURCES_OWNER" jdbcType="VARCHAR" property="resourcesOwner"/>
+        <result column="RESOURCES_TYPE" jdbcType="VARCHAR" property="resourcesType"/>
+        <result column="RESOURCES_SIZE" jdbcType="VARCHAR" property="resourcesSize"/>
+        <result column="RESOURCES_SUFFIX" jdbcType="VARCHAR" property="resourcesSuffix"/>
+        <result column="RESOURCES_GROUP" jdbcType="VARCHAR" property="resourcesGroup"/>
+        <result column="RESOURCES_DETAIL_INFO" jdbcType="VARCHAR" property="resourcesDetailInfo"/>
+        <result column="RESOURCES_DEL_FLAG" jdbcType="VARCHAR" property="resourcesDelFlag"/>
+        <result column="RESOURCES_CREATE_TIME" jdbcType="TIMESTAMP" property="resourcesCreateTime"/>
+        <result column="RESOURCES_CREATE_USER" jdbcType="VARCHAR" property="resourcesCreateUser"/>
+        <result column="RESOURCES_MODIFY_TIME" jdbcType="TIMESTAMP" property="resourcesModifyTime"/>
+        <result column="RESOURCES_MODIFY_USER" jdbcType="VARCHAR" property="resourcesModifyUser"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        FOLDER_ID
+        , FOLDER_NAME, FOLDER_PARENT, FOLDER_PATH, FOLDER_OWNER, FOLDER_RESOURCE_TYPE, FOLDER_DEL_FLAG,
+    FOLDER_CREATE_TIME, FOLDER_CREATE_USER, FOLDER_MODIFY_TIME, FOLDER_MODIFY_USER
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from s_folder
+        where FOLDER_ID = #{folderId,jdbcType=VARCHAR}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete
+        from s_folder
+        where FOLDER_ID = #{folderId,jdbcType=VARCHAR}
+    </delete>
+
+    <insert id="insert" parameterType="priv.xin.xd.core.entity.Folder">
+        insert into s_folder (
+        FOLDER_ID,
+        FOLDER_NAME,
+        FOLDER_PARENT,
+        FOLDER_PATH,
+        FOLDER_OWNER,
+        FOLDER_RESOURCE_TYPE,
+        FOLDER_DEL_FLAG,
+        FOLDER_CREATE_TIME,
+        FOLDER_CREATE_USER,
+        FOLDER_MODIFY_TIME,
+        FOLDER_MODIFY_USER
+        ) values (
+        #{folderId,jdbcType=VARCHAR},
+        #{folderName,jdbcType=VARCHAR},
+        #{folderParent,jdbcType=VARCHAR},
+
+        <if test="folderPath != null and folderPath != ''">
+            #{folderPath,jdbcType=VARCHAR},
+        </if>
+        <if test="folderPath == null or folderPath == ''">
+            <if test="folderParent != null and folderParent != ''">
+                CONCAT(IFNULL((select FOLDER_PATH from s_folder where FOLDER_ID = #{folderParent,jdbcType=VARCHAR}),''),
+                '/', #{folderName,jdbcType=VARCHAR}),
+            </if>
+            <if test="folderParent == null or folderParent == ''">
+                CONCAT('/', #{folderName,jdbcType=VARCHAR}),
+            </if>
+        </if>
+
+        #{folderOwner,jdbcType=VARCHAR},
+        #{folderResourceType,jdbcType=VARCHAR},
+        #{folderDelFlag,jdbcType=VARCHAR},
+        SYSDATE(),
+        #{folderCreateUser,jdbcType=VARCHAR},
+        SYSDATE(),
+        #{folderModifyUser,jdbcType=VARCHAR})
+    </insert>
+
+    <update id="updateByPrimaryKey" parameterType="priv.xin.xd.core.entity.Folder">
+        update s_folder
+        <set>
+            <if test="folderName != null">
+                FOLDER_NAME = #{folderName,jdbcType=VARCHAR},
+            </if>
+            <if test="folderParent != null">
+                FOLDER_PARENT = #{folderParent,jdbcType=VARCHAR},
+            </if>
+            <if test="folderPath != null">
+                FOLDER_PATH = #{folderPath,jdbcType=VARCHAR},
+            </if>
+            <if test="folderOwner != null">
+                FOLDER_OWNER = #{folderOwner,jdbcType=VARCHAR},
+            </if>
+            <if test="folderResourceType != null">
+                FOLDER_RESOURCE_TYPE = #{folderResourceType,jdbcType=VARCHAR},
+            </if>
+            <if test="folderDelFlag != null">
+                FOLDER_DEL_FLAG = #{folderDelFlag,jdbcType=VARCHAR},
+            </if>
+            FOLDER_MODIFY_TIME = SYSDATE(),
+            FOLDER_MODIFY_USER = #{folderModifyUser,jdbcType=VARCHAR},
+        </set>
+        where FOLDER_ID = #{folderId,jdbcType=VARCHAR}
+    </update>
+
+    <select id="queryAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from s_folder
+        <where>
+            <if test="folderName!=null and folderName!=''">
+                and FOLDER_NAME = #{folderName}
+            </if>
+            <if test="folderParent!=null and folderParent!=''">
+                and FOLDER_PARENT = #{folderParent}
+            </if>
+            <if test="folderPath!=null and folderPath!=''">
+                and FOLDER_PATH = #{folderPath}
+            </if>
+            <if test="folderOwner!=null and folderOwner!=''">
+                and FOLDER_OWNER = #{folderOwner}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryRootFolder" resultMap="BaseResultMap">
+        select *
+        from s_folder
+        where FOLDER_NAME = #{userId}
+          and FOLDER_PARENT = ''
+    </select>
+
+    <select id="queryAllResources" resultMap="resourcesMap">
+        SELECT * FROM
+        (SELECT
+        FOLDER_ID AS RESOURCES_ID,
+        FOLDER_NAME AS RESOURCES_NAME,
+        FOLDER_PARENT AS RESOURCES_PARENT,
+        FOLDER_PATH AS RESOURCES_PATH,
+        FOLDER_OWNER AS RESOURCES_OWNER,
+        FOLDER_RESOURCE_TYPE AS RESOURCES_TYPE,
+        '' AS RESOURCES_SIZE,
+        '' AS RESOURCES_SUFFIX,
+        '' AS RESOURCES_DETAIL_INFO,
+        FOLDER_DEL_FLAG AS RESOURCES_DEL_FLAG,
+        FOLDER_CREATE_TIME AS RESOURCES_CREATE_TIME,
+        FOLDER_CREATE_USER AS RESOURCES_CREATE_USER,
+        FOLDER_MODIFY_TIME AS RESOURCES_MODIFY_TIME,
+        FOLDER_MODIFY_USER AS RESOURCES_MODIFY_USER,
+        'folder' AS RESOURCES_GROUP
+        FROM s_folder
+        WHERE FOLDER_PARENT = #{folderId}
+        UNION ALL
+        SELECT
+        f.FILE_ID AS RESOURCES_ID,
+        f.FILE_NAME AS RESOURCES_NAME,
+        f.FILE_FOLDER AS RESOURCES_PARENT,
+        f.FILE_PATH AS RESOURCES_PATH,
+        f.FILE_OWNER AS RESOURCES_OWNER,
+        ft.FILE_TYPE AS RESOURCES_TYPE,
+        f.FILE_SIZE AS RESOURCES_SIZE,
+        f.FILE_SUFFIX AS RESOURCES_SUFFIX,
+        f.FILE_DETAIL_INFO AS RESOURCES_DETAIL_INFO,
+        f.FILE_DEL_FLAG AS RESOURCES_DEL_FLAG,
+        f.FILE_CREATE_TIME AS RESOURCES_CREATE_TIME,
+        f.FILE_CREATE_USER AS RESOURCES_CREATE_USER,
+        f.FILE_MODIFY_TIME AS RESOURCES_MODIFY_TIME,
+        f.FILE_MODIFY_USER AS RESOURCES_MODIFY_USER,
+        'file' AS RESOURCES_GROUP
+        FROM s_file f
+        LEFT JOIN s_file_type ft ON ft.FILE_SUFFIX = f.FILE_SUFFIX
+        WHERE f.FILE_FOLDER = #{folderId}) a
+        <if test="page.sortField == 'resourceModifyTime'">
+            order by a.RESOURCES_MODIFY_TIME ${page.sortOrder}
+        </if>
+        <if test="page.pageSize !=-1">
+            limit #{page.offSet}, #{page.pageSize}
+        </if>
+    </select>
+
+</mapper>

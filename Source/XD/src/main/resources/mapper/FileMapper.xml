@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="priv.xin.xd.core.dao.FileMapper">
+
+    <resultMap id="BaseResultMap" type="priv.xin.xd.core.entity.File">
+        <id column="FILE_ID" jdbcType="VARCHAR" property="fileId"/>
+        <result column="FILE_NAME" jdbcType="VARCHAR" property="fileName"/>
+        <result column="FILE_SIZE" jdbcType="VARCHAR" property="fileSize"/>
+        <result column="FILE_SUFFIX" jdbcType="VARCHAR" property="fileSuffix"/>
+        <result column="FILE_FOLDER" jdbcType="VARCHAR" property="fileFolder"/>
+        <result column="FILE_OWNER" jdbcType="VARCHAR" property="fileOwner"/>
+        <result column="FILE_PATH" jdbcType="VARCHAR" property="filePath"/>
+        <result column="FILE_DETAIL_INFO" jdbcType="LONGVARCHAR" property="fileDetailInfo"/>
+        <result column="FILE_DEL_FLAG" jdbcType="VARCHAR" property="fileDelFlag"/>
+        <result column="FILE_CREATE_TIME" jdbcType="TIMESTAMP" property="fileCreateTime"/>
+        <result column="FILE_CREATE_USER" jdbcType="VARCHAR" property="fileCreateUser"/>
+        <result column="FILE_MODIFY_TIME" jdbcType="TIMESTAMP" property="fileModifyTime"/>
+        <result column="FILE_MODIFY_USER" jdbcType="VARCHAR" property="fileModifyUser"/>
+    </resultMap>
+
+    <resultMap id="fileExMap" extends="BaseResultMap" type="priv.xin.xd.core.entity.ex.FileEx">
+        <result column="FILE_TYPE" jdbcType="VARCHAR" property="fileType"/>
+        <result column="FILE_TYPE_NAME" jdbcType="VARCHAR" property="fileTypeName"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        FILE_ID
+        , FILE_NAME, FILE_SIZE, FILE_SUFFIX, FILE_FOLDER, FILE_OWNER, FILE_PATH, FILE_DEL_FLAG,
+    FILE_CREATE_TIME, FILE_CREATE_USER, FILE_MODIFY_TIME, FILE_MODIFY_USER
+    </sql>
+
+    <sql id="Blob_Column_List">
+        FILE_DETAIL_INFO
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from s_file
+        where FILE_ID = #{fileId,jdbcType=VARCHAR}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete
+        from s_file
+        where FILE_ID = #{fileId,jdbcType=VARCHAR}
+    </delete>
+
+    <insert id="insert" parameterType="priv.xin.xd.core.entity.File">
+        insert into s_file (FILE_ID, FILE_NAME, FILE_SIZE,
+                            FILE_SUFFIX, FILE_FOLDER, FILE_OWNER,
+                            FILE_PATH, FILE_DEL_FLAG, FILE_CREATE_TIME,
+                            FILE_CREATE_USER, FILE_MODIFY_TIME, FILE_MODIFY_USER,
+                            FILE_DETAIL_INFO)
+        values (#{fileId,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR}, #{fileSize,jdbcType=VARCHAR},
+                #{fileSuffix,jdbcType=VARCHAR}, #{fileFolder,jdbcType=VARCHAR}, #{fileOwner,jdbcType=VARCHAR},
+                #{filePath,jdbcType=VARCHAR}, #{fileDelFlag,jdbcType=VARCHAR}, SYSDATE(),
+                #{fileCreateUser,jdbcType=VARCHAR}, SYSDATE(), #{fileModifyUser,jdbcType=VARCHAR},
+                #{fileDetailInfo,jdbcType=LONGVARCHAR})
+    </insert>
+
+    <update id="updateByPrimaryKey" parameterType="priv.xin.xd.core.entity.File">
+        update s_file
+        <set>
+            <if test="fileName != null">
+                FILE_NAME = #{fileName,jdbcType=VARCHAR},
+            </if>
+            <if test="fileSize != null">
+                FILE_SIZE = #{fileSize,jdbcType=VARCHAR},
+            </if>
+            <if test="fileSuffix != null">
+                FILE_SUFFIX = #{fileSuffix,jdbcType=VARCHAR},
+            </if>
+            <if test="fileFolder != null">
+                FILE_FOLDER = #{fileFolder,jdbcType=VARCHAR},
+            </if>
+            <if test="fileOwner != null">
+                FILE_OWNER = #{fileOwner,jdbcType=VARCHAR},
+            </if>
+            <if test="filePath != null">
+                FILE_PATH = #{filePath,jdbcType=VARCHAR},
+            </if>
+            <if test="fileDelFlag != null">
+                FILE_DEL_FLAG = #{fileDelFlag,jdbcType=VARCHAR},
+            </if>
+            <if test="fileDetailInfo != null">
+                FILE_DETAIL_INFO = #{fileDetailInfo,jdbcType=LONGVARCHAR},
+            </if>
+            FILE_MODIFY_TIME = SYSDATE(),
+            FILE_MODIFY_USER = #{fileModifyUser,jdbcType=VARCHAR},
+        </set>
+        where FILE_ID = #{fileId,jdbcType=VARCHAR}
+    </update>
+
+    <select id="queryListLimit" resultMap="fileExMap">
+        select
+        f.*,
+        ft.FILE_TYPE
+        from s_file f
+        left join s_file_type ft on ft.FILE_SUFFIX = f.FILE_SUFFIX
+        where f.FILE_OWNER = #{file.fileOwner}
+        <if test="file.fileName != null and file.fileName != ''">
+            and f.FILE_NAME LIKE '%${file.fileName}%'
+        </if>
+        <if test="file.fileFolder != null and file.fileFolder != ''">
+            and f.FILE_FOLDER = #{file.fileFolder}
+        </if>
+        <if test="file.fileType != null and file.fileType != ''">
+            and ft.FILE_TYPE = #{file.fileType}
+        </if>
+
+        <if test="page.sortField == 'fileCreateTime'">
+            order by f.FILE_CREATE_TIME ${page.sortOrder}
+        </if>
+        <if test="page.sortField == 'fileModifyTime'">
+            order by f.FILE_MODIFY_TIME ${page.sortOrder}
+        </if>
+
+        <if test="page.pageSize !=-1 and (file.fileId == null or file.fileId == '')">
+            limit #{page.offSet}, #{page.pageSize}
+        </if>
+    </select>
+
+    <select id="queryListLimitCount" resultType="java.lang.Integer">
+        select
+        count(*)
+        from s_file f
+        left join s_file_type ft on ft.FILE_SUFFIX = f.FILE_SUFFIX
+        where f.FILE_FOLDER = #{file.fileFolder}
+        and f.FILE_OWNER = #{file.fileOwner}
+        <if test="file.fileName != null and file.fileName != ''">
+            and f.FILE_NAME LIKE '%${file.fileName}%'
+        </if>
+        <if test="file.fileType != null and file.fileType != ''">
+            and ft.FILE_TYPE = #{file.fileType}
+        </if>
+    </select>
+
+
+    <select id="queryAll" resultMap="BaseResultMap">
+        select * from s_file
+        <where>
+            <if test="filePath!=null and filePath!=''">
+                and FILE_PATH= #{filePath}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryDetail" resultMap="fileExMap">
+        select
+            f.*,
+            ft.FILE_TYPE,
+            m.CODE_NAME as FILE_TYPE_NAME
+        from s_file f
+        left join s_file_type ft on ft.FILE_SUFFIX = f.FILE_SUFFIX
+        left join m_code m on m.CODE_VALUE = ft.FILE_TYPE and m.CODE_GROUP = 'file_type'
+        where f.FILE_ID = #{flileId}
+    </select>
+</mapper>

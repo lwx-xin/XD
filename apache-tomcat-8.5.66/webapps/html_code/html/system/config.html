@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+<style type="text/css">
+	.head-img{
+		width: 100px;
+	}
+	.display-none{
+		display: none !important;
+	}
+	.font-red{
+		color: red;
+	}
+	.user-info-border{
+		/* border-top: 0px !important;
+		border-right: 0px !important;
+		border-bottom: 1px !important;
+		border-left: 0px !important;
+		border-style: solid !important;
+		border-color: #ddddde !important; */
+		border: 0px !important;
+	}
+	#userInfo .form-group{
+		margin-top: 0px;
+		margin-bottom: 0px;
+	}
+</style>
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+    	<div class="row">
+			<!-- 用户信息 start -->
+			<div class="col-sm-4" id="userInfo">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>用户信息</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <form class="form-horizontal">
+							<div class="col-sm-offset-3 col-sm-8">
+								<img alt="image" src="../../img/default-head.jpg" class="img-circle head-img" style="display: inline-block;" />
+							</div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">昵称：</label>
+								<div class="col-sm-8">
+									<span id="userName" name="userName" class="form-control user-info-border"></span>
+								</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">QQ：</label>
+								<div class="col-sm-8">
+									<span id="userQq" name="userQq" class="form-control user-info-border"></span>
+								</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Email：</label>
+								<div class="col-sm-8">
+									<span id="userEmail" name="userEmail" class="form-control user-info-border"></span>
+								</div>
+                            </div>
+							<div class="form-group">
+                                <label class="col-sm-4 control-label">权限：</label>
+								<div class="col-sm-8">
+									<span id="authId" name="authId" class="form-control user-info-border"></span>
+								</div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+			<!-- 用户信息 end -->
+			
+			<!-- 系统设置 start -->
+			<div class="col-sm-4">
+			    <div class="ibox float-e-margins">
+			        <div class="ibox-title">
+			            <h5>提示设置</h5>
+			        </div>
+			        <div class="ibox-content">
+			            <form class="form-horizontal">
+			                <div class="form-group">
+			                    <label class="col-sm-4 control-label">风格：</label>
+			                    <div class="col-sm-8">
+			                        <select id="hintUI" name="hintUI" class="chosen-select " style="width:100%" tabindex="2" aria-required="true">
+										<option value ="">layer</option>
+			                        </select>
+			                    </div>
+			                </div>
+			                <div class="form-group" id="hintUITimeOut_div" style="display: none;">
+			                    <label class="col-sm-4 control-label">显示时间：</label>
+			                    <div class="col-sm-8">
+			                        <input id="hintUITimeOut" name="hintUITimeOut" class="form-control" type="number" aria-required="true">
+			                    </div>
+			                </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-4 col-sm-8">
+                                    <button class="btn btn-primary config-update-btn" type="button">保存</button>
+                                </div>
+                            </div>
+			            </form>
+			        </div>
+			    </div>
+			</div>
+			<!-- 系统设置 end -->
+			
+		</div>
+	</div>
+</body>
+<script src="../../js/common/base.js"></script>
+<script type="text/javascript">
+
+	const pageParams = getPageParam();
+	$.deepFreeze(pageParams);
+	
+	$(function(){
+
+		//渲染控件
+		drawElement();
+		
+		// 初始化事件
+		initEvent();
+		
+		// 初始化数据
+		initData();
+	})
+	
+	//渲染控件
+	function drawElement(){
+		
+	}
+	
+	/**
+	 * 初始化数据
+	 */
+	function initData(){
+		// 加载权限code列表
+		initAuthCodeList();
+		// 加载提示UI下拉框
+		iniHintUISelect();
+		
+		// 初始化用户信息
+		initUserData();
+		// 初始化配置信息
+		initConfigData();
+	}
+	
+	/**
+	 * 初始化配置信息
+	 */
+	function initConfigData(){
+		// 初始化【提示信息】
+		initHintConfig();
+	}
+	
+	/**
+	 * 初始化事件
+	 */
+	function initEvent(){
+		// 提示UI下拉框change事件
+		$("#hintUI").change(function(){
+			if($(this).val() == commonField.sys_config_toastr_using){
+				// toastr
+				var toastr_timeOut = getLocalStroage(commonField.sys_config_toastr_timeOut);
+				$("#hintUITimeOut").val(toNumber(toastr_timeOut));
+				$("#hintUITimeOut_div").show();
+			} else if($(this).val() == commonField.sys_config_smallpop_using){
+				// SmallPop
+				var smallpop_timeOut = getLocalStroage(commonField.sys_config_smallpop_timeOut);
+				$("#hintUITimeOut").val(toNumber(smallpop_timeOut));
+				$("#hintUITimeOut_div").show();
+			} else {
+				$("#hintUITimeOut").val(0);
+				$("#hintUITimeOut_div").hide();
+			}
+		});
+		
+		// 设置 信息保存按钮click事件
+		$(".config-update-btn").click(function(){
+			var usingCode = Code.enable.value;// 启用code
+			var unUsingCode = Code.disable.value;// 禁用code
+		
+			var hintUI = $("#hintUI").val();
+			var timeOut = toNumber($("#hintUITimeOut").val());
+			if(hintUI == commonField.sys_config_toastr_using){
+				setLocalStorage(commonField.sys_config_toastr_using, usingCode);
+				setLocalStorage(commonField.sys_config_toastr_timeOut, timeOut);
+				
+				setLocalStorage(commonField.sys_config_smallpop_using, unUsingCode);
+				setLocalStorage(commonField.sys_config_smallpop_timeOut, "0");
+			} else if(hintUI == commonField.sys_config_smallpop_using){
+				setLocalStorage(commonField.sys_config_smallpop_using, usingCode);
+				setLocalStorage(commonField.sys_config_smallpop_timeOut, timeOut);
+				
+				setLocalStorage(commonField.sys_config_toastr_using, unUsingCode);
+				setLocalStorage(commonField.sys_config_toastr_timeOut, "0");
+			} else {
+				setLocalStorage(commonField.sys_config_smallpop_using, unUsingCode);
+				setLocalStorage(commonField.sys_config_smallpop_timeOut, "0");
+				
+				setLocalStorage(commonField.sys_config_toastr_using, unUsingCode);
+				setLocalStorage(commonField.sys_config_toastr_timeOut, "0");
+			}
+			hideInformation();
+			showInformation("系统提示","配置修改成功","success");
+		});
+	}
+	
+	/**
+	 * 加载权限code列表
+	 */
+	function initAuthCodeList(){
+		$("select[name='authId']").attr("code-tag", "auth");
+		loadCodeList();
+	}
+	
+	/**
+	 * 加载提示UI下拉框
+	 */
+	function iniHintUISelect(){
+		var html = "";
+		html += "<option value ='"+commonField.sys_config_toastr_using+"'>toastr</option>"
+		html += "<option value ='"+commonField.sys_config_smallpop_using+"'>smallpop</option>"
+		$("#hintUI").append(html);
+		$("#hintUI").chosen();
+	}
+	
+	/**
+	 * 初始化用户信息
+	 */
+	function initUserData(){
+		ajax({
+			url: requestPath.loginUser.url,
+			type: requestPath.loginUser.type,
+			success: function(data){
+				if(data.status){
+					// 头像文件地址
+					var headFilePath = data.data.headFilePath;
+					if(isNotNull(headFilePath)){
+						$(".head-img").attr("src","../../" + headFilePath);
+					}
+					$("#userNumber").html(data.data.userNumber);
+					$("#userName").html(data.data.userName);
+					$("#userPwd").html(data.data.userPwd);
+					$("#userQq").html(data.data.userQq);
+					$("#userEmail").html(data.data.userEmail);
+					var authList = data.data.authList;
+					if(isNotNull(authList)){
+						var authNames = new Array();
+						$.each(authList, function(i, authObj){
+							authNames.push(authObj.authName);
+						});
+						$("#authId").html(authNames.join(";"));
+					}
+				}
+			},
+			error: function(data){
+			}
+		});
+	}
+	
+	/**
+	 * 初始化【提示信息】
+	 */
+	function initHintConfig(){
+		var usingCode = Code.enable.value;// 启用code
+		
+		// toastr
+		var toastr_using = getLocalStroage(commonField.sys_config_toastr_using);
+		
+		// SmallPop
+		var smallpop_using = getLocalStroage(commonField.sys_config_smallpop_using);
+		
+		if(toastr_using==usingCode){
+			$("#hintUI option[value='"+commonField.sys_config_toastr_using+"']").attr("selected","selected");
+		} else if(smallpop_using==usingCode){
+			$("#hintUI option[value='"+commonField.sys_config_smallpop_using+"']").attr("selected","selected");
+		}
+		// $("#hintUI").trigger("change");
+		$("#hintUI").trigger("chosen:updated");
+		$("#hintUI").chosen().change();
+	}
+	
+</script>
+</html>

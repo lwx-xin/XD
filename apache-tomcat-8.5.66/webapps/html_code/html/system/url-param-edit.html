@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+<style type="text/css">
+	.no-padding{
+		padding: 0px;
+	}
+	.chosen-container-single .chosen-single{
+		border: 1px solid #e5e6e7;
+	}
+	.custom-chosen-drop{
+		width:490px !important;
+		margin-left: 15px;
+	}
+		
+	.display-none{
+		display: none !important;
+	}
+</style>
+</head>
+<body>
+    <div class="wrapper animated fadeInRight">
+    	<div class="row">
+            <div class="col-sm-12 no-padding">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="my-form">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">参数名称：</label>
+                                <div class="col-sm-8">
+                                    <input id="urlParamName" name="urlParamName" class="form-control" type="text" aria-required="true">
+                                </div>
+                            </div>
+							<div class="form-group">
+                                <label class="col-sm-3 control-label">参数值：</label>
+                                <div class="col-sm-8">
+	                                <textarea id="urlParamValue" name="urlParamValue" class="form-control" required="" aria-required="true"></textarea>
+								</div>
+                            </div>
+							<div class="form-group">
+                                <label class="col-sm-3 control-label">错误提示：</label>
+                                <div class="col-sm-8">
+	                                <textarea id="urlParamErrHint" name="urlParamErrHint" class="form-control" required="" aria-required="true"></textarea>
+								</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">是否必须：</label>
+                                <div class="col-sm-8">
+									<input id="urlParamRequired" name="urlParamRequired" type="checkbox" class="js-switch">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">允许空值：</label>
+                                <div class="col-sm-8">
+									<input id="urlParamNull" name="urlParamNull" type="checkbox" class="js-switch">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">备注：</label>
+                                <div class="col-sm-8">
+									<textarea id="urlParamRemark" name="urlParamRemark" class="form-control" required="" aria-required="true"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-primary insert-btn" type="button">提交</button>
+                                    <button class="btn btn-primary update-btn" type="button">提交</button>
+                                </div>
+                            </div>
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+		</div>
+	</div>
+</body>
+<script src="../../js/common/base.js"></script>
+<script type="text/javascript">
+
+	var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+	
+	const pageParams = getPageParam();
+	$.deepFreeze(pageParams);
+	
+	$(function(){
+
+		//渲染控件
+		drawElement();
+		
+		initCodeList();
+		
+		initData();
+		
+		initEvent();
+	})
+	
+	function initEvent(){
+		$(".insert-btn").click(function(){
+			var param = new Object();
+			param["urlParamId"] = "";
+			param["urlId"] = pageParams.urlId;
+			param["urlParamName"] = $("#urlParamName").val();
+			param["urlParamValue"] = $("#urlParamValue").val();
+			param["urlParamRemark"] = $("#urlParamRemark").val();
+			param["urlParamErrHint"] = $("#urlParamErrHint").val();
+			
+			var urlParamRequired = Code.NO.value;
+			if($("#urlParamRequired").is(":checked")){
+				urlParamRequired = Code.YES.value;
+			}
+			param["urlParamRequired"] = urlParamRequired;
+			
+			var urlParamNull = Code.NO.value;
+			if($("#urlParamNull").is(":checked")){
+				urlParamNull = Code.YES.value;
+			}
+			param["urlParamNull"] = urlParamNull;
+			
+			ajax({
+				url: requestPath.urlParamInsert.url,
+				data: param,
+				type: requestPath.urlParamInsert.type,
+				success: function(data){
+					if(data.status){
+						closeFrame();
+					}
+				},
+				error: function(data){
+				}
+			});
+		});
+		$(".update-btn").click(function(){
+			var param = new Object();
+			param["urlParamId"] = pageParams.urlParamId;
+			param["urlParamName"] = $("#urlParamName").val();
+			param["urlParamValue"] = $("#urlParamValue").val();
+			param["urlParamRemark"] = $("#urlParamRemark").val();
+			param["urlParamErrHint"] = $("#urlParamErrHint").val();
+			
+			var urlParamRequired = Code.NO.value;
+			if($("#urlParamRequired").is(":checked")){
+				urlParamRequired = Code.YES.value;
+			}
+			param["urlParamRequired"] = urlParamRequired;
+			
+			var urlParamNull = Code.NO.value;
+			if($("#urlParamNull").is(":checked")){
+				urlParamNull = Code.YES.value;
+			}
+			param["urlParamNull"] = urlParamNull;
+			
+			ajax({
+				url: requestPath.urlParamUpdate.url,
+				data: param,
+				type: requestPath.urlParamUpdate.type,
+				success: function(data){
+					if(data.status){
+						closeFrame();
+					}
+				},
+				error: function(data){
+				}
+			});
+		});
+	}
+	
+	//渲染控件
+	var urlParamRequiredSwitchery;
+	var urlParamNullSwitchery;
+	function drawElement(){
+		urlParamRequiredSwitchery = new Switchery(document.getElementById("urlParamRequired"), {color: '#1AB394'});
+		urlParamNullSwitchery = new Switchery(document.getElementById("urlParamNull"), {color: '#1AB394'});
+	}
+	
+	function initCodeList(){
+		
+	}
+	
+	function initData(){
+		
+		if(isNull(pageParams.urlParamId)){
+			//新增参数
+			$(".insert-btn").show();
+			$(".update-btn").hide();
+			return false;
+		} else {
+			//编辑参数
+			$(".insert-btn").hide();
+			$(".update-btn").show();
+			
+			ajax({
+				url: requestPath.urlParamDetail.url,
+				data: {"urlParamId": pageParams.urlParamId},
+				type: requestPath.urlParamDetail.type,
+				success: function(data){
+					if(data.status){
+						$("#urlParamName").val(data.data.urlParamName);
+						$("#urlParamValue").val(data.data.urlParamValue);
+						$("#urlParamRemark").val(data.data.urlParamRemark);
+						$("#urlParamErrHint").val(data.data.urlParamErrHint);
+						
+						if(data.data.urlParamRequired==Code.YES.value) {
+							setSwitchery(urlParamRequiredSwitchery,true);
+						} else {
+							setSwitchery(urlParamRequiredSwitchery,false);
+						}
+						if(data.data.urlParamNull==Code.YES.value) {
+							setSwitchery(urlParamNullSwitchery,true);
+						} else {
+							setSwitchery(urlParamNullSwitchery,false);
+						}
+					}
+				},
+				error: function(data){
+					
+				}
+			});
+		}
+	}
+	
+	function closeFrame(){
+		//parent.layer.close(index);//关闭当前dialog
+		parent.location.reload();//重新加载父页面
+	}
+	
+</script>
+</html>

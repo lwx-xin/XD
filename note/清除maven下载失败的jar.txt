@@ -1,0 +1,2 @@
+maven清除下载失败的jar
+cmd进入maven-repository目录执行：for /r %i in (*.lastUpdated) do del %i

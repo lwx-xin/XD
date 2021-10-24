@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="priv.xin.xd.core.dao.AuthUrlMapper">
+  <resultMap id="BaseResultMap" type="priv.xin.xd.core.entity.AuthUrl">
+    <id column="AUTH_URL_ID" jdbcType="VARCHAR" property="authUrlId" />
+    <result column="AUTH_ID" jdbcType="VARCHAR" property="authId" />
+    <result column="URL_ID" jdbcType="VARCHAR" property="urlId" />
+    <result column="AUTH_URL_DEL_FLAG" jdbcType="VARCHAR" property="authUrlDelFlag" />
+    <result column="AUTH_URL_CREATE_TIME" jdbcType="TIMESTAMP" property="authUrlCreateTime" />
+    <result column="AUTH_URL_CREATE_USER" jdbcType="VARCHAR" property="authUrlCreateUser" />
+    <result column="AUTH_URL_MODIFY_TIME" jdbcType="TIMESTAMP" property="authUrlModifyTime" />
+    <result column="AUTH_URL_MODIFY_USER" jdbcType="VARCHAR" property="authUrlModifyUser" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    AUTH_URL_ID, AUTH_ID, URL_ID, AUTH_URL_DEL_FLAG, AUTH_URL_CREATE_TIME, AUTH_URL_CREATE_USER,
+    AUTH_URL_MODIFY_TIME, AUTH_URL_MODIFY_USER
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from s_auth_url
+    where AUTH_URL_ID = #{authUrlId,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from s_auth_url
+    where AUTH_URL_ID = #{authUrlId,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insert" parameterType="priv.xin.xd.core.entity.AuthUrl">
+    insert into s_auth_url (AUTH_URL_ID, AUTH_ID, URL_ID, 
+      AUTH_URL_DEL_FLAG, AUTH_URL_CREATE_TIME, AUTH_URL_CREATE_USER,
+      AUTH_URL_MODIFY_TIME, AUTH_URL_MODIFY_USER)
+    values (#{authUrlId,jdbcType=VARCHAR}, #{authId,jdbcType=VARCHAR}, #{urlId,jdbcType=VARCHAR}, 
+      #{authUrlDelFlag,jdbcType=VARCHAR}, SYSDATE(), #{authUrlCreateUser,jdbcType=VARCHAR},
+            SYSDATE(), #{authUrlModifyUser,jdbcType=VARCHAR})
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="priv.xin.xd.core.entity.AuthUrl">
+    update s_auth_url
+    <set>
+      <if test="authId != null">
+        AUTH_ID = #{authId,jdbcType=VARCHAR},
+      </if>
+      <if test="urlId != null">
+        URL_ID = #{urlId,jdbcType=VARCHAR},
+      </if>
+      <if test="authUrlDelFlag != null">
+        AUTH_URL_DEL_FLAG = #{authUrlDelFlag,jdbcType=VARCHAR},
+      </if>
+      AUTH_URL_MODIFY_TIME = SYSDATE(),
+      AUTH_URL_MODIFY_USER = #{authUrlModifyUser,jdbcType=VARCHAR},
+    </set>
+    where AUTH_URL_ID = #{authUrlId,jdbcType=VARCHAR}
+  </update>
+
+  <!--通过实体作为筛选条件查询-->
+  <select id="queryAll" resultMap="BaseResultMap">
+    select
+    AUTH_URL_ID, AUTH_ID, URL_ID, AUTH_URL_DEL_FLAG, AUTH_URL_CREATE_TIME, AUTH_URL_CREATE_USER,
+    AUTH_URL_MODIFY_TIME, AUTH_URL_MODIFY_USER
+    from xd.s_auth_url
+    <where>
+      <if test="authUrlId != null and authUrlId != ''">
+        and AUTH_URL_ID = #{authUrlId}
+      </if>
+      <if test="authId != null and authId != ''">
+        and AUTH_ID = #{authId}
+      </if>
+      <if test="urlId != null and urlId != ''">
+        and URL_ID = #{urlId}
+      </if>
+      <if test="authUrlDelFlag != null and authUrlDelFlag != ''">
+        and AUTH_URL_DEL_FLAG = #{authUrlDelFlag}
+      </if>
+      <if test="authUrlCreateTime != null">
+        and AUTH_URL_CREATE_TIME = #{authUrlCreateTime}
+      </if>
+      <if test="authUrlCreateUser != null and authUrlCreateUser != ''">
+        and AUTH_URL_CREATE_USER = #{authUrlCreateUser}
+      </if>
+      <if test="authUrlModifyTime != null">
+        and AUTH_URL_MODIFY_TIME = #{authUrlModifyTime}
+      </if>
+      <if test="authUrlModifyUser != null and authUrlModifyUser != ''">
+        and AUTH_URL_MODIFY_USER = #{authUrlModifyUser}
+      </if>
+    </where>
+  </select>
+
+  <delete id="deleteByUrlId" parameterType="java.lang.String">
+    delete from s_auth_url
+    where URL_ID = #{urlId,jdbcType=VARCHAR}
+  </delete>
+</mapper>

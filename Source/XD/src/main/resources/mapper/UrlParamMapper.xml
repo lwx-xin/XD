@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="priv.xin.xd.core.dao.UrlParamMapper">
+
+  <resultMap id="BaseResultMap" type="priv.xin.xd.core.entity.UrlParam">
+    <id column="URL_PARAM_ID" jdbcType="VARCHAR" property="urlParamId" />
+    <result column="URL_ID" jdbcType="VARCHAR" property="urlId" />
+    <result column="URL_PARAM_NAME" jdbcType="VARCHAR" property="urlParamName" />
+    <result column="URL_PARAM_VALUE" jdbcType="VARCHAR" property="urlParamValue" />
+    <result column="URL_PARAM_REQUIRED" jdbcType="VARCHAR" property="urlParamRequired" />
+    <result column="URL_PARAM_REMARK" jdbcType="VARCHAR" property="urlParamRemark" />
+    <result column="URL_PARAM_ERR_HINT" jdbcType="VARCHAR" property="urlParamErrHint" />
+    <result column="URL_PARAM_DEL_FLAG" jdbcType="VARCHAR" property="urlParamDelFlag" />
+    <result column="URL_PARAM_CREATE_TIME" jdbcType="TIMESTAMP" property="urlParamCreateTime" />
+    <result column="URL_PARAM_CREATE_USER" jdbcType="VARCHAR" property="urlParamCreateUser" />
+    <result column="URL_PARAM_MODIFY_TIME" jdbcType="TIMESTAMP" property="urlParamModifyTime" />
+    <result column="URL_PARAM_MODIFY_USER" jdbcType="VARCHAR" property="urlParamModifyUser" />
+  </resultMap>
+  
+  <resultMap id="urlParamExMap" type="priv.xin.xd.core.entity.ex.UrlParamEx" extends="BaseResultMap">
+    <association property="url" javaType="priv.xin.xd.core.entity.Url">
+      <id column="URL_ID" jdbcType="VARCHAR" property="urlId" />
+      <result column="URL_PATH" jdbcType="VARCHAR" property="urlPath" />
+      <result column="URL_TYPE" jdbcType="VARCHAR" property="urlType" />
+      <result column="URL_PLATFORM" jdbcType="VARCHAR" property="urlPlatform" />
+      <result column="URL_REMARKS" jdbcType="VARCHAR" property="urlRemarks" />
+      <result column="URL_DEL_FLAG" jdbcType="VARCHAR" property="urlDelFlag" />
+      <result column="URL_CREATE_TIME" jdbcType="TIMESTAMP" property="urlCreateTime" />
+      <result column="URL_CREATE_USER" jdbcType="VARCHAR" property="urlCreateUser" />
+      <result column="URL_MODIFY_TIME" jdbcType="TIMESTAMP" property="urlModifyTime" />
+      <result column="URL_MODIFY_USER" jdbcType="VARCHAR" property="urlModifyUser" />
+    </association>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    URL_PARAM_ID, URL_ID, URL_PARAM_NAME, URL_PARAM_VALUE, URL_PARAM_REQUIRED, URL_PARAM_REMARK, 
+    URL_PARAM_ERR_HINT, URL_PARAM_DEL_FLAG, URL_PARAM_CREATE_TIME, URL_PARAM_CREATE_USER,
+    URL_PARAM_MODIFY_TIME, URL_PARAM_MODIFY_USER
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from s_url_param
+    where URL_PARAM_ID = #{urlParamId,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from s_url_param
+    where URL_PARAM_ID = #{urlParamId,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insert" parameterType="priv.xin.xd.core.entity.UrlParam">
+    insert into s_url_param (URL_PARAM_ID, URL_ID, URL_PARAM_NAME, 
+      URL_PARAM_VALUE, URL_PARAM_REQUIRED, URL_PARAM_REMARK, 
+      URL_PARAM_ERR_HINT, URL_PARAM_DEL_FLAG, URL_PARAM_CREATE_TIME,
+      URL_PARAM_CREATE_USER, URL_PARAM_MODIFY_TIME, 
+      URL_PARAM_MODIFY_USER)
+    values (#{urlParamId,jdbcType=VARCHAR}, #{urlId,jdbcType=VARCHAR}, #{urlParamName,jdbcType=VARCHAR}, 
+      #{urlParamValue,jdbcType=VARCHAR}, #{urlParamRequired,jdbcType=VARCHAR}, #{urlParamRemark,jdbcType=VARCHAR}, 
+      #{urlParamErrHint,jdbcType=VARCHAR}, #{urlParamDelFlag,jdbcType=VARCHAR}, SYSDATE(),
+      #{urlParamCreateUser,jdbcType=VARCHAR}, SYSDATE(),
+      #{urlParamModifyUser,jdbcType=VARCHAR})
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="priv.xin.xd.core.entity.UrlParam">
+    update s_url_param
+    <set>
+      <if test="urlId != null">
+        URL_ID = #{urlId,jdbcType=VARCHAR},
+      </if>
+      <if test="urlParamName != null">
+        URL_PARAM_NAME = #{urlParamName,jdbcType=VARCHAR},
+      </if>
+      <if test="urlParamValue != null">
+        URL_PARAM_VALUE = #{urlParamValue,jdbcType=VARCHAR},
+      </if>
+      <if test="urlParamRequired != null">
+        URL_PARAM_REQUIRED = #{urlParamRequired,jdbcType=VARCHAR},
+      </if>
+      <if test="urlParamRemark != null">
+        URL_PARAM_REMARK = #{urlParamRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="urlParamErrHint != null">
+        URL_PARAM_ERR_HINT = #{urlParamErrHint,jdbcType=VARCHAR},
+      </if>
+      <if test="urlParamDelFlag != null">
+        URL_PARAM_DEL_FLAG = #{urlParamDelFlag,jdbcType=VARCHAR},
+      </if>
+      URL_PARAM_MODIFY_TIME = SYSDATE(),
+      URL_PARAM_MODIFY_USER = #{urlParamModifyUser,jdbcType=VARCHAR},
+    </set>
+    where URL_PARAM_ID = #{urlParamId,jdbcType=VARCHAR}
+  </update>
+
+  <delete id="deleteByUrlId" parameterType="java.lang.String">
+    delete from s_url_param
+    where URL_ID = #{urlId,jdbcType=VARCHAR}
+  </delete>
+
+  <select id="queryAll" parameterType="priv.xin.xd.core.entity.UrlParam" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from s_url_param
+    <where>
+      <if test="urlParamId!=null and urlParamId!=''">
+        and URL_PARAM_ID = #{urlParamId,jdbcType=VARCHAR}
+      </if>
+      <if test="urlId!=null and urlId!=''">
+        and URL_ID = #{urlId,jdbcType=VARCHAR}
+      </if>
+      <if test="urlParamName!=null and urlParamName!=''">
+        and URL_PARAM_NAME = #{urlParamName,jdbcType=VARCHAR}
+      </if>
+      <if test="urlParamValue!=null and urlParamValue!=''">
+        and URL_PARAM_VALUE = #{urlParamValue,jdbcType=VARCHAR}
+      </if>
+      <if test="urlParamRequired!=null and urlParamRequired!=''">
+        and URL_PARAM_REQUIRED = #{urlParamRequired,jdbcType=VARCHAR}
+      </if>
+      <if test="urlParamRemark!=null and urlParamRemark!=''">
+        and URL_PARAM_REMARK = #{urlParamRemark,jdbcType=VARCHAR}
+      </if>
+      <if test="urlParamErrHint!=null and urlParamErrHint!=''">
+        and URL_PARAM_HINT = #{urlParamErrHint,jdbcType=VARCHAR}
+      </if>
+    </where>
+  </select>
+  
+  <select id="queryAllDetail" resultMap="urlParamExMap">
+    select
+      u.*,
+      up.*
+    from s_url u
+    LEFT JOIN s_url_param up ON up.URL_ID = u.URL_ID
+  </select>
+</mapper>

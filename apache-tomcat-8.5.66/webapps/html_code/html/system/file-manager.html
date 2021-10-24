@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+	<meta http-equiv="pragma" content="no-cache">
+
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+
+    <title>H+ 后台主题UI框架 - 主页</title>
+
+    <meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
+    <meta name="description" content="H+是一个完全响应式，基于Bootstrap3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
+    <link rel="shortcut icon" href="../../img/logo.ico"> 
+	
+	<style>
+		.wrapper-content{
+			padding: 15px;
+		}
+		
+		.link-span{
+			color: blue;
+			cursor:pointer;
+		}
+		
+		.display-none{
+			display: none;
+		}
+		
+		.form-group input,select ,.input-group{
+			width: 490px;
+		}
+		
+		.folder-name-info,.file-name-info{
+			max-width: 280px;
+			white-space:nowrap; /*文本不换行*/
+			text-overflow:ellipsis;/*设置超出部分显示...*/
+			-o-text-overflow:ellipsis;
+			overflow: hidden;
+		}
+		
+		.border-light{
+			box-shadow: 0px 0px 10px;
+		}
+		
+		.content-filter{
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+		
+	</style>
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+			
+			<div class="col-sm-3">
+				<div class="ibox float-e-margins">
+					<div class="ibox-content">
+						<div class="file-manager">
+                            <h5>路径：</h5>
+							<div class="file-path"></div>
+							<div class="hr-line-dashed"></div>
+							
+							<address class="folder-info" style="display:none;">
+								<h4>文件夹信息</h4>
+								<div class="folder-name-info" title="">名称：<span class="folder-name"></span></div>
+								<div>文件夹数量：<span class="folder-children-folder-num"></span></div>
+								<div>文件数量：<span class="folder-children-file-num"></span></div>
+								<div>创建时间：<span class="folder-create-time"></span></div>
+								<div class="hr-line-dashed"></div>
+							</address>
+							<address class="file-info" style="display:none;">
+								<h4>文件信息</h4>
+								<div class="file-name-info" title="">名称：<span class="file-name"></span></div>
+								<div>大小：<span class="file-size"></span></div>
+								<div>创建时间：<span class="file-create-time"></span></div>
+								<div>最后编辑时间：<span class="file-modify-time"></span></div>
+								<div class="hr-line-dashed"></div>
+							</address>
+							
+							<div class="file-type-filter">
+								<h4>分类显示：</h4>
+								<select id="fileType" class="chosen-select " style="width:100%" tabindex="2" aria-required="true" multiple>
+									<option value="">--全部--</option>
+								</select>
+							</div>
+							<div class="hr-line-dashed"></div>
+							<button class="btn btn-primary btn-block add-folder-btn">添加文件夹</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="col-sm-9 animated fadeInRight">
+                <div class="row">
+                    <div class="col-sm-12" id="fileList">
+						
+					</div>
+				</div>
+            </div>
+			
+        </div>
+    </div>
+</body>
+<script src="../../js/common/base.js"></script>
+<script type="text/javascript">
+	
+	var nowFolderId = "";
+	var nowFolderResourceType = "";
+
+	$(function(){
+		initSelect();
+		
+		//加载数据
+		initData()
+		
+		initEvent();
+		
+	});
+	
+	function initSelect(){
+		$("#fileType").attr("code-tag", Code.FILE_TYPE_AUDIO.group);
+		loadCodeList();
+	}
+	
+	function initEvent(){
+		// 处理文件拖拽上传
+		fileDragEvent();
+		
+		// 文件box双击事件 -- 打开文件
+		$("#fileList").on("dblclick",".file-box",function(){
+			var resourceType = $(this).attr("resource-type");
+			var resourceId = $(this).attr("resource-id");
+				
+			if(resourceType==Code.FILE_TYPE_FOLDER.value){
+				nowFolderId = resourceId;
+				initFolderAndFile();
+			} else {
+				var resourceName = $(this).attr("resource-name");
+				openFile(resourceId, resourceName, resourceType);
+			}
+		});
+		
+		// 文件box单击事件 -- 显示文件信息
+		$("#fileList").on("click",".file-box",function(){
+			if(!$(this).find(".file").hasClass("border-light")){
+				//添加选中样式
+				$(".border-light").removeClass("border-light");
+				$(this).find(".file").addClass("border-light");
+				
+				var resourceType = $(this).attr("resource-type");
+				var resourceId = $(this).attr("resource-id");
+				
+				if(resourceType==Code.FILE_TYPE_FOLDER.value){
+					folderInfo(resourceId);
+				} else {
+					fileInfo(resourceId);
+				}
+			}
+		});
+		
+		// 点击地址link跳转文件夹
+		$(".file-path").on("click", "a", function(){
+			if($(this).hasClass("active")){
+				return false;
+			}
+			nowFolderId = $(this).attr("folder-id");
+			$(this).nextAll().remove();
+			$(this).remove();
+			initFolderAndFile();
+		});
+		
+		// 添加文件夹
+		$(".add-folder-btn").click(function(){
+			if(nowFolderResourceType == Code.RESOURCE_TYPE_SYSTEM.value){
+				showInformation("提示", "系统资源无法新增文件夹", "warning");
+				return false;
+			}
+			addFolderEvent();
+		});
+		
+		$("#fileType").change(function(){
+			if($.inArray("" ,$(this).val()) != -1){
+				$("#fileType option").attr("disabled", true)
+				$("#fileType option[value='']").attr("disabled", false)
+				$("#fileType").val("");
+				$("#fileType").trigger("chosen:updated");
+				$("#fileType").chosen();
+			} else {
+				$("#fileType option").attr("disabled", false)
+				$("#fileType").trigger("chosen:updated");
+				$("#fileType").chosen();
+			}
+			initFolderAndFile();
+		});
+	}
+	
+	/**
+	 * 添加文件夹
+	 */
+	function addFolderEvent(){
+		swal("请输入文件夹名称:", {
+			content: "input",
+		}).then((value) => {
+			var value = `${value}`;
+			if(isNotNull(value) && value != "null"){
+				var param = new Object();
+				param["folderName"] = value;
+				param["folderParent"] = nowFolderId;
+					
+				ajax({
+					url: requestPath.folderInsert.url,
+					data: param,
+					type: requestPath.folderInsert.type,
+					success: function(data){
+						if(data.status){
+							initFolderAndFile();
+						}
+					},
+					error: function(data){
+					}
+				});
+			} else {
+				showInformation("提示", "文件夹名称不能为空", "warning");
+			}
+		});
+	}
+	
+	/**
+	 * 渲染文件，文件夹右键菜单
+	 */
+	function drawResourceContextMenu(){
+		var thisMenu;
+		$(".file-box").contextMenu({
+			target: function(ele) {// 当前元素
+				thisMenu = ele;
+			},
+			menu: [
+				{
+					text: "删除",
+					icon: "iconfont icon-lajitong",
+					callback: function() {
+						var resourceType = $(thisMenu).attr("resource-type");
+						var resourceId = $(thisMenu).attr("resource-id");
+						var resourceName = $(thisMenu).attr("resource-name");
+						deldeteSource(resourceType, resourceId, resourceName);
+						thisMenu = null;
+					}
+				},{
+					text: "编辑",
+					icon: "iconfont icon-bianji",
+					callback: function() {
+						var resourceType = $(thisMenu).attr("resource-type");
+						var resourceId = $(thisMenu).attr("resource-id");
+						var resourceName = $(thisMenu).attr("resource-name");
+						editSourceName(resourceType, resourceId, resourceName);
+						thisMenu = null;
+					}
+				}
+			]
+		});
+	}
+	
+	function editSourceName(type, id, name){
+		if(type==Code.FILE_TYPE_FOLDER.value){
+			// 文件夹
+			editFolderName(id, name);
+		} else {
+			// 文件
+			editFileName(id, name);
+		}
+	}
+	
+	function deldeteSource(type, id, name){
+		if(type==Code.FILE_TYPE_FOLDER.value){
+			// 文件夹
+			deleteFolder(id, name);
+		} else {
+			// 文件
+			deleteFile(id, name);
+		}
+	}
+	
+	/**
+	 * 编辑文件名称
+	 * @param {String} fileId 文件ID
+	 * @param {String} fileName 文件名称
+	 */
+	function editFileName(fileId, fileName){
+		var inputEle = $("<input class='swal-content__input' value='"+fileName+"'/>")[0]
+		swal("请输入文件名称:", {
+			content: inputEle
+		}).then((value) => {
+			var fileNewName = $(".swal-content__input").val();
+			if(fileNewName != fileName){
+				if(isNotNull(fileNewName) && fileNewName != "null"){
+					var param = new Object();
+					param["fileId"] = fileId;
+					param["fileName"] = fileNewName;
+						
+					ajax({
+						url: requestPath.fileUpdate.url,
+						data: param,
+						type: requestPath.fileUpdate.type,
+						success: function(data){
+							if(data.status){
+								initFolderAndFile();
+							}
+						},
+						error: function(data){
+						}
+					});
+				} else {
+					showInformation("提示", "文件名称不能为空", "warning");
+				}
+			}
+		});
+	}
+	
+	/**
+	 * 删除文件夹
+	 * @param {String} fileId 文件ID
+	 * @param {String} fileName 文件名称
+	 */
+	function deleteFile(fileId, fileName){
+		swal({
+		  title: "删除文件",
+		  text: "该操作会永久删除["+fileName+"]!",
+		  icon: "warning",
+		  buttons: ["取消","删除"],
+		  dangerMode: true,
+		}).then((willDelete) => {
+			if (willDelete) {
+				var param = new Object();
+				param["fileId"] = fileId;
+					
+				ajax({
+					url: requestPath.fileDelete.url,
+					data: param,
+					type: requestPath.fileDelete.type,
+					success: function(data){
+						if(data.status){
+							initFolderAndFile();
+						}
+					},
+					error: function(data){
+					}
+				});
+			} else {}
+		});
+	}
+	
+	/**
+	 * 编辑文件夹名称
+	 * @param {String} folderId 文件夹ID
+	 * @param {String} folderName 文件夹名称
+	 */
+	function editFolderName(folderId, folderName){
+		var inputEle = $("<input class='swal-content__input' value='"+folderName+"'/>")[0]
+		swal("请输入文件夹名称:", {
+			content: inputEle
+		}).then((value) => {
+			var folderNewName = $(".swal-content__input").val();
+			if(folderNewName != folderName){
+				if(isNotNull(folderNewName) && folderNewName != "null"){
+					var param = new Object();
+					param["folderId"] = folderId;
+					param["folderName"] = folderNewName;
+						
+					ajax({
+						url: requestPath.folderUpdate.url,
+						data: param,
+						type: requestPath.folderUpdate.type,
+						success: function(data){
+							if(data.status){
+								initFolderAndFile();
+							}
+						},
+						error: function(data){
+						}
+					});
+				} else {
+					showInformation("提示", "文件夹名称不能为空", "warning");
+				}
+			}
+		});
+	}
+	
+	/**
+	 * 删除文件夹
+	 * @param {String} folderId 文件夹ID
+	 * @param {String} folderName 文件夹名称
+	 */
+	function deleteFolder(folderId, folderName){
+		swal({
+		  title: "删除文件夹",
+		  text: "该操作会删除["+folderName+"]内的全部内容!",
+		  icon: "warning",
+		  buttons: ["取消","删除"],
+		  dangerMode: true,
+		}).then((willDelete) => {
+			if (willDelete) {
+				var param = new Object();
+				param["folderId"] = folderId;
+					
+				ajax({
+					url: requestPath.folderDelete.url,
+					data: param,
+					type: requestPath.folderDelete.type,
+					success: function(data){
+						if(data.status){
+							initFolderAndFile();
+						}
+					},
+					error: function(data){
+					}
+				});
+			} else {}
+		});
+	}
+	
+	/**
+	 * 处理文件拖拽上传
+	 */
+	function fileDragEvent(){
+		$('body').on('dragover', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+		});
+		$('body').on('dragenter', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+		});
+		$('body').on('drop', function(e){
+			if(nowFolderResourceType == Code.RESOURCE_TYPE_SYSTEM.value){
+				showInformation("提示", "系统资源无法上传文件", "warning");
+				return false;
+			}
+			if(e.originalEvent.dataTransfer){
+				if(e.originalEvent.dataTransfer.files.length) {
+					e.preventDefault();
+					e.stopPropagation();
+					
+					var files = e.originalEvent.dataTransfer.files;
+					var items = e.originalEvent.dataTransfer.items;
+					var fileArr = [];
+					var hasFolder = false;
+					if(items != null && files != null){
+						$.each(items, function(i, v){
+							var item = v.webkitGetAsEntry();
+							if(item.isFile && files[i] != null){
+								fileArr.push(files[i]);
+							}
+							if(item.isDirectory){
+								hasFolder = true;
+								fileArr = [];
+								return false;
+							}
+						});
+					}
+					if(hasFolder){
+						showInformation("提示", "暂不支持上传文件夹", "warning");
+						return false;
+					}
+					uploadFile(fileArr);
+				}
+			}
+		});
+	}
+	
+	function uploadFile(files){
+		var param = new Object();
+		param["files"] = files;
+		param["folderId"] = nowFolderId;
+			
+		ajax({
+			url: requestPath.fileInsert.url,
+			data: param,
+			type: requestPath.fileInsert.type,
+			success: function(data){
+				if(data.status){
+					initFolderAndFile();
+				}
+			},
+			error: function(data){
+			}
+		});
+	}
+	
+	/**
+	 * 在线打开文件
+	 * @param {String} fileId 文件id 
+	 * @param {String} fileName 文件名
+	 */
+	function openFile(fileId, fileName, fileType){
+		switch (fileType){
+			case Code.FILE_TYPE_AUDIO.value:
+				/** 文件类型-音频*/
+				var fileInfo = getFileInfo(fileId);
+				if(fileInfo == null){
+					showInformation("警告","文件不存在","warning");
+					return false;
+				}
+				var fileUrl = fileInfo.fileUrl;
+				var fileDetailInfo = fileInfo.fileDetailInfo;
+				var fileCoverUrl = fileInfo.fileCoverUrl;
+				var song = "未知"; // 歌名
+				var singer = "未知"; //歌手
+				// var album = ""; // 专辑
+				// var cover = ""; // 封面图片名
+				if(isNotNull(fileDetailInfo)){
+					var fileDetailInfoObj = JSON.parse(fileDetailInfo);
+					song = fileDetailInfoObj.song;
+					singer = fileDetailInfoObj.singer;
+					// album = fileDetailInfoObj.album;
+					// cover = fileDetailInfoObj.cover;
+				}
+				
+				var musicInfo = new Object();
+				musicInfo["title"] = song;//歌名
+				musicInfo["artist"] = singer;//歌手
+				musicInfo["mp3"] = fileUrl;//歌曲地址
+				musicInfo["cover"] = fileCoverUrl;//封面
+				parent.addMusic(musicInfo);
+				
+				// showInformation("提示", "《"+fileName+"》已添加到播放列表", "info");
+				break;
+			case Code.FILE_TYPE_VIDEO.value:
+				/** 文件类型-视频*/
+				parent.addMenuTab("show-file.html?fileId="+fileId, fileName, 1);
+				break;
+			case Code.FILE_TYPE_TXT.value:
+				/** 文件类型-文本*/
+				parent.addMenuTab("show-file.html?fileId="+fileId, fileName, 1);
+				break;
+			case Code.FILE_TYPE_LOG.value:
+				/** 文件类型-日志*/
+				parent.addMenuTab("show-file.html?fileId="+fileId, fileName, 1);
+				break;
+			case Code.FILE_TYPE_PICTURE.value:
+				/** 文件类型-图片*/
+				parent.addMenuTab("show-file.html?fileId="+fileId, fileName, 1);
+				break;
+			default:
+				/** 文件类型-其它*/
+				showInformation("提示", "当前文件暂不支持在线预览", "info");
+				break;
+		}
+	}
+	
+	/**
+	 * 获取文件详细信息
+	 * @param {String} fileId
+	 */
+	function getFileInfo(fileId){
+		var fileInfo="";
+		ajax({
+			url: requestPath.fileDetail.url,
+			data: {"fileId": fileId},
+			type: requestPath.fileDetail.type,
+			success: function(data){
+				if(data.status){
+					fileInfo = data.data;
+				}
+			},
+			error: function(data){
+			}
+		});
+		return fileInfo;
+	}
+	
+	function initData(){
+		// 加载文件夹以及文件
+		initFolderAndFile();
+	}
+	
+	/**
+	 * 获取文件模板
+	 * @param {Object} fileEntityEx 文件信息
+	 */
+	function fileBoxTemplate(fileEntityEx){
+		// 文件id
+		var fileId = fileEntityEx.fileId;
+		// 文件名称
+		var fileName = fileEntityEx.fileName;
+		// 文件大小 KB
+		var fileSize = fileEntityEx.fileSize;
+		// 文件类型 code->file_type
+		var fileType = fileEntityEx.fileType;
+		// 最后一次修改时间
+		var fileModifyTime = fileEntityEx.fileModifyTime;
+		// 文件的请求路径
+		// var fileUrl = fileEntityEx.fileUrl;
+		// 文件封面的请求路径（只有图片，音频，视频才有该字段）
+		var fileCoverUrl = fileEntityEx.fileCoverUrl;
+		
+		var fileTypeDiv = getFileCoverImg(fileType, fileCoverUrl);
+		
+		var html = "<div class='file-box' resource-id='"+ fileId +"' resource-type='"+ fileType +"' resource-name='"+ fileName +"' title='"+fileName+"'>"+
+			"	<a href='javascript:void(0);'>"+
+			"		<div class='file'>"+
+			"			<span class='corner'></span>"+
+			fileTypeDiv +
+			"			<div class='file-name'>"+
+			"				<div class='content-filter'>"+ fileName +"</div>"+
+			// "				<small>"+ new Date(fileModifyTime).toStr("yyyy-MM-dd HH:mm:ss") +"&nbsp;"+ fileSize +"KB</small>"+
+			"			</div>"+
+			"		</div>"+
+			"	</a>"+
+			"</div>";
+		return html;
+	}
+	
+	/**
+	 * 获取文件夹模板
+	 * @param {Object} folderEntityEx 文件夹信息
+	 */
+	function folderBoxTemplate(folderEntityEx){
+		// 文件夹id
+		var folderId = folderEntityEx.folderId;
+		// 文件夹名称
+		var folderName = folderEntityEx.folderName;
+		// 最后一次修改时间
+		var folderModifyTime = folderEntityEx.folderModifyTime;
+		// 文件类型--文件夹
+		var fileType = Code.FILE_TYPE_FOLDER.value;
+		
+		var fileTypeDiv = getFileCoverImg(fileType, "");
+		
+		var html = "<div class='file-box' resource-id='"+ folderId +"' resource-type='"+ fileType +"' resource-name='"+ folderName +"' title='"+folderName+"'>"+
+			"	<a href='javascript:void(0);'>"+
+			"		<div class='file'>"+
+			"			<span class='corner'></span>"+
+			fileTypeDiv +
+			"			<div class='file-name'>"+
+			"				<div class='content-filter'>"+ folderName +"</div>"+
+			// "				<small>"+ new Date(folderModifyTime).toStr("yyyy-MM-dd HH:mm:ss") +"</small>"+
+			"			</div>"+
+			"		</div>"+
+			"	</a>"+
+			"</div>";
+		return html;
+	}
+	
+	/**
+	 * 获取文件分類样式
+	 * @param {String} fileType 文件類型
+	 * @param {String} fileCoverUrl 文件封面图片请求路径
+	 */
+	function getFileCoverImg(fileType, fileCoverUrl){
+		var fileTypeDiv = "";
+		
+		if(isNotNull(fileCoverUrl)){
+			fileTypeDiv = "<div class='image' align='center'><img alt='image' style='height:100px;' class='img-responsive' src='"+fileCoverUrl+"'></div>";
+			return fileTypeDiv;
+		}
+		
+		switch (fileType){
+			case Code.FILE_TYPE_FOLDER.value:
+				/** 文件类型-文件夹*/
+				fileTypeDiv = "<div class='icon'><i class='fa fa-folder-open-o'></i></div>";;
+				break;
+			case Code.FILE_TYPE_AUDIO.value:
+				/** 文件类型-音频*/
+				fileTypeDiv = "<div class='icon'><i class='fa fa-music'></i></div>";;
+				break;
+			case Code.FILE_TYPE_VIDEO.value:
+				/** 文件类型-视频*/
+				fileTypeDiv = "<div class='icon'><i class='fa fa-film'></i></div>";
+				break;
+			case Code.FILE_TYPE_TXT.value:
+				/** 文件类型-文本*/
+				fileTypeDiv = "<div class='icon'><i class='fa fa-file-text-o'></i></div>";
+				break;
+			case Code.FILE_TYPE_LOG.value:
+				/** 文件类型-日志*/
+				fileTypeDiv = "<div class='icon'><i class='fa fa-file-text-o'></i></div>";
+				break;
+			case Code.FILE_TYPE_PICTURE.value:
+				/** 文件类型-图片*/
+				fileTypeDiv = "<div class='icon'><i class='fa fa-file-image-o'></i></div>";
+				break;
+			default:
+				/** 文件类型-其它*/
+				fileTypeDiv = "<div class='icon'><i class='fa fa-file'></i></div>";
+				break;
+		}
+		return fileTypeDiv;
+	}
+	
+	/**
+	 * 初始化文件夹列表
+	 */
+	function initFolderAndFile(){
+		$(".folder-info").hide();
+		$(".file-info").hide();
+		
+		$(".folder-name-info").attr("title","");
+		$(".folder-name").html("");
+		$(".folder-create-time").html("0000-00-00 00:00:00");
+		$(".folder-children-folder-num").html("0");
+		$(".folder-children-file-num").html("0");
+		$("#fileList").html("");
+		
+		ajax({
+			url: requestPath.folderList.url,
+			data: {
+				"folderId": nowFolderId,
+				"filter_fileType": $("#fileType").val()
+			},
+			type: requestPath.folderList.type,
+			traditional: true,
+			success: function(data){
+				if(data.status){
+					nowFolderId = data.data.folderId;
+					nowFolderResourceType = data.data.folderResourceType;
+					var folderName = data.data.folderName;
+					var folders = data.data.childrens;
+					var files = data.data.childrenFiles;
+					if(isNotNull(folders)){
+						$.each(folders, function(i, folderEntityEx){
+							$("#fileList").append(folderBoxTemplate(folderEntityEx));
+						});
+					}
+					if(isNotNull(files)){
+						$.each(files, function(i, fileEntityEx){
+							$("#fileList").append(fileBoxTemplate(fileEntityEx));
+						});
+					}
+					$(".file-path a").removeClass("active");
+					if($(".file-path a[folder-id='"+nowFolderId+"']").length==0){
+						$(".file-path a").removeClass("active");
+						$(".file-path").append("<a href='javascript:void(0);' folder-id='"+nowFolderId+"' class='file-control active'>"+folderName+"</a>");
+					}
+					
+					// $(".folder-name-info").attr("title", folderName);
+					// $(".folder-name").html(folderName);
+					// $(".folder-create-time").html(new Date(data.data.folderCreateTime).toStr("yyyy-MM-dd HH:mm:ss"));
+					// $(".folder-children-folder-num").html(folders.length);
+					// $(".folder-children-file-num").html(files.length);
+					drawResourceContextMenu();
+				}
+			},
+			error: function(data){
+			}
+		});
+		$('#fileList')
+			.addClass('animated fadeInRight')
+			.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
+				$('#fileList').removeClass('animated fadeInRight');
+		});
+		
+		// 添加选中缩放动画
+		// $('.file-box').each(function () {
+		// 	animationHover(this, 'pulse');
+		// });
+	}
+	
+	function folderInfo(folderId){
+		$(".folder-info").show();
+		$(".file-info").hide();
+		
+		$(".file-manager .folder-name-info").attr("title","");
+		$(".file-manager .folder-name").html("");
+		$(".file-manager .folder-create-time").html("0000-00-00 00:00:00");
+		$(".file-manager .folder-children-folder-num").html("0");
+		$(".file-manager .folder-children-file-num").html("0");
+		
+		ajax({
+			url: requestPath.folderDetail.url,
+			data: {"folderId": folderId},
+			type: requestPath.folderDetail.type,
+			success: function(data){
+				if(data.status){
+					var folderName = data.data.folderName;
+					var folderCreateTime = data.data.folderCreateTime;
+					var childrenCount = data.data.childrenCount;
+					var childrenFileCount = data.data.childrenFileCount;
+					
+					$(".file-manager .folder-name-info").attr("title", folderName);
+					$(".file-manager .folder-name").html(folderName);
+					$(".file-manager .folder-create-time").html(new Date(folderCreateTime).toStr("yyyy-MM-dd HH:mm:ss"));
+					$(".file-manager .folder-children-folder-num").html(childrenCount);
+					$(".file-manager .folder-children-file-num").html(childrenFileCount);
+				}
+			},
+			error: function(data){
+			}
+		});
+	}
+	
+	function fileInfo(fileId){
+		$(".folder-info").hide();
+		$(".file-info").show();
+		
+		$(".file-manager .file-name-info").attr("title","");
+		$(".file-manager .file-name").html("");
+		$(".file-manager .file-size").html("0kb");
+		$(".file-manager .file-create-time").html("0000-00-00 00:00:00");
+		$(".file-manager .file-modify-time").html("0000-00-00 00:00:00");
+		ajax({
+			url: requestPath.fileDetail.url,
+			data: {"fileId": fileId},
+			type: requestPath.fileDetail.type,
+			success: function(data){
+				if(data.status){
+					var fileName = data.data.fileName;
+					var fileCreateTime = data.data.fileCreateTime;
+					var fileModifyTime = data.data.fileModifyTime;
+					var fileSize = data.data.fileSize;
+					
+					$(".file-manager .file-name-info").attr("title", fileName);
+					$(".file-manager .file-name").html(fileName);
+					$(".file-manager .file-size").html(formatFileSize(fileSize));
+					$(".file-manager .file-create-time").html(new Date(fileCreateTime).toStr("yyyy-MM-dd HH:mm:ss"));
+					$(".file-manager .file-modify-time").html(new Date(fileModifyTime).toStr("yyyy-MM-dd HH:mm:ss"));
+				}
+			},
+			error: function(data){
+			}
+		});
+	}
+	
+</script>
+</html>

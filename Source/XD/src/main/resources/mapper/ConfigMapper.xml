@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="priv.xin.xd.core.dao.ConfigMapper">
+  <resultMap id="BaseResultMap" type="priv.xin.xd.core.entity.Config">
+    <id column="CONFIG_ID" jdbcType="VARCHAR" property="configId" />
+    <result column="CONFIG_KEY" jdbcType="VARCHAR" property="configKey" />
+    <result column="CONFIG_VALUE" jdbcType="VARCHAR" property="configValue" />
+    <result column="CONFIG_REMARK" jdbcType="VARCHAR" property="configRemark" />
+    <result column="CONFIG_USER" jdbcType="VARCHAR" property="configUser" />
+    <result column="CONFIG_DEL_FLAG" jdbcType="VARCHAR" property="configDelFlag" />
+    <result column="CONFIG_CREATE_TIME" jdbcType="TIMESTAMP" property="configCreateTime" />
+    <result column="CONFIG_CREATE_USER" jdbcType="VARCHAR" property="configCreateUser" />
+    <result column="CONFIG_MODIFY_TIME" jdbcType="TIMESTAMP" property="configModifyTime" />
+    <result column="CONFIG_MODIFY_USER" jdbcType="VARCHAR" property="configModifyUser" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    CONFIG_ID, CONFIG_KEY, CONFIG_VALUE, CONFIG_REMARK, CONFIG_USER, CONFIG_DEL_FLAG,
+    CONFIG_CREATE_TIME, CONFIG_CREATE_USER, CONFIG_MODIFY_TIME, CONFIG_MODIFY_USER
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from s_config
+    where CONFIG_ID = #{configId,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from s_config
+    where CONFIG_ID = #{configId,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insert" parameterType="priv.xin.xd.core.entity.Config">
+    insert into s_config (CONFIG_ID, CONFIG_KEY, CONFIG_VALUE, 
+      CONFIG_REMARK, CONFIG_USER, CONFIG_DEL_FLAG,
+      CONFIG_CREATE_TIME, CONFIG_CREATE_USER, CONFIG_MODIFY_TIME, 
+      CONFIG_MODIFY_USER)
+    values (#{configId,jdbcType=VARCHAR}, #{configKey,jdbcType=VARCHAR}, #{configValue,jdbcType=VARCHAR}, 
+      #{configRemark,jdbcType=VARCHAR}, #{configUser,jdbcType=VARCHAR}, #{configDelFlag,jdbcType=VARCHAR},
+            SYSDATE(), #{configCreateUser,jdbcType=VARCHAR}, SYSDATE(),
+      #{configModifyUser,jdbcType=VARCHAR})
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="priv.xin.xd.core.entity.Config">
+    update s_config
+    <set>
+      <if test="configKey != null">
+        CONFIG_KEY = #{configKey,jdbcType=VARCHAR},
+      </if>
+      <if test="configValue != null">
+        CONFIG_VALUE = #{configValue,jdbcType=VARCHAR},
+      </if>
+      <if test="configRemark != null">
+        CONFIG_REMARK = #{configRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="configUser != null">
+        CONFIG_USER = #{configUser,jdbcType=VARCHAR},
+      </if>
+      <if test="configDelFlag != null">
+        CONFIG_DEL_FLAG = #{configDelFlag,jdbcType=VARCHAR},
+      </if>
+      CONFIG_MODIFY_TIME = SYSDATE(),
+      CONFIG_MODIFY_USER = #{configModifyUser,jdbcType=VARCHAR},
+    </set>
+    where CONFIG_ID = #{configId,jdbcType=VARCHAR}
+  </update>
+
+  <select id="queryAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from s_config
+  </select>
+</mapper>

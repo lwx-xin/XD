@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="priv.xin.xd.core.dao.PositionMapper">
+
+  <resultMap id="BaseResultMap" type="priv.xin.xd.core.entity.Position">
+    <id column="POSITION_ID" jdbcType="VARCHAR" property="positionId" />
+    <result column="POSITION_NAME" jdbcType="VARCHAR" property="positionName" />
+    <result column="POSITION_DEPARTMENT_ID" jdbcType="VARCHAR" property="positionDepartmentId" />
+    <result column="POSITION_DEL_FLAG" jdbcType="VARCHAR" property="positionDelFlag" />
+    <result column="POSITION_CREATE_TIME" jdbcType="TIMESTAMP" property="positionCreateTime" />
+    <result column="POSITION_CREATE_USER" jdbcType="VARCHAR" property="positionCreateUser" />
+    <result column="POSITION_MODIFY_TIME" jdbcType="TIMESTAMP" property="positionModifyTime" />
+    <result column="POSITION_MODIFY_USER" jdbcType="VARCHAR" property="positionModifyUser" />
+  </resultMap>
+  
+  <resultMap id="PositionExMap" type="priv.xin.xd.core.entity.ex.PositionEx" extends="BaseResultMap">
+    <result column="USER_COUNT" jdbcType="INTEGER" property="userCount" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    POSITION_ID, POSITION_NAME, POSITION_DEPARTMENT_ID, POSITION_DEL_FLAG, POSITION_CREATE_TIME,
+    POSITION_CREATE_USER, POSITION_MODIFY_TIME, POSITION_MODIFY_USER
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from s_position
+    where POSITION_ID = #{positionId,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from s_position
+    where POSITION_ID = #{positionId,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insert" parameterType="priv.xin.xd.core.entity.Position">
+    insert into s_position (POSITION_ID, POSITION_NAME, POSITION_DEPARTMENT_ID, 
+      POSITION_DEL_FLAG, POSITION_CREATE_TIME,
+      POSITION_CREATE_USER, POSITION_MODIFY_TIME, 
+      POSITION_MODIFY_USER)
+    values (#{positionId,jdbcType=VARCHAR}, #{positionName,jdbcType=VARCHAR}, #{positionDepartmentId,jdbcType=VARCHAR}, 
+      #{positionDelFlag,jdbcType=VARCHAR}, SYSDATE(),
+      #{positionCreateUser,jdbcType=VARCHAR}, SYSDATE(),
+      #{positionModifyUser,jdbcType=VARCHAR})
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="priv.xin.xd.core.entity.Position">
+    update s_position
+    <set>
+      <if test="positionName != null">
+        POSITION_NAME = #{positionName,jdbcType=VARCHAR},
+      </if>
+      <if test="positionDepartmentId != null">
+        POSITION_DEPARTMENT_ID = #{positionDepartmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="positionDelFlag != null">
+        POSITION_DEL_FLAG = #{positionDelFlag,jdbcType=VARCHAR},
+      </if>
+      POSITION_MODIFY_TIME = SYSDATE(),
+      POSITION_MODIFY_USER = #{positionModifyUser,jdbcType=VARCHAR},
+    </set>
+    where POSITION_ID = #{positionId,jdbcType=VARCHAR}
+  </update>
+
+  <!--通过实体作为筛选条件查询-->
+  <select id="queryAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from s_position
+    <where>
+      <if test="positionId != null and positionId != ''">
+        and POSITION_ID = #{positionId}
+      </if>
+      <if test="positionName != null and positionName != ''">
+        and POSITION_NAME = #{positionName}
+      </if>
+      <if test="positionDepartmentId != null and positionDepartmentId != ''">
+        and POSITION_DEPARTMENT_ID = #{positionDepartmentId}
+      </if>
+      <if test="positionDelFlag != null and positionDelFlag != ''">
+        and POSITION_DEL_FLAG = #{positionDelFlag}
+      </if>
+      <if test="positionCreateTime != null">
+        and POSITION_CREATE_TIME = #{positionCreateTime}
+      </if>
+      <if test="positionCreateUser != null and positionCreateUser != ''">
+        and POSITION_CREATE_USER = #{positionCreateUser}
+      </if>
+      <if test="positionModifyTime != null">
+        and POSITION_MODIFY_TIME = #{positionModifyTime}
+      </if>
+      <if test="positionModifyUser != null and positionModifyUser != ''">
+        and POSITION_MODIFY_USER = #{positionModifyUser}
+      </if>
+    </where>
+  </select>
+
+  <select id="queryPositionUsedCount" resultMap="PositionExMap">
+    SELECT
+      IFNULL(up.USER_COUNT,0) AS USER_COUNT
+    FROM s_position p
+           LEFT JOIN (SELECT POSITION_ID,COUNT(POSITION_ID) AS USER_COUNT FROM s_user_position GROUP BY POSITION_ID) up ON p.POSITION_ID = up.POSITION_ID
+    WHERE p.POSITION_ID = #{positionId}
+  </select>
+
+</mapper>

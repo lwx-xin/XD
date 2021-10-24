@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+
+    <title>XD - 主页</title>
+
+    <link href="../../img/logo.ico" rel="shortcut icon">
+
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../css/font-awesome.min.css" rel="stylesheet">
+	<!--提示框-->
+	<link href="../../css/plugins/toastr/toastr.min.css" rel="stylesheet">
+	<link href="../../css/plugins/smallPop/spop.min.css" rel="stylesheet">
+	
+	<link href="../../css/animate.css" rel="stylesheet">
+	<link href="../../css/style.css" rel="stylesheet">
+    <link href="../../css/loading.css" rel="stylesheet">
+	<style type="text/css">
+		.head-img{
+			width: 100px;
+		}
+		.no-padding{
+			padding: 0px;
+		}
+		.chosen-container-single .chosen-single{
+			border: 1px solid #e5e6e7;
+		}
+		.custom-chosen-drop{
+			width:490px !important;
+			margin-left: 15px;
+		}
+			
+		.display-none{
+			display: none !important;
+		}
+		
+		textarea{
+			resize: none;
+		}
+	</style>
+</head>
+<body>
+    <div class="wrapper animated fadeInRight">
+    	<div class="row">
+            <div class="col-sm-12 no-padding">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="my-form">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">参数名：</label>
+                                <div class="col-sm-8">
+                                    <input id="urlParamName" name="urlParamName" class="form-control" type="text" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">参数值：</label>
+                                <div class="col-sm-8">
+                                    <input id="urlParamValue" name="urlParamValue" class="form-control password-disc" type="text" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">必须参数：</label>
+                                <div class="col-sm-8">
+                                    <select id="urlParamRequired" name="urlParamRequired" class="form-control query-criteria"></select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">备注：</label>
+                                <div class="col-sm-8">
+                                    <textarea id="urlParamRemark" name="urlParamRemark" class="form-control" required="" aria-required="true"></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-primary insert-btn" type="button">提交</button>
+                                    <button class="btn btn-primary update-btn" type="button">提交</button>
+                                </div>
+                            </div>
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+		</div>
+	</div>
+</body>
+<!-- 全局js -->
+<script src="../../js/jquery.min.js"></script>
+<script src="../../js/jquery.cookie.js"></script>
+<script src="../../js/bootstrap.min.js"></script>
+<script src="../../js/contabs.js"></script>
+<!--提示框-->
+<script src="../../js/plugins/layer/layer.js"></script>
+<script src="../../js/plugins/toastr/toastr.min.js"></script>
+<script src="../../js/plugins/smallPop/spop.min.js"></script>
+
+<script src="../../js/DB/dexie.js"></script>
+<script src="../../js/DB/IDB.js"></script>
+<script src="../../js/common/Util.js"></script>
+<script src="../../js/common/Field.js"></script>
+<script src="../../js/common/QequestPath.js"></script>
+<script src="../../js/common/Code.js"></script>
+<script src="../../js/common/CookieUtils.js"></script>
+<script src="../../js/common/Common.js"></script>
+<script type="text/javascript">
+
+	var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+	
+	const pageParams = getPageParam();
+	$.deepFreeze(pageParams);
+	
+	$(function(){
+		initCodeList();
+		
+		initData();
+		
+		drawElement();
+		
+		initEvent();
+	})
+	
+	function initCodeList(){
+		var data = new Array();
+		data.push({
+			"group": Code.YES.group,
+			"element": "urlParamRequired"
+		});
+		loadCode(data);
+	}
+	
+	function initEvent(){
+		$("button.update-btn").click(function(){
+			var param = new Object();
+			param["userId"] = pageParams.userId;
+			param["userName"] = $("input[name='userName']").val();
+			param["userQq"] = $("input[name='userQq']").val();
+			param["userEmail"] = $("input[name='userEmail']").val();
+			param["userPlatform"] = $("select[name='userPlatform']").val();
+			param["files"] = $(":file[name='userHead_file']")[0].files[0];
+			var positionList = $("#positions").val();
+			if(isNotNull(positionList)){
+				$.each(positionList, function(i, v){
+					param["positionExList["+i+"].positionId"] = v;
+				});
+			}
+			
+			ajax({
+				url: RequestPath.userUpdate.url,
+				data: param,
+				type: RequestPath.userUpdate.type,
+				success: function(data){
+					closeFrame();
+				},
+				error: function(data){
+				}
+			}, null, true);
+		});
+		
+		$("button.insert-btn").click(function(){
+			var param = new Object();
+			param["userName"] = $("input[name='userName']").val();
+			param["userPwd"] = $("input[name='userPwd']").val();
+			param["userQq"] = $("input[name='userQq']").val();
+			param["userEmail"] = $("input[name='userEmail']").val();
+			param["userPlatform"] = $("select[name='userPlatform']").val();
+			param["files"] = $(":file[name='userHead_file']")[0].files[0];
+			var positionList = $("#positions").val();
+			if(isNotNull(positionList)){
+				$.each(positionList, function(i, v){
+					param["positionExList["+i+"].positionId"] = v;
+				});
+			}
+			
+			ajax({
+				url: RequestPath.userInsert.url,
+				data: param,
+				type: RequestPath.userInsert.type,
+				success: function(data){
+					// 由于只关闭当前页面没有刷新父页面，导致提示消息不显示，所以手动调用显示提示消息
+					window.parent.ajaxShowMessage("showCookieMessage");
+					// 关闭当前页面
+					closeTabActive();
+				},
+				error: function(data){
+				}
+			}, null, true);
+		});
+		
+	}
+	
+	//渲染控件
+	function drawElement(){
+		if(isNull(pageParams.urlParamId)){
+			// 新增
+			$("button.update-btn").remove();
+		} else {
+			// 编辑，查看
+			$("button.insert-btn").remove();
+		}
+	}
+	
+	function initData(){
+		if(isNotNull(pageParams.urlParamId)){
+			// 编辑
+			// 加载请求参数信息
+			initUrlParamData();
+		}
+	}
+	
+	
+	/**
+	 * 加载用户信息
+	 */
+	function initUrlParamData(){
+		ajax({
+			url: RequestPath.urlParamDetail.url,
+			data: {"urlParamId":pageParams.urlParamId},
+			type: RequestPath.urlParamDetail.type,
+			success: function(data){
+				var userInfo = data.datas.userDetail;
+				
+			},
+			error: function(data){
+			}
+		});
+	}
+	
+	function closeFrame(){
+		//parent.layer.close(index);//关闭当前dialog
+		parent.location.reload();//重新加载父页面
+	}
+	
+</script>
+</html>

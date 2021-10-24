@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="priv.xin.xd.core.dao.UserPositionMapper">
+
+    <resultMap id="BaseResultMap" type="priv.xin.xd.core.entity.UserPosition">
+        <id column="USER_POSITION_ID" jdbcType="VARCHAR" property="userPositionId"/>
+        <result column="USER_ID" jdbcType="VARCHAR" property="userId"/>
+        <result column="POSITION_ID" jdbcType="VARCHAR" property="positionId"/>
+        <result column="USER_POSITION_DEL_FLAG" jdbcType="VARCHAR" property="userPositionDelFlag"/>
+        <result column="USER_POSITION_CREATE_TIME" jdbcType="TIMESTAMP" property="userPositionCreateTime"/>
+        <result column="USER_POSITION_CREATE_USER" jdbcType="VARCHAR" property="userPositionCreateUser"/>
+        <result column="USER_POSITION_MODIFY_TIME" jdbcType="TIMESTAMP" property="userPositionModifyTime"/>
+        <result column="USER_POSITION_MODIFY_USER" jdbcType="VARCHAR" property="userPositionModifyUser"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        USER_POSITION_ID
+        , USER_ID, POSITION_ID, USER_POSITION_DEL_FLAG, USER_POSITION_CREATE_TIME,
+    USER_POSITION_CREATE_USER, USER_POSITION_MODIFY_TIME, USER_POSITION_MODIFY_USER
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from s_user_position
+        where USER_POSITION_ID = #{userPositionId,jdbcType=VARCHAR}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete
+        from s_user_position
+        where USER_POSITION_ID = #{userPositionId,jdbcType=VARCHAR}
+    </delete>
+
+    <insert id="insert" parameterType="priv.xin.xd.core.entity.UserPosition">
+        insert into s_user_position (USER_POSITION_ID, USER_ID, POSITION_ID,
+                                     USER_POSITION_DEL_FLAG, USER_POSITION_CREATE_TIME,
+                                     USER_POSITION_CREATE_USER, USER_POSITION_MODIFY_TIME,
+                                     USER_POSITION_MODIFY_USER)
+        values (#{userPositionId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{positionId,jdbcType=VARCHAR},
+                #{userPositionDelFlag,jdbcType=VARCHAR}, SYSDATE(),
+                #{userPositionCreateUser,jdbcType=VARCHAR}, SYSDATE(),
+                #{userPositionModifyUser,jdbcType=VARCHAR})
+    </insert>
+
+    <update id="updateByPrimaryKey" parameterType="priv.xin.xd.core.entity.UserPosition">
+        update s_user_position
+        <set>
+            <if test="userId != null">
+                USER_ID = #{userId,jdbcType=VARCHAR},
+            </if>
+            <if test="positionId != null">
+                POSITION_ID = #{positionId,jdbcType=VARCHAR},
+            </if>
+            <if test="userPositionDelFlag != null">
+                USER_POSITION_DEL_FLAG = #{userPositionDelFlag,jdbcType=VARCHAR},
+            </if>
+            USER_POSITION_MODIFY_TIME = SYSDATE(),
+            USER_POSITION_MODIFY_USER = #{userPositionModifyUser,jdbcType=VARCHAR},
+        </set>
+        where USER_POSITION_ID = #{userPositionId,jdbcType=VARCHAR}
+    </update>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="BaseResultMap">
+        select
+        USER_POSITION_ID, USER_ID, POSITION_ID, USER_POSITION_DEL_FLAG, USER_POSITION_CREATE_TIME, USER_POSITION_CREATE_USER,
+        USER_POSITION_MODIFY_TIME, USER_POSITION_MODIFY_USER
+        from xd.s_user_position
+        <where>
+            <if test="userPositionId != null and userPositionId != ''">
+                and USER_POSITION_ID = #{userPositionId}
+            </if>
+            <if test="userId != null and userId != ''">
+                and USER_ID = #{userId}
+            </if>
+            <if test="positionId != null and positionId != ''">
+                and POSITION_ID = #{positionId}
+            </if>
+            <if test="userPositionDelFlag != null and userPositionDelFlag != ''">
+                and USER_POSITION_DEL_FLAG = #{userPositionDelFlag}
+            </if>
+            <if test="userPositionCreateTime != null">
+                and USER_POSITION_CREATE_TIME = #{userPositionCreateTime}
+            </if>
+            <if test="userPositionCreateUser != null and userPositionCreateUser != ''">
+                and USER_POSITION_CREATE_USER = #{userPositionCreateUser}
+            </if>
+            <if test="userPositionModifyTime != null">
+                and USER_POSITION_MODIFY_TIME = #{userPositionModifyTime}
+            </if>
+            <if test="userPositionModifyUser != null and userPositionModifyUser != ''">
+                and USER_POSITION_MODIFY_USER = #{userPositionModifyUser}
+            </if>
+        </where>
+    </select>
+
+  <!--删除用户端全部职位-->
+  <delete id="deleteByUserId" parameterType="java.lang.String">
+    delete
+    from s_user_position
+    where USER_ID = #{userId,jdbcType=VARCHAR}
+  </delete>
+
+</mapper>

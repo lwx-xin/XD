@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="priv.xin.xd.core.dao.CodeMapper">
+
+  <resultMap id="BaseResultMap" type="priv.xin.xd.core.entity.Code">
+    <id column="CODE_ID" jdbcType="VARCHAR" property="codeId" />
+    <result column="CODE_GROUP" jdbcType="VARCHAR" property="codeGroup" />
+    <result column="CODE_NAME" jdbcType="VARCHAR" property="codeName" />
+    <result column="CODE_VALUE" jdbcType="VARCHAR" property="codeValue" />
+    <result column="CODE_ORDER" jdbcType="VARCHAR" property="codeOrder" />
+    <result column="CODE_CREATE_TIME" jdbcType="TIMESTAMP" property="codeCreateTime" />
+    <result column="CODE_CREATE_USER" jdbcType="VARCHAR" property="codeCreateUser" />
+    <result column="CODE_MODIFY_TIME" jdbcType="TIMESTAMP" property="codeModifyTime" />
+    <result column="CODE_MODIFY_USER" jdbcType="VARCHAR" property="codeModifyUser" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    CODE_ID, CODE_GROUP, CODE_NAME, CODE_VALUE, CODE_ORDER, CODE_CREATE_TIME, CODE_CREATE_USER, 
+    CODE_MODIFY_TIME, CODE_MODIFY_USER
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from m_code
+    where CODE_ID = #{codeId,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from m_code
+    where CODE_ID = #{codeId,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insert" parameterType="priv.xin.xd.core.entity.Code">
+    insert into m_code (CODE_ID, CODE_GROUP, CODE_NAME,
+      CODE_VALUE, CODE_ORDER, CODE_CREATE_TIME,
+      CODE_CREATE_USER, CODE_MODIFY_TIME, CODE_MODIFY_USER
+      )
+    values (#{codeId,jdbcType=VARCHAR}, #{codeGroup,jdbcType=VARCHAR}, #{codeName,jdbcType=VARCHAR},
+      #{codeValue,jdbcType=VARCHAR}, #{codeOrder,jdbcType=VARCHAR}, SYSDATE(),
+      #{codeCreateUser,jdbcType=VARCHAR}, SYSDATE(), #{codeModifyUser,jdbcType=VARCHAR}
+      )
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="priv.xin.xd.core.entity.Code">
+    update m_code
+    <set>
+      <if test="codeGroup != null">
+        CODE_GROUP = #{codeGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="codeName != null">
+        CODE_NAME = #{codeName,jdbcType=VARCHAR},
+      </if>
+      <if test="codeValue != null">
+        CODE_VALUE = #{codeValue,jdbcType=VARCHAR},
+      </if>
+      <if test="codeOrder != null">
+        CODE_ORDER = #{codeOrder,jdbcType=VARCHAR},
+      </if>
+      CODE_MODIFY_TIME = SYSDATE(),
+      CODE_MODIFY_USER = #{codeModifyUser,jdbcType=VARCHAR},
+    </set>
+    where CODE_ID = #{codeId,jdbcType=VARCHAR}
+  </update>
+
+  <delete id="deleteAll">
+    delete from m_code
+  </delete>
+
+  <!--通过实体作为筛选条件查询-->
+  <select id="queryAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from m_code
+    <where>
+      <if test="codeId != null">
+        and CODE_ID = #{codeId}
+      </if>
+      <if test="codeGroup != null and codeGroup != ''">
+        and CODE_GROUP = #{codeGroup}
+      </if>
+      <if test="codeName != null and codeName != ''">
+        and CODE_NAME = #{codeName}
+      </if>
+      <if test="codeValue != null and codeValue != ''">
+        and CODE_VALUE = #{codeValue}
+      </if>
+      <if test="codeOrder != null and codeOrder != ''">
+        and CODE_ORDER = #{codeOrder}
+      </if>
+      <if test="codeCreateTime != null">
+        and CODE_CREATE_TIME = #{codeCreateTime}
+      </if>
+      <if test="codeCreateUser != null and codeCreateUser != ''">
+        and CODE_CREATE_USER = #{codeCreateUser}
+      </if>
+      <if test="codeModifyTime != null">
+        and CODE_MODIFY_TIME = #{codeModifyTime}
+      </if>
+      <if test="codeModifyUser != null and codeModifyUser != ''">
+        and CODE_MODIFY_USER = #{codeModifyUser}
+      </if>
+    </where>
+    ORDER BY CODE_GROUP,CODE_ORDER ASC
+  </select>
+
+</mapper>

@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+
+    <title>XD - 主页</title>
+
+    <link href="../../img/logo.ico" rel="shortcut icon">
+
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../../css/iconfont/iconfont.css" rel="stylesheet">
+	<!--提示框-->
+	<link href="../../css/plugins/toastr/toastr.min.css" rel="stylesheet">
+	<link href="../../css/plugins/smallPop/spop.min.css" rel="stylesheet">
+	<!-- 右键菜单 -->
+	<link href="../../css/plugins/rightMenu/rightMenu.css" rel="stylesheet">
+	
+	<link href="../../css/animate.css" rel="stylesheet">
+	<link href="../../css/style.css" rel="stylesheet">
+    <link href="../../css/loading.css" rel="stylesheet">
+	
+	<style>
+		.file-control{
+			margin-right: 2px;
+			margin-left: 2px;
+		}
+		
+		div.file-name span.file-name{
+			padding: 0px;
+			border: 0px;
+		}
+		
+		div.file-name{
+			max-width: 280px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;	
+		}
+		
+		.border-light{
+			-webkit-box-shadow: 0 0 5px rgba(0,113,241,1);
+		}
+		
+		dl{
+			margin: 10px 0px 10px 0px;
+		}
+		.dl-horizontal{
+			font-size: 14px;
+		}
+		.dl-horizontal dt{
+			width: 80px;
+			line-height: 1.7;
+		}
+		.dl-horizontal dd{
+			margin-left: 100px;
+			line-height: 1.7; 
+		}
+		.dl-horizontal .form-control.query-criteria{
+			width: 90%;
+			padding: 0px;
+			height: 23px;
+			background-color: #FFF;
+		}
+		
+		video{
+			width: auto !important;
+			height: 500px !important;
+			max-height: 500px !important;
+		}
+	</style>
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-sm-3 file-manager-menu">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <div class="file-manager">
+                            <!-- <h5>显示：</h5> -->
+							
+                            <div class="hr-line-dashed"></div>
+                            <button class="btn btn-primary btn-block" id="uploadFileBtn">
+								<i class="fa fa-upload"></i>
+								上传文件
+							</button>
+                            <div class="hr-line-dashed"></div>
+                            <h5 class='file-type-title'>
+								文件类型 <span class='file-type-name'></span>
+							</h5>
+                            <ul class="folder-list" id="fileType" style="padding: 0">
+                                <li file-type='' class="active">
+									<a href="javascript:void(0);"><i class="fa fa-folder"></i> <span>全部</span></a>
+                                </li>
+                            </ul>
+                            <h5 class="tag-title">标签</h5>
+                            <ul class="tag-list" style="padding: 0">
+                                <li><a href="javascript:void(0);">爱人</a>
+                                </li>
+                                <li><a href="javascript:void(0);">工作</a>
+                                </li>
+                                <li><a href="javascript:void(0);">家庭</a>
+                                </li>
+                                <li><a href="javascript:void(0);">孩子</a>
+                                </li>
+                                <li><a href="javascript:void(0);">假期</a>
+                                </li>
+                                <li><a href="javascript:void(0);">音乐</a>
+                                </li>
+                                <li><a href="javascript:void(0);">照片</a>
+                                </li>
+                                <li><a href="javascript:void(0);">电影</a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-9 animated fadeInRight file-manager-show-file">
+                <div class="row">
+                    <div class="col-sm-12" id="fileList">
+						
+                    </div>
+                </div>
+                <div class="row show-more" style="display: none;">
+                    <div class="col-sm-12" style="text-align: center;margin-left: -50px;">
+						<button class="btn btn-white">
+							<i class="fa fa-arrow-down"></i> 显示更多 ...
+						</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+	<div style="display: none;">
+		<input id="fileListPageNumber" value="1"/>
+		<select id="fileTypeSelect"></select>
+	</div>
+</body>
+<script src="../../js/jquery.min.js"></script>
+<script src="../../js/jquery.cookie.js"></script>
+<script src="../../js/bootstrap.min.js"></script>
+<!--提示框-->
+<script src="../../js/plugins/layer/layer.js"></script>
+<script src="../../js/plugins/toastr/toastr.min.js"></script>
+<script src="../../js/plugins/smallPop/spop.min.js"></script>
+<!--弹框-->
+<script src="../../js/plugins/sweetalert/sweetalert.min.js"></script>
+<!-- 右键菜单 -->
+<script src="../../js/plugins/rightMenu/rightMenu.js"></script>
+
+<script src="../../js/DB/dexie.js"></script>
+<script src="../../js/DB/IDB.js"></script>
+<script src="../../js/common/Util.js"></script>
+<script src="../../js/common/Field.js"></script>
+<script src="../../js/common/QequestPath.js"></script>
+<script src="../../js/common/Code.js"></script>
+<script src="../../js/common/CookieUtils.js"></script>
+<script src="../../js/common/Common.js"></script>
+
+<script>
+	
+	$(function(){
+		initData();
+		initEvent();
+	});
+	
+	function initData(){
+		initFileType();
+		initFileList("",false);
+	}
+	
+	function initEvent(){
+ 		// 文件单击事件 -- 打开文件
+		// $("#fileList").on("click",".file-box",function(){
+		// 	if(!$(this).find(".file").hasClass("active")){
+		// 		$(".file-box").find(".file").removeClass("border-light active");
+		// 		$(this).find(".file").addClass("border-light active");
+		// 	} else {
+		// 		$(this).find(".file").removeClass("border-light active");
+		// 	}
+		// });
+		$("#fileList").on("mouseenter",".file-box",function(){
+			// if(!$(this).find(".file").hasClass("active")){
+				$(this).find(".file").addClass("border-light");
+			// }
+		});
+		$("#fileList").on("mouseleave",".file-box",function(){
+			// if(!$(this).find(".file").hasClass("active")){
+				$(this).find(".file").removeClass("border-light");
+			// }
+		});
+		
+		$("#uploadFileBtn").click(function(){
+			layer.open({
+				  type: 2,
+				  title: "上传文件",
+				  area: ['800px', '450px'],
+				  fixed: false, //不固定
+				  maxmin: true,
+				  content: 'file-upload.html',
+				  end: function(){
+					  reloadData();
+				  }
+			});
+		});
+		
+		$("#fileType").on("click", "li", function(){
+			if($(this).find("i.fa.arrow").length==0){
+				$("#fileListPageNumber").val(1);
+				$('html,body').animate({scrollTop:0}, 500);//回到顶端
+				var fileType = $(this).attr("file-type");
+				initFileList(fileType,false);
+			}
+		});
+		
+		$("#fileList").on("error","img",function(){
+		    $(this).unbind('error'); //防止替换图片加载失败后陷入无限循环
+		    $(this).attr('src', '../../img/default-head.jpg');
+		});
+		
+		$(".show-more").on("click","button",function(){
+			var nowPageNumber = toNumber($("#fileListPageNumber").val());
+			$("#fileListPageNumber").val(nowPageNumber + 1);
+			var fileType = $("#fileType li.active").attr("file-type");
+			initFileList(fileType, true);
+		});
+		
+		$("body").on("change","select#fileDetail_fileType",function(){
+			var _this = this;
+			var fileSuffix = $(_this).parents(".dl-horizontal").find(".file-suffix").html();
+			if(isNull(fileSuffix)){
+				return false;
+			}
+			var param = {
+				"fileSuffix": fileSuffix,
+				"fileType": $(_this).val()
+			};
+			var fileTypeName = $(_this).find("option:selected").text();
+			
+			var message = "是否要将"+fileSuffix+"文件设定为"+fileTypeName+"类型";
+			layer.confirm(message, {
+				btn: ['确定','取消'] //按钮
+			}, function(index, layero){
+				//按钮【确定】的回调
+				ajax({
+					url: RequestPath.fileTypeUpdate.url,
+					data: param,
+					type: RequestPath.fileTypeUpdate.type,
+					success: function(data){
+						reloadData();
+					},
+					error: function(data){
+					}
+				});
+				layer.closeAll();
+			}, function(index){
+				//按钮【取消】的回调
+				var beforeValue = $(_this).data("before-value");
+				$(_this).find("option[value='"+beforeValue+"']").attr("selected",true);
+				$(_this).val(beforeValue);
+			});
+		});
+		
+		$(window).scroll(function() {
+			//获取被卷去高度
+			var scrollTop = $(this).scrollTop();
+			$(".file-manager-menu").animate({top: scrollTop+'px'}, 0);
+		});
+	}
+	
+	function initFileType(){
+		// $("#fileType").html("");
+		var fileTypeGroup = Code.FILE_TYPE_AUDIO.group;
+		var param = new Object();
+		param.groups = JSON.stringify([fileTypeGroup]);
+		ajax({
+			url: RequestPath.codeList.url,
+			type: RequestPath.codeList.type,
+			data: param,
+			success: function(data){
+				var codes = data.codes;
+				var codeList = codes[fileTypeGroup];
+				$.each(codeList, function(i,code){
+					var codeValue = code.codeValue;
+					var codeName = code.codeName;
+					$("#fileType").append("<li file-type='"+codeValue+"'><a href='javascript:void(0);'><i class='fa fa-folder'></i> <span>"+codeName+"</span></a></li>");
+					$("#fileTypeSelect").append("<option value='"+codeValue+"'>"+codeName+"</option>");
+				});
+			}
+		}, null, false);
+	}
+	
+	/**
+	 * @param {String} fileType 文件类型
+	 * @param {Boolean} isAppend 是否进行追加
+	 */
+	function initFileList(fileType, isAppend){
+		if(!isAppend){
+			$("#fileList").html("");
+		}
+		$("#fileType li").removeClass("active");
+		$("#fileType li[file-type='"+fileType+"']").addClass("active");
+		
+		$("#fileType li a i[class='fa arrow']").remove();
+		$("#fileType li[file-type='"+fileType+"'] a").append("<i class='fa arrow'></i>");
+		
+		var fileTypeName = $("#fileType li a i[class='fa arrow']").prev().html();
+		$(".file-type-title .file-type-name").html(" - "+fileTypeName);
+		
+		// 每页显示的数据条数
+		var pageSize = 16;
+		// 当前页码
+		var pageNumber = toNumber($("#fileListPageNumber").val());
+		
+		// 查询条件
+		var fileType = fileType;
+		
+		// 排序
+		var sortField = "fileModifyTime";
+		var sortOrder = "desc";
+		
+		var param = {
+			"pageNumber": pageNumber,//页码
+			"pageSize": pageSize,//每页显示的数据条数
+			"sortField": sortField,//排序的字段
+			"sortOrder": sortOrder,//排序方式
+			"fileType": fileType
+		}
+		ajax({
+			url: RequestPath.fileList.url,
+			data: param,
+			type: RequestPath.fileList.type,
+			success: function(data){
+				var fileList = data.datas.fileList;
+				if(isNotNull(fileList)){
+					$.each(fileList, function(i, fileEx){
+						$("#fileList").append(template_file(fileEx));
+					});
+				} else {
+					$(".show-more").hide();
+				}
+				
+				var totalNumber = data.datas.totalNumber;
+				var maxPageNumber = parseInt(totalNumber/pageSize);
+				if(totalNumber%pageSize!=0){
+					maxPageNumber = maxPageNumber + 1;
+				}
+				if(pageNumber>= maxPageNumber){
+					$(".show-more").hide();
+				} else {
+					$(".show-more").show();
+				}
+			},
+			error: function(data){
+			}
+		});
+		
+		// 添加右键菜单
+		drawResourceContextMenu();
+		
+		$('img').on('error', function(){
+		    $(this).unbind('error'); //防止替换图片加载失败后陷入无限循环
+		    // $(this).attr('src', '../../img/default-picture.png');
+			var fileTypeDiv = "<div class='icon'><i class='fa fa-file-image-o'></i></div>";
+			$(this).parent(".image").after(fileTypeDiv);
+			$(this).parent(".image").remove();
+		});
+		
+		// $('#fileList')
+		// 	.addClass('animated fadeInRight')
+		// 	.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
+		// 		$('#fileList').removeClass('animated fadeInRight');
+		// });
+		// 添加鼠标悬浮放大动画
+		// $('.file-box').each(function () {
+		// 	$(this).hover(function(){
+		// 	    $(this).addClass('animated pulse');
+		// 	},function(){
+		// 	    $(this).removeClass('animated pulse');
+		// 	});
+		// });
+	}
+	
+	function template_file(fileEx){
+		var fileId = fileEx.fileId;
+		var fileName = fileEx.fileName;
+		var fileType = fileEx.fileType;
+		var fileCreateTime = fileEx.fileCreateTime;
+		
+		var fileTypeDiv;
+		switch (fileType){
+			case Code.FILE_TYPE_AUDIO.value:
+				/** 文件类型-音频*/
+				fileTypeDiv = "<div class='icon'><i class='fa fa-music'></i></div>";
+				break;
+			case Code.FILE_TYPE_VIDEO.value:
+				/** 文件类型-视频*/
+				fileTypeDiv = "<div class='icon'><i class='fa fa-film'></i></div>";
+				break;
+			case Code.FILE_TYPE_TXT.value:
+				/** 文件类型-文本*/
+				fileTypeDiv = "<div class='icon'><i class='fa fa-file-text-o'></i></div>";
+				break;
+			case Code.FILE_TYPE_LOG.value:
+				/** 文件类型-日志*/
+				fileTypeDiv = "<div class='icon'><i class='fa fa-file-text-o'></i></div>";
+				break;
+			case Code.FILE_TYPE_PICTURE.value:
+				/** 文件类型-图片*/
+				if(isNotNull(fileId)){
+					var fileUrl = RequestPath.fileImage.url.replace("{fileId}",fileId)+"?thumbnails=yes";
+					fileTypeDiv = "<div class='image' align='center'>"+
+						"<img alt='image' class='img-responsive' src='"+fileUrl+"'></div>";
+				} else {
+					fileTypeDiv = "<div class='icon'><i class='fa fa-file-image-o'></i></div>";
+				}
+				break;
+			default:
+				/** 文件类型-其它*/
+				fileTypeDiv = "<div class='icon'><i class='fa fa-file'></i></div>";
+				break;
+		}
+		
+		var html = "<div class='file-box animated fadeInRight' file-id='"+fileId+"' file-type='"+fileType+"' title='"+fileName+"'>"+
+			"	<div class='file'>"+
+			"		<a href='javascript:void(0);'>"+
+			"			<span class='corner'></span>"+
+			fileTypeDiv+
+			"			<div class='file-name'>"+
+			"				<span class='file-name'>"+fileName+"</span>"+
+			"				<br/>"+
+			"				<small>添加时间："+new Date(fileCreateTime).toStr("yyyy-MM-dd HH:mm:ss")+"</small>"+
+			"			</div>"+
+			"		</a>"+
+			"	</div>"+
+			"</div>";
+		return html;
+	}
+	
+	/**
+	 * 渲染文件，文件夹右键菜单
+	 */
+	function drawResourceContextMenu(){
+		var thisMenu;
+		$(".file-box .file").clickMenu({
+			target: function(ele) {// 当前元素
+				thisMenu = $(ele).parent(".file-box");
+			},
+			menu: [
+				{
+					text: "编辑",
+					icon: "fa fa-edit",
+					callback: function() {
+						var fileId = $(thisMenu).attr("file-id");
+						var fileName = $(thisMenu).find("div.file-name span.file-name").html();
+						
+						layer.prompt({
+							title: '编辑文件名',
+							formType: 0,// 输入框类型，支持0（文本）默认1（密码）2（多行文本）
+							value: fileName
+						},function(newFileName, index){
+							layer.close(index);
+							renameFile(fileId, newFileName);
+						});
+						
+						thisMenu = null;
+					}
+				},{
+					text: "下载",
+					icon: "fa fa-download",
+					callback: function() {
+						var fileId = $(thisMenu).attr("file-id");
+						var downloadPath = RequestPath.fileDownload.url.replace("{fileId}", fileId);
+						
+						const a = document.createElement('a')
+						a.setAttribute('download', '')
+						a.setAttribute('href', downloadPath)
+						a.click()
+						
+						thisMenu = null;
+					}
+				},{
+					text: "预览",
+					icon: "fa fa-eye",
+					callback: function() {
+						var fileId = $(thisMenu).attr("file-id");
+						var fileType = $(thisMenu).attr("file-type");
+						var fileName = $(thisMenu).find("div.file-name span.file-name").html();
+						openFile(fileId, fileName, fileType);
+						thisMenu = null;
+					}
+				}, {
+					text: "删除",
+					icon: "fa fa-remove",
+					callback: function() {
+						var fileId = $(thisMenu).attr("file-id");
+						// var fileType = $(thisMenu).attr("file-type");
+						deleteFile(fileId);
+						thisMenu = null;
+					}
+				}, {
+					text: "详细",
+					icon: "fa fa-info-circle",
+					callback: function() {
+						var fileId = $(thisMenu).attr("file-id");
+						// var fileType = $(thisMenu).attr("file-type");
+						getFileDetail(fileId);
+						thisMenu = null;
+					}
+				}
+			]
+		});
+	}
+	
+	function getFileDetail(fileId){
+		var param = {
+			"fileId": fileId
+		}
+		
+		ajax({
+			url: RequestPath.fileDetail.url,
+			data: param,
+			type: RequestPath.fileDetail.type,
+			success: function(data){
+				var fileDetail = data.datas.fileDetail;
+				$("#fileTypeSelect").find("option[value='"+fileDetail.fileType+"']").attr("selected",true);
+				var html = "<div class='row' style='margin:0px;'>"+
+					"	<div class='col-sm-12'>"+
+					"		<dl class='dl-horizontal'>"+
+					"			<dt>文件名：</dt>"+
+					"			<dd>"+
+					"				<input class='form-control query-criteria' value='"+fileDetail.fileName+"' readonly/>"+
+					"			</dd>"+
+					"			<dt>大小：</dt>"+
+					"			<dd>"+fileDetail.fileSize+"</dd>"+
+					"			<dt>格式：</dt>"+
+					"			<dd class='file-suffix'>"+fileDetail.fileSuffix+"</dd>"+
+					"			<dt>打开方式：</dt>"+
+					"			<dd>"+
+					"				<select class='form-control query-criteria' id='fileDetail_fileType'>"+
+					"					"+$("#fileTypeSelect").html()+
+					"				</select>"+
+					"			</dd>"+
+					"			<dt>创建时间：</dt>"+
+					"			<dd>"+new Date(fileDetail.fileCreateTime).toStr("yyyy-MM-dd HH:mm:ss")+"</dd>"+
+					"			<dt>修改时间：</dt>"+
+					"			<dd>"+new Date(fileDetail.fileModifyTime).toStr("yyyy-MM-dd HH:mm:ss")+"<dd>"+
+					"		</dl>"+
+					"	</div>"+
+					"</div>";
+				layer.open({
+					title: '详细信息',
+					type: 1,
+					skin: 'layui-layer-demo', //样式类名
+					closeBtn: 0, //不显示关闭按钮
+					offset: 'auto',
+					anim: 2,
+					// scrollbar: false, //屏蔽浏览器滚动条
+					shadeClose: true, //开启遮罩关闭
+					area: ["280px","220px"],
+					content: html,
+					end: function(){
+						//移除禁止滚动条滚动
+						$(document).unbind("scroll.unable");
+					}
+				});
+				$("#fileDetail_fileType").data("before-value", $("#fileDetail_fileType").val());
+				$("#fileTypeSelect option").attr("selected",false);
+				//禁止滚动条滚动
+				var top = $(document).scrollTop();
+				$(document).on('scroll.unable',function (e) {
+					$(document).scrollTop(top);
+				})
+			},
+			error: function(data){
+			}
+		});
+	}
+	
+	function renameFile(fileId, fileName){
+		var param = {
+			"fileId": fileId,
+			"fileName": fileName
+		}
+		
+		ajax({
+			url: RequestPath.fileUpdate.url,
+			data: param,
+			type: RequestPath.fileUpdate.type,
+			success: function(data){
+				reloadData();
+			},
+			error: function(data){
+			}
+		});
+	}
+	
+	function deleteFile(fileId){
+		swal({
+		  title: "删除",
+		  text: "删除后该文件将永久消失!",
+		  icon: "warning",
+		  buttons: ["取消","删除"],
+		  dangerMode: true,
+		}).then((willDelete) => {
+			if (willDelete) {
+				ajax({
+					url: RequestPath.fileDelete.url,
+					data: {"fileId": fileId},
+					type: RequestPath.fileDelete.type,
+					success: function(data){
+						reloadData();
+					},
+					error: function(data){
+					}
+				});
+			} else {}
+		});
+	}
+	
+	function openFile(fileId, fileName, fileType){
+		switch (fileType){
+			case Code.FILE_TYPE_AUDIO.value:
+				/** 文件类型-音频*/
+				
+				break;
+			case Code.FILE_TYPE_VIDEO.value:
+				/** 文件类型-视频*/
+				openFile_video(fileId);
+				break;
+			case Code.FILE_TYPE_TXT.value:
+				/** 文件类型-文本*/
+			case Code.FILE_TYPE_LOG.value:
+				/** 文件类型-日志*/
+				parent.addMenuTab("123", fileName, 1);
+				break;
+			case Code.FILE_TYPE_PICTURE.value:
+				/** 文件类型-图片*/
+				openFile_picture(fileId);
+				break;
+			default:
+				/** 文件类型-其它*/
+				
+				break;
+		}
+	}
+	
+	function openFile_picture(fileId){
+		var fileStreamPath = RequestPath.fileImage.url.replace("{fileId}",fileId);
+		
+		let img = new Image(); // Image对象
+		img.onload = function () { // 重点：要用onload加载
+			var width = img.width;
+			var	height = img.height;
+			width = width*(500/height)
+			height = 500;
+			
+			var top = ($("body").height()-height)/2;
+			var left = ($("body").width()-width)/2;
+			
+			layer.open({
+				type:1, // 类型是1
+				shade:0.2,
+				closeBtn: 1,
+				offset:[top+"px",left+"px"],
+				area:"auto",
+				shadeClose:true,
+				scrollbar: false,
+				title: '', // 这里不要写文字
+				content: "<img src='"+ fileStreamPath +"' style='height:500px'/>",
+			});
+		};
+		img.src = fileStreamPath;
+	}
+	
+	function openFile_video(fileId){
+		var fileStreamPath = RequestPath.fileVideo.url.replace("{fileId}",fileId);
+		var html = '<video controls autobuffer>'+
+			'<source src="'+fileStreamPath+'" type="video/mp4" />'+
+			'</video>';
+		
+		layer.open({
+			type: 1,
+			shade:0.2,
+			closeBtn: 2,
+			offset:'auto',
+			area:"auto",
+			// shadeClose:true,
+			scrollbar: false,
+			title: '', // 这里不要写文字
+			content: html,
+		});
+	}
+	
+	function reloadData(){
+		var fileType = $("#fileType li.active").attr("file-type");
+		initFileList(fileType,false);
+	}
+	
+</script>
+
+</html>

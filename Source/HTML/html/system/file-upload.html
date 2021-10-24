@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+
+    <title>XD - 主页</title>
+
+    <link href="../../img/logo.ico" rel="shortcut icon">
+
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../../css/iconfont/iconfont.css" rel="stylesheet">
+	<!--提示框-->
+	<link href="../../css/plugins/toastr/toastr.min.css" rel="stylesheet">
+	<link href="../../css/plugins/smallPop/spop.min.css" rel="stylesheet">
+	<!-- 上传文件 -->
+	<link href="../../css/plugins/dropzone/basic.css" rel="stylesheet">
+	<link href="../../css/plugins/dropzone/dropzone.css" rel="stylesheet">
+	
+	<link href="../../css/animate.css" rel="stylesheet">
+	<link href="../../css/style.css" rel="stylesheet">
+    <link href="../../css/loading.css" rel="stylesheet">
+</head>
+<body class="gray-bg">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form id="my-awesome-dropzone" class="dropzone" action="" enctype="multipart/form-data">
+                            <div class="dropzone-previews"></div>
+                            <button type="submit" id="uploadBtn" class="btn btn-primary pull-right">提交</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</body>
+<script src="../../js/jquery.min.js"></script>
+<script src="../../js/jquery.cookie.js"></script>
+<script src="../../js/bootstrap.min.js"></script>
+<!--提示框-->
+<script src="../../js/plugins/layer/layer.js"></script>
+<script src="../../js/plugins/toastr/toastr.min.js"></script>
+<script src="../../js/plugins/smallPop/spop.min.js"></script>
+<!-- 上传文件 -->
+<script src="../../js/plugins/dropzone/dropzone.js"></script>
+
+<script src="../../js/DB/dexie.js"></script>
+<script src="../../js/DB/IDB.js"></script>
+<script src="../../js/common/Util.js"></script>
+<script src="../../js/common/Field.js"></script>
+<script src="../../js/common/QequestPath.js"></script>
+<script src="../../js/common/Code.js"></script>
+<script src="../../js/common/CookieUtils.js"></script>
+<script src="../../js/common/Common.js"></script>
+<script>
+    
+    $(function(){
+		initEvent();
+    	drawElement();
+    });
+	
+    function drawElement(){
+        Dropzone.options.myAwesomeDropzone = {
+            url: RequestPath.fileUpload.url,
+			paramName: "files[]",
+            params:{},
+            method: RequestPath.fileUpload.type,
+            autoProcessQueue: false,
+            uploadMultiple: true,
+            parallelUploads: 100,
+            maxFiles: 8,
+			addRemoveLinks:true, //添加删除按钮
+			// acceptedFiles : ".jpg,.png,.jpeg.JPG,.PNG,.JPEG", // 上传的类型
+    	    
+    	    /* 插件消息翻译 */
+    	   /*  dictDefaultMessage: '<i class="fa fa-cloud-upload"></i>拖拉文件上传<br />或 <i class="fa fa-thumbs-down"></i>点此上传', */
+    	    dictInvalidFileType: '仅支持以下格式文件：.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.7z,.txt,image/*,application/pdf,.psd',
+    	    dictFileTooBig: '文件过大({{filesize}}MB). 上传文件最大支持: {{maxFilesize}}MB.',
+    	    dictMaxFilesExceeded: '您最多只能上传{{maxFiles}}个文件！',
+    	    dictCancelUpload: '取消上传',
+    	    dictRemoveFile: '删除',
+    	    dictCancelUploadConfirmation: '确认取消上传',
+    	    dictResponseError: "文件上传失败!",
+            dictDefaultMessage:"",
+            // Dropzone settings
+            init: function () {
+                var myDropzone = this;
+                this.element.querySelector("button[type=submit]").addEventListener("click", function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    myDropzone.processQueue();
+                });
+                this.on("sendingmultiple", function () {});
+                this.on("successmultiple", function (files, response) {
+					// 上传成功后触发的事件
+					var fileNameArray = response.datas.uploadFailedFileName;
+					$.each(files, function(i,file){
+						if($.inArray(file.name, fileNameArray) != -1){
+							var ele = $(file.previewElement);
+							ele.addClass("dz-error");
+							ele.find("[data-dz-errormessage]").html("文件上传失败");
+						}
+					});
+				});
+                this.on("errormultiple", function (files, response) {});
+                this.on("addedfile", function(file) { 
+                    //上传文件时触发的事件
+					// alert(JSON.stringify(file));
+                });
+                this.on("queuecomplete",function(file) {
+                    //上传完成后触发的方法
+					// this.element.querySelector("button[type=submit]").remove();
+                });
+                this.on("removedfile",function(file){
+                    //删除文件时触发的方法
+                });
+                this.on("maxfilesexceeded",function(file){
+                    // 文件超出上限
+					showMessage("提示", "文件最多上传8个", "warning");
+					this.removeFile(file);
+                });
+            },
+        }
+    }
+	
+	function initEvent(){
+	}
+</script>
+</html>

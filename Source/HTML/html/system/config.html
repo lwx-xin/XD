@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+	<meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+	<meta http-equiv="expires" content="-1">
+
+	<title>XD - 登录</title>
+
+	<link rel="shortcut icon" href="../img/logo.ico">
+	<link href="../../css/bootstrap.min.css" rel="stylesheet">
+	<link href="../../css/font-awesome.css" rel="stylesheet">
+	<!--提示框-->
+	<link href="../../css/plugins/toastr/toastr.min.css" rel="stylesheet">
+	<link href="../../css/plugins/smallPop/spop.min.css" rel="stylesheet">
+	
+	<link href="../../css/animate.css" rel="stylesheet">
+	<link href="../../css/style.css" rel="stylesheet">
+    <link href="../../css/loading.css" rel="stylesheet">
+
+	<style type="text/css">
+		.head-img{
+			width: 100px;
+		}
+		.display-none{
+			display: none !important;
+		}
+		.font-red{
+			color: red;
+		}
+		.user-info-border{
+			/* border-top: 0px !important;
+			border-right: 0px !important;
+			border-bottom: 1px !important;
+			border-left: 0px !important;
+			border-style: solid !important;
+			border-color: #ddddde !important; */
+			border: 0px !important;
+		}
+		#userInfo .form-group{
+			margin-top: 0px;
+			margin-bottom: 0px;
+		}
+	</style>
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+    	<div class="row">
+			<!-- 用户信息 start -->
+			<div class="col-sm-4" id="userInfo">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>用户信息</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <form class="form-horizontal">
+							<div class="col-sm-offset-3 col-sm-8" id="head-img-div">
+								<img alt="image" src="../../img/default-head.jpg" class="img-circle head-img" style="display: inline-block;" onerror="this.src='../../img/default-head.jpg';this.onerror=null;"/>
+							</div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">昵称：</label>
+								<div class="col-sm-8">
+									<span id="userName" class="form-control user-info-border"></span>
+								</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">账号：</label>
+								<div class="col-sm-8">
+									<span id="userNumber" class="form-control user-info-border"></span>
+								</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">QQ：</label>
+								<div class="col-sm-8">
+									<span id="userQq" class="form-control user-info-border"></span>
+								</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Email：</label>
+								<div class="col-sm-8">
+									<span id="userEmail" class="form-control user-info-border"></span>
+								</div>
+                            </div>
+							<div class="form-group">
+                                <label class="col-sm-4 control-label">职位：</label>
+								<div class="col-sm-8">
+									<span id="position" class="form-control user-info-border"></span>
+								</div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+			<!-- 用户信息 end -->
+			
+			<!-- 系统设置 start -->
+			<div class="col-sm-4" id="systemConfig">
+			    <div class="ibox float-e-margins">
+			        <div class="ibox-title">
+			            <h5>提示设置</h5>
+			        </div>
+			        <div class="ibox-content">
+			            <form class="form-horizontal">
+			                <div class="form-group">
+			                    <label class="col-sm-4 control-label">风格：</label>
+			                    <div class="col-sm-8">
+			                        <select id="promptBoxType" name="promptBoxType" class="form-control query-criteria"></select>
+			                    </div>
+			                </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-4 col-sm-8">
+                                    <button class="btn btn-primary config-update-btn" type="button">保存</button>
+                                </div>
+                            </div>
+			            </form>
+			        </div>
+			    </div>
+			</div>
+			<!-- 系统设置 end -->
+			
+		</div>
+	</div>
+</body>
+
+<!-- 全局js -->
+<script src="../../js/jquery.min.js"></script>
+<script src="../../js/jquery.cookie.js"></script>
+<script src="../../js/bootstrap.min.js"></script>
+<!--提示框-->
+<script src="../../js/plugins/layer/layer.js"></script>
+<script src="../../js/plugins/toastr/toastr.min.js"></script>
+<script src="../../js/plugins/smallPop/spop.min.js"></script>
+
+<script src="../../js/plugins/metisMenu/jquery.metisMenu.js"></script>
+<script src="../../js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+
+<script src="../../js/DB/dexie.js"></script>
+<script src="../../js/DB/IDB.js"></script>
+<script src="../../js/common/Util.js"></script>
+<script src="../../js/common/Field.js"></script>
+<script src="../../js/common/QequestPath.js"></script>
+<script src="../../js/common/Code.js"></script>
+<script src="../../js/common/CookieUtils.js"></script>
+<script src="../../js/common/Common.js"></script>
+<script>
+
+	$(function(){
+		initCodeList();
+		initData();
+		initEvent();
+	});
+	
+	function initCodeList(){
+		var data = new Array();
+		data.push({
+			"group": Code.PROMPT_BOX_TYPE_LAYER.group,
+			"element": "promptBoxType",
+			"nullSelect": false,
+			"default": Code.PROMPT_BOX_TYPE_LAYER.value
+		});
+		loadCode(data);
+	}
+	
+	function initEvent(){
+		$("#systemConfig").on("click",".config-update-btn",function(){
+			var promptBoxType = $("select[name='promptBoxType']").val();
+			clearMessage();
+			editSysConfig(Field.PROMPT_BOX_TYPE,promptBoxType);
+		});
+	}
+	
+	function initData(){
+		initSystemConfigData();
+		loadUserInfo();
+	}
+	
+	function initSystemConfigData(){
+		getSysConfig(Field.PROMPT_BOX_TYPE,function(configValue){
+			if(isNotNull(configValue)){
+				$("select[name='promptBoxType']").val(configValue);
+			}
+		})
+	}
+	
+	/**
+	 * 加载当前用户信息
+	 */
+	function loadUserInfo(){
+		ajax({
+			url: RequestPath.user.url,
+			type: RequestPath.user.type,
+			success: function(data){
+				var userInfo = data.datas.userDetail;
+				
+				//头像请求地址
+				var userHead = userInfo.userHead;
+				if(isNotNull(userHead)){
+					var userHeadUrl = RequestPath.fileImage.url.replace("{fileId}",userHead);
+					userHeadUrl+="?thumbnails=yes";
+					$("#head-img-div .head-img").attr("src",userHeadUrl);
+				}
+				
+				//昵称
+				var userName = userInfo.userName;
+				$("#userName").html(userName);
+				//账号
+				var userNumber = userInfo.userNumber;
+				$("#userNumber").html(userNumber);
+				//qq
+				var userQq = userInfo.userQq;
+				$("#userQq").html(userQq);
+				//email
+				var userEmail = userInfo.userEmail;
+				$("#userEmail").html(userEmail);
+				
+				var positionExList = userInfo.positionExList;
+				if(isNotNull(positionExList)){
+					var positionInfo = new Array();
+					$.each(positionExList, function(i, positionEx){
+						//职位
+						var positionName = positionEx.positionName;
+						//部门
+						var department = positionEx.department;
+						if(isNotNull(department)){
+							var departmentName = department.departmentName;
+							positionInfo.push(departmentName+"-"+positionName);
+						} else {
+							positionInfo.push(positionName);
+						}
+					});
+				}
+				// $("#position").html(positionInfo.join("<br>"));
+				$("#position").html(positionInfo.join(" , "));
+				
+			}
+		}, null, false);
+	}
+</script>
+</html>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="priv.xin.xd.core.dao.AuthMapper">
+
+  <resultMap id="BaseResultMap" type="priv.xin.xd.core.entity.Auth">
+    <id column="AUTH_ID" jdbcType="VARCHAR" property="authId" />
+    <result column="AUTH_NAME" jdbcType="VARCHAR" property="authName" />
+    <result column="AUTH_DEL_FLAG" jdbcType="VARCHAR" property="authDelFlag" />
+    <result column="AUTH_CREATE_TIME" jdbcType="TIMESTAMP" property="authCreateTime" />
+    <result column="AUTH_CREATE_USER" jdbcType="VARCHAR" property="authCreateUser" />
+    <result column="AUTH_MODIFY_TIME" jdbcType="TIMESTAMP" property="authModifyTime" />
+    <result column="AUTH_MODIFY_USER" jdbcType="VARCHAR" property="authModifyUser" />
+  </resultMap>
+  
+  <resultMap id="AuthExMap" type="priv.xin.xd.core.entity.ex.AuthEx" extends="BaseResultMap">
+    <result column="URL_COUNT" jdbcType="INTEGER" property="urlCount" />
+    <result column="MENU_COUNT" jdbcType="INTEGER" property="menuCount" />
+    <result column="POSITION_COUNT" jdbcType="INTEGER" property="positionCount" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    AUTH_ID, AUTH_NAME, AUTH_DEL_FLAG, AUTH_CREATE_TIME, AUTH_CREATE_USER, AUTH_MODIFY_TIME, 
+    AUTH_MODIFY_USER
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from s_auth
+    where AUTH_ID = #{authId,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from s_auth
+    where AUTH_ID = #{authId,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insert" parameterType="priv.xin.xd.core.entity.Auth">
+    insert into s_auth (AUTH_ID, AUTH_NAME, AUTH_DEL_FLAG, 
+      AUTH_CREATE_TIME, AUTH_CREATE_USER, AUTH_MODIFY_TIME, 
+      AUTH_MODIFY_USER)
+    values (#{authId,jdbcType=VARCHAR}, #{authName,jdbcType=VARCHAR}, #{authDelFlag,jdbcType=VARCHAR},
+            SYSDATE(), #{authCreateUser,jdbcType=VARCHAR}, SYSDATE(),
+      #{authModifyUser,jdbcType=VARCHAR})
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="priv.xin.xd.core.entity.Auth">
+    update s_auth
+    <set>
+      <if test="authName != null">
+        AUTH_NAME = #{authName,jdbcType=VARCHAR},
+      </if>
+      <if test="authDelFlag != null">
+        AUTH_DEL_FLAG = #{authDelFlag,jdbcType=VARCHAR},
+      </if>
+      AUTH_MODIFY_TIME = SYSDATE(),
+      AUTH_MODIFY_USER = #{authModifyUser,jdbcType=VARCHAR},
+    </set>
+    where AUTH_ID = #{authId,jdbcType=VARCHAR}
+  </update>
+
+  <!--根据用户ID查询用户拥有的权限-->
+  <select id="queryAuthByUser" resultMap="BaseResultMap">
+    select
+      a.*
+    from s_user_position up,s_auth_position ap,s_auth a
+    where up.POSITION_ID = ap.POSITION_ID and a.AUTH_ID = ap.AUTH_ID
+      and up.USER_ID = #{userId}
+  </select>
+
+  <!--通过实体作为筛选条件查询-->
+  <select id="queryAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from s_auth
+    <where>
+      <if test="authId != null and authId != ''">
+        and AUTH_ID = #{authId}
+      </if>
+      <if test="authName != null and authName != ''">
+        and AUTH_NAME = #{authName}
+      </if>
+    </where>
+  </select>
+
+  <select id="queryListLimit" resultMap="AuthExMap">
+    select
+      a.*,
+      IFNULL(au.URL_COUNT,0) AS URL_COUNT,
+      IFNULL(am.MENU_COUNT,0) AS MENU_COUNT,
+      IFNULL(ap.POSITION_COUNT,0) AS POSITION_COUNT
+    FROM s_auth a
+           LEFT JOIN (SELECT AUTH_ID,count(AUTH_ID) AS URL_COUNT FROM s_auth_url ORDER BY AUTH_ID) au ON au.AUTH_ID = a.AUTH_ID
+           LEFT JOIN (SELECT AUTH_ID,count(AUTH_ID) AS MENU_COUNT FROM s_auth_menu ORDER BY AUTH_ID) am ON am.AUTH_ID = a.AUTH_ID
+           LEFT JOIN (SELECT AUTH_ID,count(AUTH_ID) AS POSITION_COUNT FROM s_auth_position ORDER BY AUTH_ID) ap ON ap.AUTH_ID = a.AUTH_ID
+    <where>
+      <if test="authEx.authName != null and authEx.authName != ''">
+        and a.AUTH_NAME like #{authEx.authName}
+      </if>
+    </where>
+
+    <if test="page.sortField == 'authName'">
+      order by a.AUTH_NAME ${page.sortOrder}
+    </if>
+
+    <if test="page.pageSize !=-1 and (authEx.authId == null or authEx.authId == '')">
+      limit #{page.offSet}, #{page.pageSize}
+    </if>
+  </select>
+
+  <select id="queryListLimitCount" resultType="java.lang.Integer">
+    select
+        count(*)
+    FROM s_auth
+    <where>
+      <if test="authEx.authName != null and authEx.authName != ''">
+        and AUTH_NAME like #{authEx.authName}
+      </if>
+    </where>
+  </select>
+
+  <select id="queryAuthUsedCount" resultMap="AuthExMap">
+    select
+    IFNULL(au.URL_COUNT,0) AS URL_COUNT,
+    IFNULL(am.MENU_COUNT,0) AS MENU_COUNT,
+    IFNULL(ap.POSITION_COUNT,0) AS POSITION_COUNT
+    FROM s_auth a
+    LEFT JOIN (SELECT AUTH_ID,count(AUTH_ID) AS URL_COUNT FROM s_auth_url GROUP BY AUTH_ID) au ON au.AUTH_ID = a.AUTH_ID
+    LEFT JOIN (SELECT AUTH_ID,count(AUTH_ID) AS MENU_COUNT FROM s_auth_menu GROUP BY AUTH_ID) am ON am.AUTH_ID = a.AUTH_ID
+    LEFT JOIN (SELECT AUTH_ID,count(AUTH_ID) AS POSITION_COUNT FROM s_auth_position GROUP BY AUTH_ID) ap ON ap.AUTH_ID = a.AUTH_ID
+    where a.AUTH_ID = #{authId}
+  </select>
+</mapper>
