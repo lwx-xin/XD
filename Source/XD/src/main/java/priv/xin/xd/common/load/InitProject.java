@@ -20,9 +20,9 @@ public class InitProject implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         // 初始化项目mast数据
-        initProjectService.addCodeDB();
+//        initProjectService.addCodeDB();
         initProjectService.addRequestUrl();
-        initProjectService.addUser();
+//        initProjectService.addUser();
 
         // 缓存数据
         initProjectService.addRedis_fileType();

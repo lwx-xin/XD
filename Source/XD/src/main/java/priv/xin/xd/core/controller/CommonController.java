@@ -34,13 +34,27 @@ public class CommonController {
      */
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public Result login(@RequestBody User user, HttpServletRequest request) {
-        Result result = sysCommonService.login(user.getUserNumber(), user.getUserPwd());
+        Result result = sysCommonService.login(user.getUserNumber(), user.getUserPwd(), request);
         if (!result.getStatus()) {
             return result.message(MessageLevel.INFO, Message.LOGIN_ERROR);
         } else {
             // 登录成功后判断账号平台
         }
         return result.message(MessageLevel.INFO, Message.LOGIN_SUCCESS);
+    }
+
+    /**
+     * 登出
+     *
+     * @return
+     */
+    @RequestMapping(value = "/logout", method = RequestMethod.GET)
+    public Result logout(HttpServletRequest request) {
+        Result result = sysCommonService.logout(request);
+        if (!result.getStatus()) {
+            return result.message(MessageLevel.INFO, Message.LOGOUT_ERROR);
+        }
+        return result.message(MessageLevel.INFO, Message.LOGOUT_SUCCESS);
     }
 
     /**

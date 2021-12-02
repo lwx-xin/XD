@@ -1,21 +1,238 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : XD
+ Source Server         : 200
  Source Server Type    : MySQL
- Source Server Version : 80023
- Source Host           : localhost:3306
+ Source Server Version : 80026
+ Source Host           : 192.168.31.200:3306
  Source Schema         : xd
 
  Target Server Type    : MySQL
- Target Server Version : 80023
+ Target Server Version : 80026
  File Encoding         : 65001
 
- Date: 15/10/2021 18:30:28
+ Date: 02/12/2021 11:01:58
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for QRTZ_BLOB_TRIGGERS
+-- ----------------------------
+DROP TABLE IF EXISTS `QRTZ_BLOB_TRIGGERS`;
+CREATE TABLE `QRTZ_BLOB_TRIGGERS`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '调度名称',
+  `TRIGGER_NAME` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'qrtz_triggers表trigger_name的外键',
+  `TRIGGER_GROUP` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'qrtz_triggers表trigger_group的外键',
+  `BLOB_DATA` blob NULL COMMENT '一个blob字段，存放持久化Trigger对象',
+  PRIMARY KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) USING BTREE,
+  CONSTRAINT `QRTZ_BLOB_TRIGGERS_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'Trigger作为Blob类型存储（用于Quartz用户用JDBC创建他们自己定制的Trigger类型，JobStore 并不知道如何存储实例的时候）' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of QRTZ_BLOB_TRIGGERS
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for QRTZ_CALENDARS
+-- ----------------------------
+DROP TABLE IF EXISTS `QRTZ_CALENDARS`;
+CREATE TABLE `QRTZ_CALENDARS`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '调度名称',
+  `CALENDAR_NAME` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '日历名称',
+  `CALENDAR` blob NOT NULL COMMENT '一个blob字段，存放持久化calendar对象',
+  PRIMARY KEY (`SCHED_NAME`, `CALENDAR_NAME`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '以Blob类型存储Quartz的Calendar日历信息， quartz可配置一个日历来指定一个时间范围' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of QRTZ_CALENDARS
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for QRTZ_CRON_TRIGGERS
+-- ----------------------------
+DROP TABLE IF EXISTS `QRTZ_CRON_TRIGGERS`;
+CREATE TABLE `QRTZ_CRON_TRIGGERS`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '调度名称',
+  `TRIGGER_NAME` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'qrtz_triggers表trigger_name的外键',
+  `TRIGGER_GROUP` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'qrtz_triggers表trigger_group的外键',
+  `CRON_EXPRESSION` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'cron表达式',
+  `TIME_ZONE_ID` varchar(80) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '时区',
+  PRIMARY KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) USING BTREE,
+  CONSTRAINT `QRTZ_CRON_TRIGGERS_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '存储Cron Trigger，包括Cron表达式和时区信息。' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of QRTZ_CRON_TRIGGERS
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for QRTZ_FIRED_TRIGGERS
+-- ----------------------------
+DROP TABLE IF EXISTS `QRTZ_FIRED_TRIGGERS`;
+CREATE TABLE `QRTZ_FIRED_TRIGGERS`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '调度名称',
+  `ENTRY_ID` varchar(95) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '调度器实例id',
+  `TRIGGER_NAME` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'qrtz_triggers表trigger_name的外键',
+  `TRIGGER_GROUP` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'qrtz_triggers表trigger_group的外键',
+  `INSTANCE_NAME` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '调度器实例名',
+  `FIRED_TIME` bigint NOT NULL COMMENT '触发的时间',
+  `SCHED_TIME` bigint NOT NULL COMMENT '定时器制定的时间',
+  `PRIORITY` int NOT NULL COMMENT '优先级',
+  `STATE` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '状态',
+  `JOB_NAME` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '集群中job的名字',
+  `JOB_GROUP` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '集群中job的所属组的名字',
+  `IS_NONCONCURRENT` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '是否并发',
+  `REQUESTS_RECOVERY` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '是否接受恢复执行，默认为false，设置了RequestsRecovery为true，则会被重新执行',
+  PRIMARY KEY (`SCHED_NAME`, `ENTRY_ID`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '存储与已触发的Trigger相关的状态信息，以及相联Job的执行信息' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of QRTZ_FIRED_TRIGGERS
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for QRTZ_JOB_DETAILS
+-- ----------------------------
+DROP TABLE IF EXISTS `QRTZ_JOB_DETAILS`;
+CREATE TABLE `QRTZ_JOB_DETAILS`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '调度名称',
+  `JOB_NAME` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '集群中job的名字',
+  `JOB_GROUP` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '集群中job的所属组的名字',
+  `DESCRIPTION` varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '详细描述信息',
+  `JOB_CLASS_NAME` varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '集群中个notejob实现类的全限定名,quartz就是根据这个路径到classpath找到该job类',
+  `IS_DURABLE` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '是否持久化,把该属性设置为1，quartz会把job持久化到数据库中',
+  `IS_NONCONCURRENT` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '是否并发执行',
+  `IS_UPDATE_DATA` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '是否更新数据',
+  `REQUESTS_RECOVERY` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '是否接受恢复执行，默认为false，设置了RequestsRecovery为true，则该job会被重新执行',
+  `JOB_DATA` blob NULL COMMENT '一个blob字段，存放持久化job对象',
+  PRIMARY KEY (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '存储每一个已配置的Job的详细信息' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of QRTZ_JOB_DETAILS
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for QRTZ_LOCKS
+-- ----------------------------
+DROP TABLE IF EXISTS `QRTZ_LOCKS`;
+CREATE TABLE `QRTZ_LOCKS`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '调度名称',
+  `LOCK_NAME` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '悲观锁名称',
+  PRIMARY KEY (`SCHED_NAME`, `LOCK_NAME`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '存储程序的非观锁的信息(假如使用了悲观锁)' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of QRTZ_LOCKS
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for QRTZ_PAUSED_TRIGGER_GRPS
+-- ----------------------------
+DROP TABLE IF EXISTS `QRTZ_PAUSED_TRIGGER_GRPS`;
+CREATE TABLE `QRTZ_PAUSED_TRIGGER_GRPS`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '调度名称',
+  `TRIGGER_GROUP` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'qrtz_triggers表trigger_group的外键',
+  PRIMARY KEY (`SCHED_NAME`, `TRIGGER_GROUP`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '存储已暂停的Trigger组的信息' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of QRTZ_PAUSED_TRIGGER_GRPS
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for QRTZ_SCHEDULER_STATE
+-- ----------------------------
+DROP TABLE IF EXISTS `QRTZ_SCHEDULER_STATE`;
+CREATE TABLE `QRTZ_SCHEDULER_STATE`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '调度名称',
+  `INSTANCE_NAME` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '之前配置文件中org.quartz.scheduler.instanceId配置的名字，就会写入该字段',
+  `LAST_CHECKIN_TIME` bigint NOT NULL COMMENT '上次检查时间',
+  `CHECKIN_INTERVAL` bigint NOT NULL COMMENT '检查间隔时间',
+  PRIMARY KEY (`SCHED_NAME`, `INSTANCE_NAME`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '存储集群中note实例信息，quartz会定时读取该表的信息判断集群中每个实例的当前状态' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of QRTZ_SCHEDULER_STATE
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for QRTZ_SIMPLE_TRIGGERS
+-- ----------------------------
+DROP TABLE IF EXISTS `QRTZ_SIMPLE_TRIGGERS`;
+CREATE TABLE `QRTZ_SIMPLE_TRIGGERS`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '调度名称',
+  `TRIGGER_NAME` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'qrtz_triggers表trigger_ name的外键',
+  `TRIGGER_GROUP` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'qrtz_triggers表trigger_group的外键',
+  `REPEAT_COUNT` bigint NOT NULL COMMENT '重复的次数统计',
+  `REPEAT_INTERVAL` bigint NOT NULL COMMENT '重复的间隔时间',
+  `TIMES_TRIGGERED` bigint NOT NULL COMMENT '已经触发的次数',
+  PRIMARY KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) USING BTREE,
+  CONSTRAINT `QRTZ_SIMPLE_TRIGGERS_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '存储简单的 Trigger，包括重复次数，间隔，以及已触的次数' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of QRTZ_SIMPLE_TRIGGERS
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for QRTZ_SIMPROP_TRIGGERS
+-- ----------------------------
+DROP TABLE IF EXISTS `QRTZ_SIMPROP_TRIGGERS`;
+CREATE TABLE `QRTZ_SIMPROP_TRIGGERS`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '调度名称',
+  `TRIGGER_NAME` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'qrtz_triggers表trigger_ name的外键',
+  `TRIGGER_GROUP` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'qrtz_triggers表trigger_group的外键',
+  `STR_PROP_1` varchar(512) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'String类型的trigger的第一个参数',
+  `STR_PROP_2` varchar(512) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'String类型的trigger的第二个参数',
+  `STR_PROP_3` varchar(512) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'String类型的trigger的第三个参数',
+  `INT_PROP_1` int NULL DEFAULT NULL COMMENT 'int类型的trigger的第一个参数',
+  `INT_PROP_2` int NULL DEFAULT NULL COMMENT 'int类型的trigger的第二个参数',
+  `LONG_PROP_1` bigint NULL DEFAULT NULL COMMENT 'long类型的trigger的第一个参数',
+  `LONG_PROP_2` bigint NULL DEFAULT NULL COMMENT 'long类型的trigger的第二个参数',
+  `DEC_PROP_1` decimal(13, 4) NULL DEFAULT NULL COMMENT 'decimal类型的trigger的第一个参数',
+  `DEC_PROP_2` decimal(13, 4) NULL DEFAULT NULL COMMENT 'decimal类型的trigger的第二个参数',
+  `BOOL_PROP_1` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Boolean类型的trigger的第一个参数',
+  `BOOL_PROP_2` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Boolean类型的trigger的第二个参数',
+  PRIMARY KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) USING BTREE,
+  CONSTRAINT `QRTZ_SIMPROP_TRIGGERS_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '存储CalendarIntervalTrigger和DailyTimeIntervalTrigger' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of QRTZ_SIMPROP_TRIGGERS
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for QRTZ_TRIGGERS
+-- ----------------------------
+DROP TABLE IF EXISTS `QRTZ_TRIGGERS`;
+CREATE TABLE `QRTZ_TRIGGERS`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '调度名称',
+  `TRIGGER_NAME` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '触发器的名字',
+  `TRIGGER_GROUP` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '触发器所属组的名字',
+  `JOB_NAME` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'qrtz_job_details表job_name的外键',
+  `JOB_GROUP` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'qrtz_job_details表job_group的外键',
+  `DESCRIPTION` varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '详细描述信息',
+  `NEXT_FIRE_TIME` bigint NULL DEFAULT NULL COMMENT '下一次触发时间，默认为-1，意味不会自动触发',
+  `PREV_FIRE_TIME` bigint NULL DEFAULT NULL COMMENT '上一次触发时间（毫秒）',
+  `PRIORITY` int NULL DEFAULT NULL COMMENT '优先级',
+  `TRIGGER_STATE` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '当前触发器状态，设置为ACQUIRED,如果设置为WAITING,则job不会触发 （ WAITING:等待 PAUSED:暂停ACQUIRED:正常执行 BLOCKED：阻塞 ERROR：错误）',
+  `TRIGGER_TYPE` varchar(8) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '触发器的类型，使用cron表达式',
+  `START_TIME` bigint NOT NULL COMMENT '开始时间',
+  `END_TIME` bigint NULL DEFAULT NULL COMMENT '结束时间',
+  `CALENDAR_NAME` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '日程表名称，表qrtz_calendars的calendar_name字段外键',
+  `MISFIRE_INSTR` smallint NULL DEFAULT NULL COMMENT '措施或者是补偿执行的策略',
+  `JOB_DATA` blob NULL COMMENT '一个blob字段，存放持久化job对象',
+  PRIMARY KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) USING BTREE,
+  INDEX `SCHED_NAME`(`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`) USING BTREE,
+  CONSTRAINT `QRTZ_TRIGGERS_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`) REFERENCES `QRTZ_JOB_DETAILS` (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '存储已配置的触发器的基本信息' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of QRTZ_TRIGGERS
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for m_code
@@ -37,6 +254,31 @@ CREATE TABLE `m_code`  (
 -- ----------------------------
 -- Records of m_code
 -- ----------------------------
+INSERT INTO `m_code` VALUES ('27e54727-2f4a-4a61-8dfa-2b40d4a91617', 'platform', 'PC端', '1', '1', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('3af57768-9f67-4471-b54a-a73e118ba43b', 'file_type', '其它', '0', '0', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('41d7333f-2f7c-448b-9f5c-477146fbe18b', 'file_type', '音频', '1', '1', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('5a50dade-21f0-40b5-8f49-40e1bc0d63f7', 'del_flag', '禁用', '0', '0', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('5ddc2c02-5bff-4c25-af45-5f74547144aa', 'prompt_box_type', 'Toastr', '1', '2', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('649c4ec4-1d6c-47c3-b6e4-75a3b5f59f02', 'resource_type', '自定义资源', '1', '1', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('715a50f1-08a7-4eda-8a82-5a69b26afecb', 'platform', '移动端', '2', '2', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('89fdce2e-8266-4da4-92f0-c32a7c2943f8', 'file_type', '日志', '4', '4', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('9be9284c-4801-4f35-abf8-05c05ed12d4b', 'file_type', '文本', '3', '3', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('9eb0d3f0-dd9e-4edd-a404-aec5122aaf1c', 'prompt_box_type', '不显示', '-1', '0', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('b3f0ae40-b68a-4cd4-bac7-44b8d718f045', 'yes_no', '否', '0', '0', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('b4ce7155-6f3f-48bb-853c-c1f74ef59487', 'request_method', 'put', '4', '4', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('b99bbe7e-3194-4391-82cd-35a513987d63', 'file_type', '图片', '5', '5', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('c4aae09c-b5ce-4522-a140-1a60db8f29f4', 'prompt_box_type', 'layer', '0', '1', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('c4d98da3-f577-40d9-afa3-15c82078e710', 'platform', '全部', '0', '0', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('c55e143a-f702-4079-9705-1a3ab60be9d1', 'request_method', 'get', '1', '1', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('c6af1301-58fd-4a1c-ac7f-e8380e7de229', 'prompt_box_type', 'SmallPop', '2', '3', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('cc419d91-ce9e-4c39-b699-0a204d7a1e9b', 'request_method', 'post', '2', '2', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('d4088601-ce02-4091-b04e-fd9d588e4087', 'request_method', 'all method', '0', '0', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('d84d5c3c-74c6-40d8-a871-4b6342312adc', 'file_type', '视频', '2', '2', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('d8f89112-ccac-4305-8d1e-f8d741bd4e69', 'request_method', 'delete', '3', '3', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('d94f1671-0454-4755-939c-4f3e63a77319', 'resource_type', '系统资源', '0', '0', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('dde12ccd-6789-468e-be7a-f592b547b2e2', 'yes_no', '是', '1', '1', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('eea36b1c-a5f1-4674-b00d-124b76c37fed', 'platform', '其他', '3', '3', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `m_code` VALUES ('fabda942-710b-44f2-a81c-3dc14eb8831b', 'del_flag', '启用', '1', '1', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:05', '00000000-0000-0000-0000-000000000000');
 
 -- ----------------------------
 -- Table structure for s_auth
@@ -138,7 +380,6 @@ CREATE TABLE `s_config`  (
 -- ----------------------------
 -- Records of s_config
 -- ----------------------------
-INSERT INTO `s_config` VALUES ('1c4d3e02-0277-11ec-9e87-dc71963a4a6b', 'PROMPT_BOX_TYPE', '2', '提示框类型', '00000000-0000-0000-0000-000000000000', '1', '2021-08-21 19:58:06', '00000000-0000-0000-0000-000000000000', '2021-08-21 19:58:14', '00000000-0000-0000-0000-000000000000');
 
 -- ----------------------------
 -- Table structure for s_department
@@ -227,22 +468,21 @@ CREATE TABLE `s_folder`  (
 -- ----------------------------
 
 -- ----------------------------
--- Table structure for s_log
+-- Table structure for s_logger
 -- ----------------------------
-DROP TABLE IF EXISTS `s_log`;
-CREATE TABLE `s_log`  (
-  `LOG_ID` varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '日志id',
-  `LOG_HAPPEN_TIME` datetime NOT NULL COMMENT '异常发生时间',
-  `LOG_USER` varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户ID',
-  `LOG_CONTENT` varchar(2000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '异常内容',
-  `LOG_FILE` varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '日志文件ID',
-  `LOG_REQ_HEAD` varchar(2000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '请求头信息',
-  `LOG_TYPE` varchar(2) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '日志类型',
-  PRIMARY KEY (`LOG_ID`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+DROP TABLE IF EXISTS `s_logger`;
+CREATE TABLE `s_logger`  (
+  `LOGGER_ID` varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '日志ID',
+  `LOGGER_USER_ID` varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户ID',
+  `LOGGER_LEVEL` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '日志级别',
+  `LOGGER_THREAD` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '输出日志的线程',
+  `LOGGER_TIME` datetime NOT NULL COMMENT '产生日志的时间',
+  `LOGGER_IFNO` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '日志主体',
+  PRIMARY KEY (`LOGGER_ID`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of s_log
+-- Records of s_logger
 -- ----------------------------
 
 -- ----------------------------
@@ -339,11 +579,12 @@ CREATE TABLE `s_url`  (
 INSERT INTO `s_url` VALUES ('01e90072-d6a3-48f5-ae46-a0dfbfc770d4', '/sys/position/[^/]*', '3', '0', '', '1', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000', '2021-10-04 12:01:00', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('0259c53c-9dea-4e4b-afc4-5da8c26218ed', '/sys/user/[^/]*', '1', '0', NULL, '1', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('049b7fd1-5557-4731-a914-0d5e598827d2', '/sys/menu', '2', '0', '添加菜单', '1', '2021-08-18 20:22:29', '00000000-0000-0000-0000-000000000000', '2021-08-18 20:22:29', '00000000-0000-0000-0000-000000000000');
-INSERT INTO `s_url` VALUES ('07c3bafb-edb0-44f1-b8e5-055609b6061a', '/sys/user', '1', '0', '获取用户列表', '1', '2021-08-18 20:00:44', '00000000-0000-0000-0000-000000000000', '2021-08-18 20:00:44', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `s_url` VALUES ('07c3bafb-edb0-44f1-b8e5-055609b6061a', '/sys/user', '1', '0', '获取用户列表', '1', '2021-08-18 20:00:44', '00000000-0000-0000-0000-000000000000', '2021-11-26 16:38:40', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('09965c06-ba9c-4e84-9542-2a69322c99a3', '/sys/auth/[^/]*', '3', '0', NULL, '1', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('0a53e0ad-491c-4ec1-8b81-ab36d8e9f834', '/html/system/auth-list.html', '1', '1', '打开权限列表页面', '1', '2021-09-01 20:32:00', '00000000-0000-0000-0000-000000000000', '2021-09-01 20:32:00', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('0a61f05f-85be-428d-8121-f2e4e4ce44ee', '/sys/menu/tree', '1', '0', '获取菜单(树状结构)', '1', '2021-08-18 20:22:05', '00000000-0000-0000-0000-000000000000', '2021-08-18 20:22:05', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('0e9973cf-4e3d-48f6-8b94-a31f59c20afa', '/sys/file/[^/]*', '4', '0', NULL, '1', '2021-10-04 12:22:55', '00000000-0000-0000-0000-000000000000', '2021-10-04 12:22:55', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `s_url` VALUES ('116e8c4c-7f5e-4d1f-905e-b5c8f65f8718', '/job/getAll', '1', '0', NULL, '1', '2021-10-27 21:23:03', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:03', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('148d513a-cd73-476d-93b2-356baff947c6', '/sys/menu/[^/]*', '3', '0', NULL, '1', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('153413c3-abee-4734-ba75-941835530929', '/sys/department/[^/]*', '1', '0', NULL, '1', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('17c50f88-4a60-44bd-add6-b88764d8ef7a', '/sys/file/[^/]*', '3', '0', NULL, '1', '2021-10-04 12:22:55', '00000000-0000-0000-0000-000000000000', '2021-10-04 12:22:55', '00000000-0000-0000-0000-000000000000');
@@ -352,6 +593,7 @@ INSERT INTO `s_url` VALUES ('19c13582-8527-4098-97fc-757419d5c544', '/sys/file/[
 INSERT INTO `s_url` VALUES ('1c408355-9a2a-4a1e-b8f9-4eb044ff241a', '/sys/menu/[^/]*', '1', '0', NULL, '1', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('1d0359b3-b65b-4d9e-b3c9-4011badc99cd', '/sys/file/video/content/[^/]*', '1', '0', NULL, '1', '2021-10-05 18:10:59', '00000000-0000-0000-0000-000000000000', '2021-10-05 18:10:59', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('1d17d89d-e9d6-11eb-bf86-dc71963a4a6b', '/html/system/menu-list.html', '1', '1', '打开菜单结构页面', '1', '2021-07-21 11:46:59', '00000000-0000-0000-0000-000000000000', '2021-07-21 11:46:56', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `s_url` VALUES ('21700dc1-9b66-4b50-ae9f-00f1f8662794', '/job/getAllRun', '1', '0', NULL, '1', '2021-10-27 21:23:03', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:23:03', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('22ae586c-2f6c-4e98-bb41-497ff45c106a', '/sys/department', '2', '0', '添加部门信息', '1', '2021-08-18 20:08:28', '00000000-0000-0000-0000-000000000000', '2021-08-18 20:08:28', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('2555cf63-c413-11eb-bd64-dc71963a4a6b', '/html/system/home.html', '1', '1', '打开首页', '1', '2021-06-03 10:28:53', '00000000-0000-0000-0000-000000000000', '2021-08-15 17:25:39', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('2a1a98ce-2e0d-4c73-953f-3bc792e71327', '/sys/auth', '1', '0', '获取权限列表', '1', '2021-09-01 20:28:37', '00000000-0000-0000-0000-000000000000', '2021-09-01 20:28:37', '00000000-0000-0000-0000-000000000000');
@@ -362,13 +604,16 @@ INSERT INTO `s_url` VALUES ('3dd28cc0-4ea3-43d1-9e08-f75304770fa5', '/sys/url', 
 INSERT INTO `s_url` VALUES ('3f1a1d6f-fcd0-11eb-8efc-dc71963a4a6b', '/html/system/url-detail.html', '1', '1', '打开请求详细页面', '1', '2021-08-14 15:22:18', '00000000-0000-0000-0000-000000000000', '2021-08-14 15:22:20', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('400700ba-7aed-4f7f-a32f-21017f5bc80f', '/sys/department/[^\\/]*', '1', '0', '获取部门的详细信息', '1', '2021-08-18 20:07:40', '00000000-0000-0000-0000-000000000000', '2021-08-18 20:07:40', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('40a9f212-0f24-4a64-bd41-89bf0c34aca9', '/sys/menu', '1', '0', '获取用户的菜单列表', '1', '2021-08-18 19:58:57', '00000000-0000-0000-0000-000000000000', '2021-08-18 19:58:57', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `s_url` VALUES ('450e8ac6-cd34-41cd-bce6-f7ad3ec9ee03', '/job/stop', '1', '0', NULL, '1', '2021-10-28 20:37:49', '00000000-0000-0000-0000-000000000000', '2021-10-28 20:37:49', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('45b7af57-a6d7-4147-a8fc-9548b0c42c16', '/sys/auth', '2', '0', NULL, '1', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('471570ca-b860-4ea4-957f-8e485da1086f', '/sys/menu/[^\\/]*', '4', '0', '修改菜单信息', '1', '2021-08-18 20:23:16', '00000000-0000-0000-0000-000000000000', '2021-08-18 20:23:16', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('4b323466-08ad-4c70-b2b3-48cbb828d0d8', '/sys/position/all', '1', '0', '获取职位列表', '1', '2021-08-18 20:10:18', '00000000-0000-0000-0000-000000000000', '2021-08-18 20:10:18', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `s_url` VALUES ('4bb53baa-320f-49dd-a545-a52a21901457', '/job/restart', '1', '0', NULL, '1', '2021-10-28 20:37:49', '00000000-0000-0000-0000-000000000000', '2021-10-28 20:37:49', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('4e997be2-4aff-4114-970e-5cdc42ef7174', '/sys/fileType/[^/]*', '4', '0', NULL, '1', '2021-10-06 12:37:00', '00000000-0000-0000-0000-000000000000', '2021-10-06 12:37:00', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('53745962-3a61-45b1-ba82-9232dbffaced', '/sys/config', '1', '0', NULL, '1', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('573dab83-e7c0-4a1e-b985-0f43b9d44092', '/sys/fileType', '1', '0', NULL, '1', '2021-10-03 12:18:50', '00000000-0000-0000-0000-000000000000', '2021-10-03 12:18:50', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('6073b2df-3c53-4109-8ddc-dc54f558921e', '/sys/url/[^\\/]*', '1', '0', '获取请求详细信息', '1', '2021-08-18 20:25:58', '00000000-0000-0000-0000-000000000000', '2021-08-18 20:25:58', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `s_url` VALUES ('61d6b4c9-839c-437b-b05c-b3ae2f2d1e59', '/excel/export/dbTable', '1', '0', '', '1', '2021-11-13 18:36:27', '00000000-0000-0000-0000-000000000000', '2021-11-19 19:00:12', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('66de5151-3e96-4c26-8fe5-7c87b6ac1250', '/html/system/menu-detail.html', '1', '0', '打开菜单详细页面', '1', '2021-08-19 10:01:23', '00000000-0000-0000-0000-000000000000', '2021-08-19 10:03:55', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('69d8e5ba-fde2-4dfc-b68a-89b53a5dde56', '/sys/file', '1', '0', NULL, '1', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('774f32b0-1d9e-47fe-84de-2d7e16adc20b', '/sys/file/image/content/[^/]*', '1', '0', NULL, '1', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000');
@@ -394,10 +639,12 @@ INSERT INTO `s_url` VALUES ('ba5e1868-f549-4893-bc59-a4dd5917536c', '/sys/depart
 INSERT INTO `s_url` VALUES ('bb8cd732-8299-48aa-828f-8b2edeb4ceee', '/sys/menu/[^\\/]*', '1', '0', '获取菜单详细信息', '1', '2021-08-18 20:22:49', '00000000-0000-0000-0000-000000000000', '2021-08-18 20:22:49', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('c714a402-51f3-4d3c-9aee-2ee62d75bf94', '/sys/department/tree', '1', '0', '获取部门信息(树状结构)', '1', '2021-08-18 20:05:24', '00000000-0000-0000-0000-000000000000', '2021-08-18 20:06:24', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('cda48799-30f5-4bc8-9fcd-eb4e6da5b8de', '/sys/user', '2', '0', '添加用户', '1', '2021-08-18 20:02:19', '00000000-0000-0000-0000-000000000000', '2021-08-18 20:02:19', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `s_url` VALUES ('d2d54e1d-25fb-47a5-99df-6dc4c54b6e63', '/job/start', '1', '0', NULL, '1', '2021-10-27 21:08:43', '00000000-0000-0000-0000-000000000000', '2021-10-27 21:08:43', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('d3854960-5b4e-4c40-8652-5104c8b0ec18', '/sys/url/[^/]*', '4', '0', NULL, '1', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('d494f6ee-705c-4992-aff4-ef3a04d83964', '/sys/position/[^\\/]*', '4', '0', '修改职位信息', '1', '2021-08-18 20:20:35', '00000000-0000-0000-0000-000000000000', '2021-08-18 20:20:35', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('d665627e-b068-481a-8cc5-55e99c1018c3', '/sys/position/[^/]*', '1', '0', NULL, '1', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('d83a4beb-3af4-43c1-a4ec-4f2c93fd6471', '/html/system/file-manager.html', '1', '1', '打开文件管理画面', '1', '2021-10-01 14:34:37', '00000000-0000-0000-0000-000000000000', '2021-10-01 14:34:37', '00000000-0000-0000-0000-000000000000');
+INSERT INTO `s_url` VALUES ('d8ebd651-cb5c-4375-a538-ec41f7c3d044', '/sys/logout', '1', '0', NULL, '1', '2021-11-28 20:30:58', '00000000-0000-0000-0000-000000000000', '2021-11-28 20:30:58', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('daf46f55-7482-4e01-aed6-9695350b5967', '/sys/user/[^\\/]*', '3', '0', '封禁 / 解禁账号', '1', '2021-09-21 12:43:29', '00000000-0000-0000-0000-000000000000', '2021-09-21 12:43:29', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('db9c2d9c-a35b-4415-b811-4bf13a54a381', '/sys/url/param/all', '1', '0', NULL, '1', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `s_url` VALUES ('eae3d68e-a64e-4599-b384-c8d808ed27ab', '/sys/menu/[^/]*', '4', '0', NULL, '1', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000', '2021-09-27 18:49:05', '00000000-0000-0000-0000-000000000000');

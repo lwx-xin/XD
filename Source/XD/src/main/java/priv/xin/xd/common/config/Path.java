@@ -8,6 +8,8 @@ import priv.xin.xd.common.properties.PathProperties;
 import javax.annotation.Resource;
 
 /**
+ * 虚拟路径配置
+ *
  * @author ：lu
  * @date ：2021/6/1 15:39
  */

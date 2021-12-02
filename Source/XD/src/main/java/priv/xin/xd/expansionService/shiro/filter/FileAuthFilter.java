@@ -62,7 +62,7 @@ public class FileAuthFilter extends AccessControlFilter {
         String requestMethod = httpServletRequest.getMethod();
         String requestMethodCode = CodeEnum.getValueByName(CodeEnum.REQUEST_METHOD_ALL.getGroup(), requestMethod);
 
-        LoggerUtil.error("拦截的请求:" + requestUrl, getClass());
+        LoggerUtil.info("拦截的请求:" + requestUrl, getClass());
 
         String userId = (String) SecurityUtils.getSubject().getPrincipal();
         if (StrUtil.isEmpty(userId)) {

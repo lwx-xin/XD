@@ -5,7 +5,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -171,17 +174,6 @@ public class ClassUtil {
                 classRequestMapping += (value != null && value.length > 0) ? value[0] : "";
             }
 
-            // 变量
-//			Field[] fs = c.getDeclaredFields();
-//			for (Field f : fs) {
-//				if (f.isAnnotationPresent(RequestMapping.class)) {
-//					RequestMapping annotation = f.getAnnotation(RequestMapping.class);
-//					String[] value = annotation.value();
-//					String requestMapping = (value != null && value.length > 0) ? value[0] : "";
-//					System.err.println(f.getName() + "(" + classRequestMapping + requestMapping + ")");
-//				}
-//			}
-
             // 方法
             Method[] methods = c.getDeclaredMethods();
             for (Method method : methods) {
@@ -191,7 +183,7 @@ public class ClassUtil {
                     RequestMethod[] methodType = annotation.method();
 
                     String methodRequestMapping = (value != null && value.length > 0) ? value[0] : "";
-                    String urlPath = "/"+classRequestMapping + methodRequestMapping;
+                    String urlPath = "/" + classRequestMapping + methodRequestMapping;
 
                     Url url = new Url();
                     url.setUrlPath(urlPath.replaceAll("\\{[^}]*\\}", "[^\\/]*"));
@@ -201,6 +193,41 @@ public class ClassUtil {
             }
         }
         return allRequestUrl;
+    }
+
+    /**
+     * 获取字段的基础类型
+     *
+     * @param field
+     * @return
+     */
+    public static Class getFieldClass(Field field) {
+        Class<?> fieldType = field.getType();
+        Class rootClass = getRootClass(fieldType);
+        if (List.class.isAssignableFrom(rootClass)) {
+            ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
+            Type[] types = parameterizedType.getActualTypeArguments();
+            for (Type type : types) {
+                if (type instanceof Class) {
+                    rootClass = (Class) type;
+                    break;
+                }
+            }
+        }
+        return rootClass;
+    }
+
+    /**
+     * 获取数组的基础类型
+     *
+     * @param c
+     * @return
+     */
+    public static Class getRootClass(Class c) {
+        while (c.isArray()) {
+            c = c.getComponentType();
+        }
+        return c;
     }
 
 }

@@ -1,5 +1,6 @@
 package priv.xin.xd.expansionService.shiro;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -7,8 +8,13 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import priv.xin.xd.common.code.CodeEnum;
 import priv.xin.xd.common.util.ListUtil;
+import priv.xin.xd.common.util.StrUtil;
+import priv.xin.xd.common.util.jwt.JwtToken;
+import priv.xin.xd.common.util.jwt.JwtUtil;
 import priv.xin.xd.core.dao.AuthMapper;
 import priv.xin.xd.core.dao.UserMapper;
 import priv.xin.xd.core.dao.UserPositionMapper;
@@ -24,6 +30,8 @@ import java.util.stream.Collectors;
 
 public class ShiroRealm extends AuthorizingRealm {
 
+    private Logger logger = LoggerFactory.getLogger(ShiroRealm.class);
+
     @Resource
     private UserMapper userMapper;
 
@@ -35,57 +43,65 @@ public class ShiroRealm extends AuthorizingRealm {
 
     @Override
     public void setName(String name) {
-        super.setName("XD_CustomerRealm");
+        super.setName("XD_ShiroRealm");
     }
 
     /**
-     * 提供账户信息返回认证信息（用户的角色信息集合）
+     * 大坑！，必须重写此方法，不然Shiro会报错
+     *
+     * @param token
+     * @return
      */
     @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        //获取用户的输入的账号.
-        String userNumber = (String) token.getPrincipal();
-        User user = new User();
-        user.setUserNumber(userNumber);
-        List<User> users = userMapper.queryAll(user);
+    public boolean supports(AuthenticationToken token) {
+//        return super.supports(token);
+        return token instanceof JwtToken;
+    }
 
-        if (ListUtil.isEmpty(users)) {
-            throw new UnknownAccountException("账号不存在！");
+    @Override
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+        String jwtToken = StrUtil.format(token.getCredentials());
+
+        // 解密获得userId，用于和数据库进行对比
+        String userId = JwtUtil.getUserId(jwtToken);
+        if (StrUtil.isEmpty(userId)) {
+            throw new AuthenticationException("token认证失败！");
+        } else {
+            boolean verify = false;
+            try {
+                verify = JwtUtil.verify(jwtToken, userId);
+            } catch (JWTVerificationException e) {
+                throw e;
+            }
+            if (!verify) {
+                throw new AuthenticationException("token认证失败！");
+            }
         }
 
-        user = users.get(0);
-
+        User user = userMapper.selectByPrimaryKey(userId);
         // 用户锁定状态
         String userDelFlag = user.getUserDelFlag();
         if (userDelFlag != null && CodeEnum.DEL_FLAG_0.getValue().equals(userDelFlag)) {
             throw new LockedAccountException("帐号已被锁定，禁止登录！");
         }
 
-        // principal参数使用用户Id，方便动态刷新用户权限
-        return new SimpleAuthenticationInfo(
-                user.getUserId(),
-                user.getUserPwd(),
-                ByteSource.Util.bytes(userNumber),
-                getName()
-        );
+        return new SimpleAuthenticationInfo(jwtToken, jwtToken, getName());
     }
 
-    /**
-     * 权限认证，为当前登录的Subject授予角色和权限（角色的权限信息集合）
-     */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+//        logger.info("======= 权限认证开始 =======");
+        String userId = JwtUtil.getUserId(principals.toString());
+
         // 权限信息对象info,用来存放查出的用户的所有的角色（position）及权限（auth）
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-
-        String userId = (String) SecurityUtils.getSubject().getPrincipal();
 
         // 赋予角色
         UserPosition userPosition = new UserPosition();
         userPosition.setUserId(userId);
         List<UserPosition> userPositionList = userPositionMapper.queryAll(userPosition);
         Set<String> positionIdSet = new HashSet<>();
-        if (ListUtil.isNotEmpty(userPositionList)){
+        if (ListUtil.isNotEmpty(userPositionList)) {
             positionIdSet.addAll(userPositionList.stream().map(UserPosition::getPositionId).collect(Collectors.toSet()));
         }
         info.setRoles(positionIdSet);
@@ -93,13 +109,15 @@ public class ShiroRealm extends AuthorizingRealm {
         // 赋予权限
         List<Auth> authList = authMapper.queryAuthByUser(userId);
         Set<String> authIdSet = new HashSet<>();
-        if (ListUtil.isNotEmpty(authList)){
+        if (ListUtil.isNotEmpty(authList)) {
             authIdSet.addAll(authList.stream().map(Auth::getAuthId).collect(Collectors.toSet()));
         }
         info.setStringPermissions(authIdSet);
 
+//        logger.info("======= 权限认证结束 =======");
         return info;
     }
+
 }
 
 

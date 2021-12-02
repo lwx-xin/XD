@@ -1,6 +1,7 @@
 package priv.xin.xd.common.util;
 
 import java.math.BigDecimal;
+import java.util.Random;
 
 /**
  * @author ：lu
@@ -18,6 +19,21 @@ public class NumberUtil {
         BigDecimal aBigDecimal = new BigDecimal(a.toString());
         BigDecimal bBigDecimal = new BigDecimal(b.toString());
         return aBigDecimal.subtract(bBigDecimal);
+    }
+
+    /**
+     * 获取随机数（包含最大最小值）
+     *
+     * @param min
+     * @param max
+     * @return
+     */
+    public static int random(int min, int max) {
+        if (max < min) {
+            return 0;
+        }
+        Random random = new Random(1);
+        return random.nextInt(max - min + 1) + min;
     }
 
 }

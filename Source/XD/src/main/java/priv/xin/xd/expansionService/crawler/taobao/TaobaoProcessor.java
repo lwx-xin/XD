@@ -2,6 +2,7 @@ package priv.xin.xd.expansionService.crawler.taobao;
 
 import org.openqa.selenium.Cookie;
 import org.springframework.stereotype.Component;
+import priv.xin.xd.common.util.LoggerUtil;
 import redis.clients.jedis.JedisPool;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
@@ -49,7 +50,8 @@ public class TaobaoProcessor implements PageProcessor {
 //        page.addTargetRequests(page.getHtml().css("ul.service-bd li").links().all());
 
 //        page.putField("taobao", page.getHtml().css("ul.service-bd li a").all());
-        System.err.println(page.getHtml());
+        LoggerUtil.info(url, this.getClass());
+        LoggerUtil.info(page.getHtml().toString(), this.getClass());
     }
 
     @Override
@@ -64,11 +66,11 @@ public class TaobaoProcessor implements PageProcessor {
     public void startProcessor() {
         Spider spider = Spider.create(new TaobaoProcessor());
         spider.addUrl("https://s.taobao.com/search?spm=a21bo.jianhua.201867-main.10.392611d9qG3wsa&q=%E7%94%B7%E8%A3%85");
-        spider.setScheduler(new RedisScheduler(jedisPool));
-        spider.addPipeline(new TaobaoPipeline());
+//        spider.setScheduler(new RedisScheduler(jedisPool));
+//        spider.addPipeline(new TaobaoPipeline());
         spider.thread(5);
-        spider.run();
-//        spider.start();
+//        spider.run();
+        spider.start();
     }
 
     public static void main(String[] args) {

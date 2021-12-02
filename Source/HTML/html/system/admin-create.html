@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+    <meta http-equiv="expires" content="-1">
+
+    <title>XD - 主页</title>
+
+    <link href="../../img/logo.ico" rel="shortcut icon">
+
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../css/font-awesome.min.css" rel="stylesheet">
+	<!--提示框-->
+	<link href="../../css/plugins/toastr/toastr.min.css" rel="stylesheet">
+	<link href="../../css/plugins/smallPop/spop.min.css" rel="stylesheet">
+	<!-- 多选下拉框 -->
+	<link href="../../css/plugins/chosen/chosen.css" rel="stylesheet">
+	
+	<link href="../../css/animate.css" rel="stylesheet">
+	<link href="../../css/style.css" rel="stylesheet">
+    <link href="../../css/loading.css" rel="stylesheet">
+	<style type="text/css">
+		.head-img{
+			width: 100px;
+		}
+		.no-padding{
+			padding: 0px;
+		}
+		.chosen-container-single .chosen-single{
+			border: 1px solid #e5e6e7;
+		}
+		.custom-chosen-drop{
+			width:490px !important;
+			margin-left: 15px;
+		}
+			
+		.display-none{
+			display: none !important;
+		}
+	</style>
+</head>
+<body>
+    <div class="wrapper animated fadeInRight">
+    	<div class="row">
+            <div class="col-sm-12 no-padding">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="my-form">
+                            <div class="form-group" id="head-img-div">
+								<div style="text-align: center; width: 100%;">
+									<img alt="image" src="../../img/default-head.jpg" class="img-circle head-img" style="display: inline-block;" onerror="this.src='../../img/default-head.jpg';this.onerror=null;"/>
+									<input name="userHead_file" type="file" class="form-control display-none" aria-required="true">
+								</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">账号：</label>
+                                <div class="col-sm-8">
+									<span id="userNumber" class="form-control user-info-border"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">昵称：</label>
+                                <div class="col-sm-8">
+                                    <input id="userName" name="userName" class="form-control" type="text" aria-required="true">
+                                    <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 最多15个文字</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">密码：</label>
+                                <div class="col-sm-8">
+                                    <input id="userPwd" autocomplete="off" name="userPwd" class="form-control password-disc" type="text" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">确认密码：</label>
+                                <div class="col-sm-8">
+                                    <input id="password1" autocomplete="off" name="password1" class="form-control password-disc" type="text" aria-required="true">
+                                    <span class="help-block m-b-none pwd-check-msg"><i class="fa fa-exclamation"></i> 请确认您的密码</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">QQ：</label>
+                                <div class="col-sm-8">
+                                    <input id="userQq" name="userQq" class="form-control" type="text" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Email：</label>
+                                <div class="col-sm-8">
+                                    <input id="userEmail" name="userEmail" class="form-control" type="email" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-primary insert-btn" type="button">提交</button>
+                                    <button class="btn btn-primary update-btn" type="button">提交</button>
+                                </div>
+                            </div>
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+		</div>
+	</div>
+</body>
+<!-- 全局js -->
+<script src="../../js/jquery.min.js"></script>
+<script src="../../js/jquery.cookie.js"></script>
+<script src="../../js/bootstrap.min.js"></script>
+<script src="../../js/contabs.js"></script>
+<!--提示框-->
+<script src="../../js/plugins/layer/layer.js"></script>
+<script src="../../js/plugins/toastr/toastr.min.js"></script>
+<script src="../../js/plugins/smallPop/spop.min.js"></script>
+<!-- 多选下拉框 -->
+<script src="../../js/plugins/chosen/chosen.jquery.js"></script>
+
+<script src="../../js/DB/dexie.js"></script>
+<script src="../../js/DB/IDB.js"></script>
+<script src="../../js/common/Util.js"></script>
+<script src="../../js/common/Field.js"></script>
+<script src="../../js/common/QequestPath.js"></script>
+<script src="../../js/common/Code.js"></script>
+<script src="../../js/common/CookieUtils.js"></script>
+<script src="../../js/common/Common.js"></script>
+<script type="text/javascript">
+
+	$(function(){
+		
+	});
+	
+</script>
+</html>

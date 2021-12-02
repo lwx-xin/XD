@@ -15,10 +15,21 @@ public enum Message{
     LOGIN_SUCCESS("","登录成功"),
     /** 登录失败 */
     LOGIN_ERROR("","登录失败"),
+
+    /** 登出成功 */
+    LOGOUT_SUCCESS("","登出成功"),
+    /** 登出失败 */
+    LOGOUT_ERROR("","登出失败"),
+
     /** 未知的账号 */
     ACCOUNT_UNKNOWN("","未知的账号"),
+    /** 账号已被锁定 */
+    ACCOUNT_IS_LOCK("","账号已被锁定"),
     /** 密码错误 */
     PASSWORD_ERROR("","密码错误"),
+
+    /** 令牌异常 */
+    TOKEN_ERROR("","令牌异常"),
 
     /** 用户查询失败 */
     USER_QUERY_ERROR("", "用户查询失败"),

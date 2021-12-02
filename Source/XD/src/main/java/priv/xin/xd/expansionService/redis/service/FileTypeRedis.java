@@ -10,6 +10,8 @@ import javax.annotation.Resource;
 import java.util.List;
 
 /**
+ * 缓存文件类型-FileType
+ *
  * @author ：lu
  * @date ：2021/10/4 15:48
  */
@@ -36,7 +38,7 @@ public class FileTypeRedis {
         HashOperations hashOperations = redisTemplate.opsForHash();
         Object o = hashOperations.get(FILE_TYPE_TABLE, fileSuffix);
         if (o != null) {
-            FileType fileType = JsonUtil.toEntity(o.toString(),FileType.class);
+            FileType fileType = JsonUtil.toEntity(o.toString(), FileType.class);
             return fileType.getFileType();
         }
         return "";

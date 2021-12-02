@@ -126,38 +126,26 @@ function openWin(url){
 }
 
 /**
- * 页面跳转
- * @param {String} url 页面地址
- */
-function openFrame(url){
-	var version_suffix = "v="+new Date().getTime();
-	if(url.split("?").length > 1){
-		url = url + "&" + version_suffix;
-	} else {
-		url = url + "?" + version_suffix;
-	}
-	var a = document.createElement("a");
-	a.href= url;
-	var body = document.getElementsByTagName("body")[0];
-	body.append(a);
-	a.click();
-	a.remove();
-}
-
-/**
  * 登出
  */
 function logout(){
-	openFrame(RequestPath.logout.url);
+	//openWin(RequestPath.logout.url);
+	ajax({
+		url: RequestPath.logout.url,
+		type: RequestPath.logout.type,
+		success: function(data){
+			removeToken();
+			openWin("../login.html");
+		}
+	}, null, true);
 }
 
 /**
  * 登录
  * @param {String} userNumber 账号
  * @param {String} userPassword 密码
- * @param {String} url 登录成功后跳转的地址
  */
-function login(userNumber, userPassword, url){
+function login(userNumber, userPassword){
 	if(isNull(userNumber)){
 		showMessage("提示", "请输入账号", "error");
 	} else if(isNull(userPassword)){
@@ -168,7 +156,9 @@ function login(userNumber, userPassword, url){
 			data: {"userNumber": userNumber,"userPwd": userPassword},
 			type: RequestPath.login.type,
 			success: function(data){
-				openWin(url);
+				// 存储 JWT Token
+				saveToken(data.datas.jwtToken);
+				openWin("system/home.html");
 			}
 		}, null, true);
 	}
@@ -190,6 +180,12 @@ function ajax(dataParam, header, isRedirect){
 	if(header == null){
 		headersMap = new Object();
 	}
+	// 设置令牌
+	var token = getToken();
+	if(isNotNull(token)){
+		headersMap["jwtToken"] = token;
+	}
+	// 设置ajax标识
 	headersMap["req-flag"] = "ajax";
 	
 	var param = {
@@ -262,6 +258,16 @@ function ajax(dataParam, header, isRedirect){
 				var errMsgTitle_response = decodeStr(request.getResponseHeader(Field.SYSTEM_ERROR_MESSAGE_TITLE));
 				var errMsgType_response = decodeStr(request.getResponseHeader(Field.SYSTEM_ERROR_MESSAGE_TYPE));
 				
+				var errorParamNames = decodeStr(request.getResponseHeader(Field.SYSTEM_ERROR_PARAM));
+				if(isNotNull(errorParamNames)){
+					$.each(JSON.parse(errorParamNames), function(i, errorParamName){
+						var element = $("#"+errorParamName).length==0 ? $("[name='errorParamName']"):$("#"+errorParamName);
+						if($(element).length!=0){
+							$(element).parents(".form-group").addClass("has-error");
+						}
+					});
+				}
+				
 				var msgObject = new Object();
 				msgObject["title"] = errMsgTitle_response;
 				msgObject["messages"] = errMessages_response;
@@ -271,19 +277,9 @@ function ajax(dataParam, header, isRedirect){
 				
 				if(isNotNull(errRedirect_response)){
 					ajaxShowMessage("saveToCookie", msgObject);
-					openFrame(errRedirect_response);
+					openWin(errRedirect_response);
 				} else {
 					ajaxShowMessage("showMessage", msgObject);
-				}
-				
-				var errorParamNames = decodeStr(request.getResponseHeader(Field.SYSTEM_ERROR_PARAM));
-				if(isNotNull(errorParamNames)){
-					$.each(JSON.parse(errorParamNames), function(i, errorParamName){
-						var element = $("#"+errorParamName).length==0 ? $("[name='errorParamName']"):$("#"+errorParamName);
-						if($(element).length!=0){
-							$(element).parents(".form-group").addClass("has-error");
-						}
-					});
 				}
 			}
 			removeLoading();
@@ -328,6 +324,80 @@ function ajax(dataParam, header, isRedirect){
 		});
 	}
 	$.ajax(param);
+}
+
+/**
+ * 设置Token
+ * @param {String} token
+ */
+function saveToken(token){
+	// setLocalStorage("jwtToken",token);
+	$.cookie("jwtToken", token, { expires: 1, path: '/' });
+}
+
+/**
+ * 删除Token
+ */
+function removeToken(){
+	// removeLocalStroage("jwtToken");
+	$.cookie("jwtToken", "", { expires: 0, path: '/' });
+}
+
+/**
+ * 获取Token
+ */
+function getToken(){
+	// return getLocalStroage("jwtToken");
+	return $.cookie("jwtToken");
+}
+
+/**
+ * 判断浏览器是否支持html5本地存储
+ * @return {Boolean}
+ */
+function localStorageSupport() {
+    return (('localStorage' in window) && window['localStorage'] !== null)
+}
+
+/**
+ * 设置本地缓存
+ * @param {String} key
+ * @param {String} value
+ */
+function setLocalStorage(key,value){
+	if(localStorageSupport()){
+		localStorage.setItem(key, value);
+	}
+}
+
+/**
+ * 获取本地缓存
+ * @param {String} key
+ */
+function getLocalStroage(key){
+	if(localStorageSupport()){
+		return localStorage.getItem(key);
+	}
+	return "";
+}
+
+/**
+ * 移除本地缓存
+ * @param {String} key
+ */
+function removeLocalStroage(key){
+	if(localStorageSupport()){
+		localStorage.removeItem(key);
+	}
+}
+
+/**
+ * 清除全部本地缓存
+ */
+function clearAllLocalStroage(){
+	if(localStorageSupport()){
+		localStorage.clear();
+	}
 }
 
 /**

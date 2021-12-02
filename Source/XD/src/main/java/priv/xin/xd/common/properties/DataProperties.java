@@ -133,4 +133,5 @@ public class DataProperties {
     public void setAdminAuthName(String adminAuthName) {
         this.adminAuthName = adminAuthName;
     }
+
 }
